@@ -33,7 +33,7 @@ class Blacklist(commands.Cog):
         DBService.exec(
             "INSERT INTO Grey (Guild, Term) VALUES (" + str(ctx.guild.id) + ",'" + str(args) + "')")
         GG.GREYS.append(int(ctx.guild.id))
-        await ctx.send(f"{args} was added to the term blacklist.")
+        await ctx.send(f"{args} was added to the term greylist.")
 
     @commands.command()
     @commands.guild_only()
@@ -51,7 +51,7 @@ class Blacklist(commands.Cog):
         DBService.exec(
             "DELETE FROM Grey WHERE Guild = " + str(ctx.guild.id) + " AND Term = '" + str(args) + "'")
         GG.GREYS.remove(int(ctx.guild.id))
-        await ctx.send(f"{args} was delete from the term blacklist.")
+        await ctx.send(f"{args} was delete from the term greylist.")
 
     @commands.command(hidden=True)
     @commands.guild_only()
@@ -91,7 +91,6 @@ class Blacklist(commands.Cog):
                         if previousBool and nextBool:
                             await self.bot.get_channel(603627784849326120).send(
                                 f"{message.author.display_name} ({message.author.mention}) used a greylisted term in {message.channel.mention}.\nThe message: ```{message.content}```")
-                            await message.delete()
                             break
             if message.guild.id in GG.TERMS:
                 TERMS = DBService.exec("SELECT Term FROM TERMS WHERE Guild = " + str(
