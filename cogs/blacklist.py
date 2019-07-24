@@ -26,7 +26,7 @@ class Blacklist(commands.Cog):
         GG.TERMS.append(int(ctx.guild.id))
         await ctx.send(f"{args} was added to the term blacklist.")
 
-    @commands.command()
+    @commands.command(aliases=['greylist','graylist'])
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def greyblacklist(self, ctx, *, args):
