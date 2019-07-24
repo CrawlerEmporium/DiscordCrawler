@@ -1,5 +1,6 @@
 import typing
 import discord
+from discord import Permissions
 from discord.ext import commands
 from utils import logger
 from utils import globals as GG
@@ -16,6 +17,8 @@ class Blacklist(commands.Cog):
         self.bot = bot
 
     @commands.command()
+    @commands.guild_only()
+    @commands.has_permissions(administrator=True)
     async def blacklist(self, ctx, *, args):
         DBService.exec(
             "INSERT INTO Terms (Guild, Term) VALUES (" + str(ctx.guild.id) + ",'" + str(args) + "')")
@@ -23,6 +26,8 @@ class Blacklist(commands.Cog):
         await ctx.send(f"{args} was added to the term blacklist.")
 
     @commands.command()
+    @commands.guild_only()
+    @commands.has_permissions(administrator=True)
     async def whitelist(self, ctx, *, args):
         DBService.exec(
             "DELETE FROM Terms WHERE Guild = " + str(ctx.guild.id) + " AND Term = '" + str(args) + "')")
