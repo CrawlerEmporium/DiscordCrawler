@@ -88,7 +88,7 @@ class Blacklist(commands.Cog):
                             else:
                                 DM = await message.author.create_dm()
                             try:
-                                await DM.send(f"Hey, your post was [redacted], because you used a blacklisted term: ``{x}``, watch your language. If you think this is an error and/or the term should be whitelisted, please contact a member of staff.")
+                                await DM.send(f"Hey, your post was [redacted], because you used a blacklisted term: ``{x}``, watch your language. If you think this is an error and/or the term should be whitelisted, please contact a member of staff.\nYour message for the sake of completion: ```{message.content}```")
                             except discord.Forbidden:
                                 await self.bot.get_channel(message.channel.id).send(f"I also tried DMing the person this, but he either has me blocked, or doesn't allow DM's")
                             await message.delete()
