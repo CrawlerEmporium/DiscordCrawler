@@ -69,9 +69,8 @@ class Blacklist(commands.Cog):
                                 previousBool = True
 
                         if previousBool and nextBool:
-                            # await self.bot.get_channel(603581880599576576).send(
-                            await self.bot.get_channel(message.channel.id).send(
-                                f"{message.author.name} ({message.author.mention}) used a blacklisted term in {message.channel.mention}.\nThe message: ```{message.content}```")
+                            await self.bot.get_channel(603581880599576576).send(
+                                f"{message.author.display_name} ({message.author.mention}) used a blacklisted term in {message.channel.mention}.\nThe message: ```{message.content}```")
                             if message.author.dm_channel is not None:
                                 DM = message.author.dm_channel
                             else:
