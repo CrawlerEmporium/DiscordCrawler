@@ -86,30 +86,7 @@ class Blacklist(commands.Cog):
                 GREYS = [''.join(i) for i in GREYS]
                 for x in GREYS:
                     if message.content.find(x) != -1:
-                        start = message.content.find(x)
-
-                        if start != 0:
-                            previousChar = start - 1
-                            previousChar = message.content[previousChar]
-                        else:
-                            previousChar = None
-
-                        nextChar = start + int(len(x))
-                        if nextChar != None:
-                            try:
-                                nextChar = message.content[nextChar]
-                            except IndexError:
-                                nextChar = None
-                        else:
-                            nextChar = None
-
-                        nextBool = False
-                        previousBool = False
-                        for y in CHECKS:
-                            if y == nextChar:
-                                nextBool = True
-                            if y == previousChar:
-                                previousBool = True
+                        nextBool, previousBool = await self.checkMessage(message, x)
 
                         if previousBool and nextBool:
                             await self.bot.get_channel(603627784849326120).send(
@@ -122,30 +99,7 @@ class Blacklist(commands.Cog):
                 TERMS = [''.join(i) for i in TERMS]
                 for x in TERMS:
                     if message.content.find(x) != -1:
-                        start = message.content.find(x)
-
-                        if start != 0:
-                            previousChar = start - 1
-                            previousChar = message.content[previousChar]
-                        else:
-                            previousChar = None
-
-                        nextChar = start + int(len(x))
-                        if nextChar != None:
-                            try:
-                                nextChar = message.content[nextChar]
-                            except IndexError:
-                                nextChar = None
-                        else:
-                            nextChar = None
-
-                        nextBool = False
-                        previousBool = False
-                        for y in CHECKS:
-                            if y == nextChar:
-                                nextBool = True
-                            if y == previousChar:
-                                previousBool = True
+                        nextBool, previousBool = await self.checkMessage(message, x)
 
                         if previousBool and nextBool:
                             await self.bot.get_channel(603627784849326120).send(
@@ -162,6 +116,30 @@ class Blacklist(commands.Cog):
                                     f"I also tried DMing the person this, but he either has me blocked, or doesn't allow DM's")
                             await message.delete()
                             break
+
+    async def checkMessage(self, message, x):
+        start = message.content.find(x)
+        if start != 0:
+            previousChar = start - 1
+            previousChar = message.content[previousChar]
+        else:
+            previousChar = None
+        nextChar = start + int(len(x))
+        if nextChar != None:
+            try:
+                nextChar = message.content[nextChar]
+            except IndexError:
+                nextChar = None
+        else:
+            nextChar = None
+        nextBool = False
+        previousBool = False
+        for y in CHECKS:
+            if y == nextChar:
+                nextBool = True
+            if y == previousChar:
+                previousBool = True
+        return nextBool, previousBool
 
 
 def setup(bot):
