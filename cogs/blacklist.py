@@ -36,7 +36,7 @@ class Blacklist(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if message.author.id != 602774912595263490:
+        if message.author.id != 602774912595263490 or message.author.id != 109133673172828160:
             if message.guild.id in GG.TERMS:
                 TERMS = DBService.exec("SELECT Term FROM TERMS WHERE Guild = " + str(
                         message.guild.id) + "").fetchall()

@@ -12,7 +12,7 @@ c = conn.cursor()
 c.execute(
     "CREATE TABLE IF NOT EXISTS Prefixes (Guild INTEGER unique, Prefix TEXT)")
 c.execute(
-    "CREATE TABLE IF NOT EXISTS Terms (Guild INTEGER unique, Term TEXT)")
+    "CREATE TABLE IF NOT EXISTS Terms (Guild INTEGER, Term TEXT, PRIMARY KEY (Guild, Term))")
 
 
 # noinspection PyMethodParameters
