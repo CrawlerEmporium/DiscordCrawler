@@ -34,6 +34,18 @@ class Blacklist(commands.Cog):
         GG.TERMS.remove(int(ctx.guild.id))
         await ctx.send(f"{args} was delete from the term blacklist.")
 
+    @commands.command()
+    @commands.guild_only()
+    async def blacklistlist(self, ctx):
+        TERMS = DBService.exec("SELECT Term FROM TERMS WHERE Guild = " + str(ctx.guild.id) + "").fetchall()
+        TERMS = [''.join(i) for i in TERMS]
+        em = discord.Embed()
+        string = ""
+        for x in TERMS:
+            string += f"{x}\n"
+        em.add_field(name="Blacklisted words", value=string)
+        ctx.send(embed=em)
+
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.author.id != 602774912595263490 and message.author.id != 109133673172828160:
