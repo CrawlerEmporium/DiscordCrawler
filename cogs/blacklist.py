@@ -30,7 +30,7 @@ class Blacklist(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def whitelist(self, ctx, *, args):
         DBService.exec(
-            "DELETE FROM Terms WHERE Guild = " + str(ctx.guild.id) + " AND Term = '" + str(args) + "')")
+            "DELETE FROM Terms WHERE Guild = " + str(ctx.guild.id) + " AND Term = '" + str(args) + "'")
         GG.TERMS.remove(int(ctx.guild.id))
         await ctx.send(f"{args} was delete from the term blacklist.")
 
