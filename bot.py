@@ -61,13 +61,13 @@ class Crawler(commands.AutoShardedBot):
 
 bot = Crawler(prefix=get_prefix, case_insensitive=True, status=discord.Status.idle,
               description="A bot.", shard_count=SHARD_COUNT, testing=TESTING,
-              activity=discord.Game(f"#help | {version}"),
+              activity=discord.Game(f"$help | {version}"),
               help_command=commands.DefaultHelpCommand(command_attrs={"name": "help"}))
 
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(activity=discord.Game(f"with {len(bot.guilds)} servers | #help | {version}"), afk=True)
+    await bot.change_presence(activity=discord.Game(f"with {len(bot.guilds)} servers | $help | {version}"), afk=True)
     print(f"Logged in as {bot.user.name} ({bot.user.id})")
 
 
@@ -97,7 +97,7 @@ async def on_guild_join(guild):
         await asyncio.sleep(members / 200)
         await guild.leave()
     else:
-        await bot.change_presence(activity=discord.Game(f"with {len(bot.guilds)} servers | #help | {version}"),
+        await bot.change_presence(activity=discord.Game(f"with {len(bot.guilds)} servers | $help | {version}"),
                                   afk=True)
 
 

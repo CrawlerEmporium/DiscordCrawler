@@ -6,13 +6,16 @@ from utils import logger
 
 log = logger.logger
 
-conn = sqlite3.connect('PokemonCrawler.db')
+conn = sqlite3.connect('DiscordCrawler.db')
 c = conn.cursor()
 
 c.execute(
     "CREATE TABLE IF NOT EXISTS Prefixes (Guild INTEGER unique, Prefix TEXT)")
+c.execute(
+    "CREATE TABLE IF NOT EXISTS Terms (Guild INTEGER unique, Term TEXT)")
 
 
+# noinspection PyMethodParameters
 class DBService:
 
     def exec(sql):
