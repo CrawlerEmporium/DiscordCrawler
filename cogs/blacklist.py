@@ -34,7 +34,7 @@ class Blacklist(commands.Cog):
         GG.TERMS.remove(int(ctx.guild.id))
         await ctx.send(f"{args} was delete from the term blacklist.")
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.guild_only()
     async def blacklisted(self, ctx):
         TERMS = DBService.exec("SELECT Term FROM TERMS WHERE Guild = " + str(ctx.guild.id) + "").fetchall()
