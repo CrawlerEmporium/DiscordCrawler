@@ -44,7 +44,7 @@ class Blacklist(commands.Cog):
         for x in TERMS:
             string += f"{x}\n"
         em.add_field(name="Blacklisted words", value=string)
-        ctx.send(embed=em)
+        await ctx.send(embed=em)
 
     @commands.Cog.listener()
     async def on_message(self, message):
