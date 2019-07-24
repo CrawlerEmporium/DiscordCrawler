@@ -13,6 +13,8 @@ c.execute(
     "CREATE TABLE IF NOT EXISTS Prefixes (Guild INTEGER unique, Prefix TEXT)")
 c.execute(
     "CREATE TABLE IF NOT EXISTS Terms (Guild INTEGER, Term TEXT, PRIMARY KEY (Guild, Term))")
+c.execute(
+    "CREATE TABLE IF NOT EXISTS Grey (Guild INTEGER, Term TEXT, PRIMARY KEY (Guild, Term))")
 
 
 # noinspection PyMethodParameters

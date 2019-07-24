@@ -34,6 +34,8 @@ PREFIXES = loadChannels(PREFIXESDB)
 
 TERMDB = DBService.exec("SELECT Guild FROM Terms").fetchall()
 TERMS = [int(i[0]) for i in TERMDB]
+GREYDB = DBService.exec("SELECT Guild FROM Grey").fetchall()
+GREYS = [int(i[0]) for i in GREYDB]
 
 def is_owner():
     async def predicate(ctx):
