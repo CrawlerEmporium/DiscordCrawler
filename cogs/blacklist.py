@@ -17,7 +17,7 @@ class Blacklist(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(aliases=['bl'])
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def blacklist(self, ctx, *, args):
@@ -26,7 +26,7 @@ class Blacklist(commands.Cog):
         GG.TERMS.append(int(ctx.guild.id))
         await ctx.send(f"{args} was added to the term blacklist.")
 
-    @commands.command(aliases=['greylist','graylist'])
+    @commands.command(aliases=['greylist','graylist','grayblacklist','gbl','gl'])
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def greyblacklist(self, ctx, *, args):
@@ -35,7 +35,7 @@ class Blacklist(commands.Cog):
         GG.GREYS.append(int(ctx.guild.id))
         await ctx.send(f"{args} was added to the term greylist.")
 
-    @commands.command()
+    @commands.command(aliases=['wl'])
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def whitelist(self, ctx, *, args):
@@ -44,7 +44,7 @@ class Blacklist(commands.Cog):
         GG.TERMS.remove(int(ctx.guild.id))
         await ctx.send(f"{args} was delete from the term blacklist.")
 
-    @commands.command()
+    @commands.command(aliases=['graywhitelist','gwl'])
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def greywhitelist(self, ctx, *, args):
@@ -53,29 +53,46 @@ class Blacklist(commands.Cog):
         GG.GREYS.remove(int(ctx.guild.id))
         await ctx.send(f"{args} was delete from the term greylist.")
 
-    @commands.command(hidden=True)
+    @commands.command()
     @commands.guild_only()
     async def blacklisted(self, ctx):
         TERMS = DBService.exec("SELECT Term FROM TERMS WHERE Guild = " + str(ctx.guild.id) + "").fetchall()
         TERMS = [''.join(i) for i in TERMS]
-        em = discord.Embed()
-        string = ""
-        for x in TERMS:
-            string += f"{x}\n"
-        em.add_field(name="Blacklisted words", value=string)
-        await ctx.send(embed=em)
+        if ctx.author.dm_channel is not None:
+            DM = ctx.author.dm_channel
+        else:
+            DM = await ctx.author.create_dm()
+        try:
+            em = discord.Embed()
+            string = ""
+            for x in TERMS:
+                string += f"{x}\n"
+            em.add_field(name="Blacklisted words", value=string)
+            await DM.send(embed=em)
+        except discord.Forbidden:
+            await ctx.send(f"I tried DMing you, but you either blocked me, or don't allow DM's")
+        await ctx.message.delete()
 
-    @commands.command(hidden=True)
+
+    @commands.command(aliases=['graylisted'])
     @commands.guild_only()
     async def greylisted(self, ctx):
         TERMS = DBService.exec("SELECT Term FROM Grey WHERE Guild = " + str(ctx.guild.id) + "").fetchall()
         TERMS = [''.join(i) for i in TERMS]
-        em = discord.Embed()
-        string = ""
-        for x in TERMS:
-            string += f"{x}\n"
-        em.add_field(name="Greylisted words", value=string)
-        await ctx.send(embed=em)
+        if ctx.author.dm_channel is not None:
+            DM = ctx.author.dm_channel
+        else:
+            DM = await ctx.author.create_dm()
+        try:
+            em = discord.Embed()
+            string = ""
+            for x in TERMS:
+                string += f"{x}\n"
+            em.add_field(name="Greylisted words", value=string)
+            await DM.send(embed=em)
+        except discord.Forbidden:
+            await ctx.send(f"I tried DMing you, but you either blocked me, or don't allow DM's")
+        await ctx.message.delete()
 
     @commands.Cog.listener()
     async def on_message(self, message):
