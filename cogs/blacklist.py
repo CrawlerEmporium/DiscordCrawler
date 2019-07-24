@@ -9,7 +9,7 @@ from DBService import DBService
 log = logger.logger
 
 TERMS = []
-CHECKS = [' ', ',', '.', '!', '?', None, '"', '\'', '(', ')', '{', '}', '[', ']', '_', '-', ':', '|']
+CHECKS = [' ', ',', '.', '!', '?', None, '"', '\'', '(', ')', '{', '}', '[', ']', '_', '-', ':', '|', '*']
 
 
 class Blacklist(commands.Cog):
