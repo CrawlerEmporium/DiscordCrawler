@@ -36,7 +36,7 @@ class Blacklist(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    async def blacklistlist(self, ctx):
+    async def blacklisted(self, ctx):
         TERMS = DBService.exec("SELECT Term FROM TERMS WHERE Guild = " + str(ctx.guild.id) + "").fetchall()
         TERMS = [''.join(i) for i in TERMS]
         em = discord.Embed()
