@@ -139,7 +139,7 @@ class Release(commands.Cog):
             elif release.state == State.SUBTITLE:
                 reply = await ctx.bot.wait_for('message', timeout=60.0, check=check)
                 release.state = State.SOURCE
-                await message.edit(content=f"Enter the source link to the Title.")
+                await message.edit(content=f"Enter the source link to the Title. (This has a 5 second timer to grab an image. If the image doesn't work, you can add it through the ``update`` command')")
                 release.subtitle = reply.content
                 await reply.delete(delay=5)
                 await self.waitReleaseMessage(ctx, message, release)
