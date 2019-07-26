@@ -12,7 +12,7 @@ log = logger.logger
 CHECKS = [' ', ',', '.', '!', '?', None, '"', '\'', '(', ')', '{', '}', '[', ']', '_', '-', ':', '|', '*']
 
 
-def fillLists(BLACKLIST, GUILDS, GREYLIST, GREYGUILDS):
+def fillBlackList(BLACKLIST, GUILDS):
     BLACKLIST = "["
     TERMDB = DBService.exec("SELECT Guild, Term FROM Terms").fetchall()
     guildList = []
@@ -35,7 +35,9 @@ def fillLists(BLACKLIST, GUILDS, GREYLIST, GREYGUILDS):
     BLACKLIST = json.loads(BLACKLIST)
     for x in BLACKLIST:
         GUILDS.append(x['guild'])
+    return BLACKLIST, GUILDS
 
+def fillGreyList(GREYLIST, GREYGUILDS):
     GREYLIST = "["
     TERMDB = DBService.exec("SELECT Guild, Term FROM Grey").fetchall()
     guildList = []
@@ -58,7 +60,7 @@ def fillLists(BLACKLIST, GUILDS, GREYLIST, GREYGUILDS):
     GREYLIST = json.loads(GREYLIST)
     for x in GREYLIST:
         GREYGUILDS.append(x['guild'])
-    return BLACKLIST, GUILDS, GREYLIST, GREYGUILDS
+    return GREYLIST, GREYGUILDS
 
 
 class Blacklist(commands.Cog):
@@ -68,8 +70,8 @@ class Blacklist(commands.Cog):
         self.GREYLIST = ""
         self.GUILDS = []
         self.GREYGUILDS = []
-        self.BLACKLIST, self.GUILDS, self.GREYLIST, self.GREYGUILDS = fillLists(self.BLACKLIST, self.GUILDS,
-                                                                                self.GREYLIST, self.GREYGUILDS)
+        self.BLACKLIST, self.GUILDS = fillBlackList(self.BLACKLIST, self.GUILDS)
+        self.GREYLIST, self.GREYGUILDS = fillGreyList(self.GREYLIST, self.GREYGUILDS)
 
     @commands.command()
     @commands.guild_only()
@@ -127,7 +129,7 @@ class Blacklist(commands.Cog):
     async def blacklist(self, ctx, *, args):
         DBService.exec(
             "INSERT INTO Terms (Guild, Term) VALUES (" + str(ctx.guild.id) + ",'" + str(args) + "')")
-        GG.TERMS.append(int(ctx.guild.id))
+        self.BLACKLIST, self.GUILDS = fillBlackList(self.BLACKLIST, self.GUILDS)
         await ctx.send(f"{args} was added to the term blacklist.")
 
     @commands.command(aliases=['greylist', 'graylist', 'grayblacklist', 'gbl', 'gl'])
@@ -136,7 +138,7 @@ class Blacklist(commands.Cog):
     async def greyblacklist(self, ctx, *, args):
         DBService.exec(
             "INSERT INTO Grey (Guild, Term) VALUES (" + str(ctx.guild.id) + ",'" + str(args) + "')")
-        GG.GREYS.append(int(ctx.guild.id))
+        self.BLACKLIST, self.GUILDS = fillBlackList(self.BLACKLIST, self.GUILDS)
         await ctx.send(f"{args} was added to the term greylist.")
 
     @commands.command(aliases=['wl'])
@@ -145,7 +147,7 @@ class Blacklist(commands.Cog):
     async def whitelist(self, ctx, *, args):
         DBService.exec(
             "DELETE FROM Terms WHERE Guild = " + str(ctx.guild.id) + " AND Term = '" + str(args) + "'")
-        GG.TERMS.remove(int(ctx.guild.id))
+        self.BLACKLIST, self.GUILDS = fillBlackList(self.BLACKLIST, self.GUILDS)
         await ctx.send(f"{args} was delete from the term blacklist.")
 
     @commands.command(aliases=['graywhitelist', 'gwl'])
@@ -154,7 +156,7 @@ class Blacklist(commands.Cog):
     async def greywhitelist(self, ctx, *, args):
         DBService.exec(
             "DELETE FROM Grey WHERE Guild = " + str(ctx.guild.id) + " AND Term = '" + str(args) + "'")
-        GG.GREYS.remove(int(ctx.guild.id))
+        self.GREYLIST, self.GREYGUILDS = fillGreyList(self.GREYLIST, self.GREYGUILDS)
         await ctx.send(f"{args} was delete from the term greylist.")
 
     @commands.command()
