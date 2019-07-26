@@ -9,20 +9,22 @@ from DBService import DBService
 
 log = logger.logger
 
-TERMS = ""
-GREYS = []
 CHECKS = [' ', ',', '.', '!', '?', None, '"', '\'', '(', ')', '{', '}', '[', ']', '_', '-', ':', '|', '*']
 
 
 class Blacklist(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.BLACKLIST = ""
+        self.GREYLIST = ""
+        self.GUILDS = []
+        self.GREYGUILDS = []
 
     @commands.command()
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
-    async def test(self, ctx, *, args):
-        TERMS = "["
+    async def refillLists(self, ctx):
+        self.BLACKLIST = "["
         TERMDB = DBService.exec("SELECT Guild, Term FROM Terms").fetchall()
         guildList = []
         for x in TERMDB:
@@ -38,10 +40,35 @@ class Blacklist(commands.Cog):
                 termList += f'"{x}",'
             termList = termList[:-1]
             guildTerms = '{"guild":' + str(y) + ',"terms":[' + termList + ']},'
-            TERMS += guildTerms
-        TERMS = TERMS[:-1]
-        TERMS += "]"
-        print(TERMS)
+            self.BLACKLIST += guildTerms
+        self.BLACKLIST = self.BLACKLIST[:-1]
+        self.BLACKLIST += "]"
+        self.BLACKLIST = json.loads(self.BLACKLIST)
+        for x in self.BLACKLIST:
+            self.GUILDS.append(x['guild'])
+
+        self.GREYLIST = "["
+        TERMDB = DBService.exec("SELECT Guild, Term FROM Grey").fetchall()
+        guildList = []
+        for x in TERMDB:
+            if x[0] not in guildList:
+                guildList.append(x[0])
+        for y in guildList:
+            guildTermList = []
+            for x in TERMDB:
+                if y == x[0]:
+                    guildTermList.append(x[1])
+            termList = ""
+            for x in guildTermList:
+                termList += f'"{x}",'
+            termList = termList[:-1]
+            guildTerms = '{"guild":' + str(y) + ',"terms":[' + termList + ']},'
+            self.GREYLIST += guildTerms
+        self.GREYLIST = self.GREYLIST[:-1]
+        self.GREYLIST += "]"
+        self.GREYLIST = json.loads(self.GREYLIST)
+        for x in self.GREYLIST:
+            self.GREYGUILDS.append(x['guild'])
 
     @commands.command(aliases=['bl'])
     @commands.guild_only()
@@ -119,46 +146,42 @@ class Blacklist(commands.Cog):
             await ctx.send(f"I tried DMing you, but you either blocked me, or don't allow DM's")
         await ctx.message.delete()
 
-    # @commands.Cog.listener()
-    # async def on_message(self, message):
-    #     if message.author.id != 602774912595263490 and message.author.id != 109133673172828160:
-    #         if message.guild.id in GG.GREYS:
-    #             GREYS = DBService.exec("SELECT Term FROM Grey WHERE Guild = " + str(
-    #                 message.guild.id) + "").fetchall()
-    #             GREYS = [''.join(i) for i in GREYS]
-    #             for x in GREYS:
-    #                 if message.content.find(x) != -1:
-    #                     nextBool, previousBool = await self.checkMessage(message, x)
-    #
-    #                     if previousBool and nextBool:
-    #                         await self.bot.get_channel(message.channel.id).send(
-    #                         # await self.bot.get_channel(603627784849326120).send(
-    #                             f"{message.author.display_name} ({message.author.mention}) used a greylisted term in {message.channel.mention}.\nThe message: ```{message.content}```")
-    #                         break
-    #         if message.guild.id in GG.TERMS:
-    #             TERMS = DBService.exec("SELECT Term FROM TERMS WHERE Guild = " + str(
-    #                 message.guild.id) + "").fetchall()
-    #             TERMS = [''.join(i) for i in TERMS]
-    #             for x in TERMS:
-    #                 if message.content.find(x) != -1:
-    #                     nextBool, previousBool = await self.checkMessage(message, x)
-    #
-    #                     if previousBool and nextBool:
-    #                         await self.bot.get_channel(message.channel.id).send(
-    #                         # await self.bot.get_channel(603627784849326120).send(
-    #                             f"{message.author.display_name} ({message.author.mention}) used a blacklisted term in {message.channel.mention}.\nThe message: ```{message.content}```")
-    #                         if message.author.dm_channel is not None:
-    #                             DM = message.author.dm_channel
-    #                         else:
-    #                             DM = await message.author.create_dm()
-    #                         try:
-    #                             await DM.send(
-    #                                 f"Hey, your post was [redacted], because you used a blacklisted term: ``{x}``, watch your language. If you think this is an error and/or the term should be whitelisted, please contact a member of staff.\nYour message for the sake of completion: ```{message.content}```")
-    #                         except discord.Forbidden:
-    #                             await self.bot.get_channel(message.channel.id).send(
-    #                                 f"I also tried DMing the person this, but he either has me blocked, or doesn't allow DM's")
-    #                         await message.delete()
-    #                         break
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if message.author.id != 602774912595263490 and message.author.id != 109133673172828160:
+            if message.guild.id in self.GREYGUILDS:
+                for x in self.GREYLIST:
+                    if x['guild'] == message.guild.id:
+                        for y in x['terms']:
+                            if message.content.find(x) != -1:
+                                nextBool, previousBool = await self.checkMessage(message, y)
+
+                                if previousBool and nextBool:
+                                    await self.bot.get_channel(603627784849326120).send(
+                                        f"{message.author.display_name} ({message.author.mention}) used a greylisted term in {message.channel.mention}.\nThe message: ```{message.content}```")
+                                    break
+            if message.guild.id in self.GUILDS:
+                for x in self.BLACKLIST:
+                    if x['guild'] == message.guild.id:
+                        for y in x['terms']:
+                            if message.content.find(y) != -1:
+                                nextBool, previousBool = await self.checkMessage(message, y)
+
+                                if previousBool and nextBool:
+                                    await self.bot.get_channel(603627784849326120).send(
+                                        f"{message.author.display_name} ({message.author.mention}) used a blacklisted term in {message.channel.mention}.\nThe message: ```{message.content}```")
+                                    if message.author.dm_channel is not None:
+                                        DM = message.author.dm_channel
+                                    else:
+                                        DM = await message.author.create_dm()
+                                    try:
+                                        await DM.send(
+                                            f"Hey, your post was [redacted], because you used a blacklisted term: ``{y}``, watch your language. If you think this is an error and/or the term should be whitelisted, please contact a member of staff.\nYour message for the sake of completion: ```{message.content}```")
+                                    except discord.Forbidden:
+                                        await self.bot.get_channel(message.channel.id).send(
+                                            f"I also tried DMing the person this, but he either has me blocked, or doesn't allow DM's")
+                                    await message.delete()
+                                    break
 
     async def checkMessage(self, message, x):
         start = message.content.find(x)
