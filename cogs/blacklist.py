@@ -153,7 +153,7 @@ class Blacklist(commands.Cog):
                 for x in self.GREYLIST:
                     if x['guild'] == message.guild.id:
                         for y in x['terms']:
-                            if message.content.find(x) != -1:
+                            if message.content.find(y) != -1:
                                 nextBool, previousBool = await self.checkMessage(message, y)
 
                                 if previousBool and nextBool:
