@@ -84,6 +84,26 @@ class Owner(commands.Cog):
         if GLOBAL == "PREFIXES":
             await ctx.send(GG.PREFIXES)
 
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def load(self, ctx, extension_name: str):
+        """[OWNER ONLY]"""
+        if ctx.author.id == GG.OWNER:
+            try:
+                ctx.bot.load_extension(GG.COGS + "." + extension_name)
+            except (AttributeError, ImportError) as e:
+                await ctx.send("```py\n{}: {}\n```".format(type(e).__name__, str(e)))
+                return
+            await ctx.send("{} loaded".format(extension_name))
+
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def unload(self, ctx, extension_name: str):
+        """[OWNER ONLY]"""
+        if ctx.author.id == GG.OWNER:
+            ctx.bot.unload_extension(GG.COGS + "." + extension_name)
+            await ctx.send("{} unloaded".format(extension_name))
+
 def setup(bot):
     log.info("Loading Owner Cog...")
     bot.add_cog(Owner(bot))
