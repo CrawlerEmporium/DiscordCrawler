@@ -12,6 +12,55 @@ log = logger.logger
 CHECKS = [' ', ',', '.', '!', '?', None, '"', '\'', '(', ')', '{', '}', '[', ']', '_', '-', ':', '|', '*']
 
 
+def fillLists(BLACKLIST, GUILDS, GREYLIST, GREYGUILDS):
+    BLACKLIST = "["
+    TERMDB = DBService.exec("SELECT Guild, Term FROM Terms").fetchall()
+    guildList = []
+    for x in TERMDB:
+        if x[0] not in guildList:
+            guildList.append(x[0])
+    for y in guildList:
+        guildTermList = []
+        for x in TERMDB:
+            if y == x[0]:
+                guildTermList.append(x[1])
+        termList = ""
+        for x in guildTermList:
+            termList += f'"{x}",'
+        termList = termList[:-1]
+        guildTerms = '{"guild":' + str(y) + ',"terms":[' + termList + ']},'
+        BLACKLIST += guildTerms
+    BLACKLIST = BLACKLIST[:-1]
+    BLACKLIST += "]"
+    BLACKLIST = json.loads(BLACKLIST)
+    for x in BLACKLIST:
+        GUILDS.append(x['guild'])
+
+    GREYLIST = "["
+    TERMDB = DBService.exec("SELECT Guild, Term FROM Grey").fetchall()
+    guildList = []
+    for x in TERMDB:
+        if x[0] not in guildList:
+            guildList.append(x[0])
+    for y in guildList:
+        guildTermList = []
+        for x in TERMDB:
+            if y == x[0]:
+                guildTermList.append(x[1])
+        termList = ""
+        for x in guildTermList:
+            termList += f'"{x}",'
+        termList = termList[:-1]
+        guildTerms = '{"guild":' + str(y) + ',"terms":[' + termList + ']},'
+        GREYLIST += guildTerms
+    GREYLIST = GREYLIST[:-1]
+    GREYLIST += "]"
+    GREYLIST = json.loads(GREYLIST)
+    for x in GREYLIST:
+        GREYGUILDS.append(x['guild'])
+    return BLACKLIST, GUILDS, GREYLIST, GREYGUILDS
+
+
 class Blacklist(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -19,6 +68,8 @@ class Blacklist(commands.Cog):
         self.GREYLIST = ""
         self.GUILDS = []
         self.GREYGUILDS = []
+        self.BLACKLIST, self.GUILDS, self.GREYLIST, self.GREYGUILDS = fillLists(self.BLACKLIST, self.GUILDS,
+                                                                                self.GREYLIST, self.GREYGUILDS)
 
     @commands.command()
     @commands.guild_only()
