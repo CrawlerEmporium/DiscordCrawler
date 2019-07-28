@@ -9,6 +9,7 @@ import discord
 
 from DBService import DBService
 import utils.globals as GG
+from discord import Permissions
 from discord.ext import commands
 from utils import logger
 
@@ -23,6 +24,25 @@ path5e = GG.COGS + '.'
 class Owner(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.command()
+    @GG.is_owner()
+    async def mute(self, ctx, id):
+        member = await ctx.guild.fetch_member(id)
+        guildChannels = member.guild.text_channels
+        overwrite = discord.PermissionOverwrite()
+        overwrite.send_messages = False
+        for x in guildChannels:
+            await x.set_permissions(member, overwrite=overwrite)
+            # print(f"SEND in {x}: {x.permissions_for(member).send_messages}")
+
+    @commands.command()
+    @GG.is_owner()
+    async def unmute(self, ctx, id):
+        member = await ctx.guild.fetch_member(id)
+        guildChannels = member.guild.text_channels
+        for x in guildChannels:
+            await x.set_permissions(member, overwrite=None)
 
     @commands.command(hidden=True)
     @GG.is_owner()
@@ -103,6 +123,7 @@ class Owner(commands.Cog):
         if ctx.author.id == GG.OWNER:
             ctx.bot.unload_extension(GG.COGS + "." + extension_name)
             await ctx.send("{} unloaded".format(extension_name))
+
 
 def setup(bot):
     log.info("Loading Owner Cog...")

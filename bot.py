@@ -24,8 +24,8 @@ log = logger.logger
 
 version = "v1.0"
 SHARD_COUNT = 1
-TESTING = False
-defaultPrefix = GG.PREFIX if not TESTING else '#'
+TESTING = True
+defaultPrefix = GG.PREFIX if not TESTING else '&'
 
 
 def get_prefix(b, message):

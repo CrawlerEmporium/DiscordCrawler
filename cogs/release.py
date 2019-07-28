@@ -74,7 +74,7 @@ class Release(commands.Cog):
                     release.subtitle = x.value
                 if x.name == "Source":
                     release.source = x.value
-                if x.name == "Link":
+                if x.name == "Download Link" or x.name == "Link":
                     release.link = x.value
                 if x.name == "Type":
                     release.type = x.value
@@ -82,7 +82,7 @@ class Release(commands.Cog):
                     release.meta = x.value
                 if x.name == "Author(s)":
                     release.authors = x.value
-                if x.name == "Credits":
+                if x.name == "Donated By" or x.name == "Credits":
                     release.credits = x.value
             if message.embeds[0].image != None:
                 release.image_url = message.embeds[0].image.proxy_url
@@ -139,9 +139,9 @@ class Release(commands.Cog):
             elif release.state == State.SUBTITLE:
                 reply = await ctx.bot.wait_for('message', timeout=60.0, check=check)
                 release.state = State.SOURCE
-                await message.edit(content=f"Enter the source link to the Title. (This has a 5 second timer to grab an image. If the image doesn't work, you can add it through the ``update`` command')")
+                await message.edit(content=f"Enter the source link to the Title.")
                 release.subtitle = reply.content
-                await reply.delete(delay=5)
+                await reply.delete()
                 await self.waitReleaseMessage(ctx, message, release)
 
             elif release.state == State.SOURCE:
@@ -213,13 +213,13 @@ class Release(commands.Cog):
         else:
             em.title = f"{release.title}"
         em.add_field(name=f"Source", value=f"{release.source}", inline=False)
-        em.add_field(name=f"Link", value=f"{release.link}", inline=False)
+        em.add_field(name=f"Download Link", value=f"{release.link}", inline=False)
         em.add_field(name=f"Type", value=f"{release.type}", inline=False)
         if release.meta != "-":
             em.add_field(name=f"Meta Tag(s)", value=f"{release.meta}", inline=False)
         em.add_field(name=f"Author(s)", value=f"{release.authors}", inline=False)
         if release.credits != "-":
-            em.add_field(name=f"Credits", value=f"{release.credits}", inline=False)
+            em.add_field(name=f"Donated By", value=f"{release.credits}", inline=False)
         if release.image_url != "" and release.image_url != "-":
             em.set_image(url=release.image_url)
         await message.edit(content=None, embed=em)
