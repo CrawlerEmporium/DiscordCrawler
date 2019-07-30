@@ -78,7 +78,7 @@ class Release(commands.Cog):
                     release.link = x.value
                 if x.name == "Type":
                     release.type = x.value
-                if x.name == "Meta Tag(s":
+                if x.name == "Meta Tag(s)":
                     release.meta = x.value
                 if x.name == "Author(s)":
                     release.authors = x.value
@@ -195,7 +195,7 @@ class Release(commands.Cog):
                 await reply.delete()
                 await self.waitReleaseMessage(ctx, message, release)
 
-            if release.state == State.DONE:
+            elif release.state == State.DONE:
                 await self.sendReleaseEmbed(message, release)
 
 
@@ -205,6 +205,7 @@ class Release(commands.Cog):
             await msg.delete(delay=15)
 
     async def sendReleaseEmbed(self, message, release):
+        log.info(f"New Release:\n{release}")
         em = discord.Embed()
         em.add_field(name=f"Title", value=f"{release.title}", inline=False)
         if release.subtitle != "-":
@@ -244,6 +245,5 @@ class ReleaseModel:
         self.credits = credits
         self.state = State.NEW
 
-    @classmethod
-    def from_data(cls, raw):
-        return cls(**raw)
+    def __repr__(self):
+        return "Title: %s\nSubtitle: %s\nSource: %s\nLink: %s\nType: %s\nMeta: %s\nAuthors: %s\nCredits: %s\nImage_Url: %s" % (self.title, self.subtitle, self.source, self.link, self.type, self.meta, self.authors, self.credits, self.image_url)
