@@ -36,7 +36,7 @@ TERMDB = DBService.exec("SELECT Guild FROM Terms").fetchall()
 TERMS = [int(i[0]) for i in TERMDB]
 GREYDB = DBService.exec("SELECT Guild FROM Grey").fetchall()
 GREYS = [int(i[0]) for i in GREYDB]
-CLEANER = 496672117384019969
+CLEANER = [496672117384019969,280892074247716864]
 
 def is_owner():
     async def predicate(ctx):
@@ -59,7 +59,7 @@ def is_cleaner():
         if isinstance(ctx.author, discord.Member):
             if ctx.author.roles is not None:
                 for r in ctx.author.roles:
-                    if r.id == CLEANER:
+                    if r.id in CLEANER:
                         return True
                 return False
             return False
