@@ -201,7 +201,6 @@ class Release(commands.Cog):
 
         except asyncio.TimeoutError:
             msg = ctx.send("Release was not completed in time. Please try again.")
-            await message.delete(delay=15)
             await msg.delete(delay=15)
 
     async def sendReleaseEmbed(self, message, release):
