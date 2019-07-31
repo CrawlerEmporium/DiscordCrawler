@@ -28,7 +28,7 @@ class Release(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    @GG.is_owner()
+    @GG.is_cleaner()
     async def update(self, ctx, msg_arg = None, type = "", *, editedContent):
         """Update a prior release. type can be one of the following:
         TITLE
@@ -114,7 +114,7 @@ class Release(commands.Cog):
 
 
     @commands.command()
-    @GG.is_owner()
+    @GG.is_cleaner()
     async def release(self, ctx):
         release = ReleaseModel()
         release.state = State.TITLE
