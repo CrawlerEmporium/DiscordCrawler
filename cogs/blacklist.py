@@ -37,6 +37,7 @@ def fillBlackList(BLACKLIST, GUILDS):
         GUILDS.append(x['guild'])
     return BLACKLIST, GUILDS
 
+
 def fillGreyList(GREYLIST, GREYGUILDS):
     GREYLIST = "["
     TERMDB = DBService.exec("SELECT Guild, Term FROM Grey").fetchall()
@@ -210,8 +211,12 @@ class Blacklist(commands.Cog):
                                 nextBool, previousBool = await self.checkMessage(message, y)
 
                                 if previousBool and nextBool:
-                                    await self.bot.get_channel(603627784849326120).send(
-                                        f"{message.author.display_name} ({message.author.mention}) used a greylisted term in {message.channel.mention}.\nThe message: ```{message.content}```")
+                                    if message.guild.id == 154312731879669770:
+                                        await self.bot.get_channel(603627784849326120).send(
+                                            f"{message.author.display_name} ({message.author.mention}) used a greylisted term in {message.channel.mention}.\nThe message: ```{message.content}```")
+                                    if message.guild.id == 584842413135101990:
+                                        await self.bot.get_channel(604728578801795074).send(
+                                            f"{message.author.display_name} ({message.author.mention}) used a greylisted term in {message.channel.mention}.\nThe message: ```{message.content}```")
                                     break
             if message.guild.id in self.GUILDS:
                 for x in self.BLACKLIST:
@@ -221,8 +226,12 @@ class Blacklist(commands.Cog):
                                 nextBool, previousBool = await self.checkMessage(message, y)
 
                                 if previousBool and nextBool:
-                                    await self.bot.get_channel(603627784849326120).send(
-                                        f"{message.author.display_name} ({message.author.mention}) used a blacklisted term in {message.channel.mention}.\nThe message: ```{message.content}```")
+                                    if message.guild.id == 154312731879669770:
+                                        await self.bot.get_channel(603627784849326120).send(
+                                            f"{message.author.display_name} ({message.author.mention}) used a blacklisted term in {message.channel.mention}.\nThe message: ```{message.content}```")
+                                    if message.guild.id == 584842413135101990:
+                                        await self.bot.get_channel(604728578801795074).send(
+                                            f"{message.author.display_name} ({message.author.mention}) used a blacklisted term in {message.channel.mention}.\nThe message: ```{message.content}```")
                                     if message.author.dm_channel is not None:
                                         DM = message.author.dm_channel
                                     else:
