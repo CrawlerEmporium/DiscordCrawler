@@ -34,8 +34,23 @@ PREFIXES = loadChannels(PREFIXESDB)
 
 TERMDB = DBService.exec("SELECT Guild FROM Terms").fetchall()
 TERMS = [int(i[0]) for i in TERMDB]
+
 GREYDB = DBService.exec("SELECT Guild FROM Grey").fetchall()
 GREYS = [int(i[0]) for i in GREYDB]
+
+def fetchAllReactionRoles():
+    return DBService.exec("Select MessageID, RoleId, Emoji FROM ReactionRoles").fetchall()
+
+REACTIONROLESDB = fetchAllReactionRoles()
+
+def loadReactionRoles(REACTIONROLESDB):
+    reactionRole = {}
+    for i in REACTIONROLESDB:
+        reactionRole[int(i[0])] = i[1], i[2]
+    return reactionRole
+
+REACTIONROLES = loadReactionRoles(REACTIONROLESDB)
+
 CLEANER = [496672117384019969,280892074247716864]
 
 def is_owner():
@@ -117,3 +132,14 @@ class EmbedWithAuthor(discord.Embed):
         super(EmbedWithAuthor, self).__init__(**kwargs)
         self.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
         self.colour = random.randint(0, 0xffffff)
+
+
+def cutListInPieces(input):
+    n = 30
+    output = [input[i:i + n] for i in range(0, len(input), n)]
+    return output
+
+
+def reloadReactionRoles():
+    REACTIONROLESDB = fetchAllReactionRoles()
+    REACTIONROLES = loadReactionRoles(REACTIONROLESDB)

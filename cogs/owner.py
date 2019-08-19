@@ -124,6 +124,11 @@ class Owner(commands.Cog):
             ctx.bot.unload_extension(GG.COGS + "." + extension_name)
             await ctx.send("{} unloaded".format(extension_name))
 
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def checkglobal(self, ctx, GLOBAL: str):
+        if GLOBAL == "REACTION":
+            await ctx.send(GG.REACTIONROLES)
 
 def setup(bot):
     log.info("Loading Owner Cog...")

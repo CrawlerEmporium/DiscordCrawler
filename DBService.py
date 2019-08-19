@@ -15,6 +15,8 @@ c.execute(
     "CREATE TABLE IF NOT EXISTS Terms (Guild INTEGER, Term TEXT, PRIMARY KEY (Guild, Term))")
 c.execute(
     "CREATE TABLE IF NOT EXISTS Grey (Guild INTEGER, Term TEXT, PRIMARY KEY (Guild, Term))")
+c.execute(
+    "CREATE TABLE IF NOT EXISTS ReactionRoles (GuildId INTEGER, MessageId INTEGER, RoleId INTEGER, Emoji TEXT, PRIMARY KEY (MessageId, RoleId, Emoji))")
 
 
 # noinspection PyMethodParameters
