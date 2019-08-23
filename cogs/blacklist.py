@@ -9,7 +9,7 @@ from DBService import DBService
 
 log = logger.logger
 
-CHECKS = [' ', ',', '.', '!', '?', None, '"', '\'', '(', ')', '{', '}', '[', ']', '_', '-', ':', '|', '*']
+CHECKS = [' ', ',', '.', '!', '?', None, '"', '\'', '(', ')', '{', '}', '[', ']', '_', '-', ':', '|', '*', '~']
 
 
 def fillBlackList(BLACKLIST, GUILDS):
