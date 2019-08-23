@@ -24,7 +24,7 @@ log = logger.logger
 
 version = "v1.0"
 SHARD_COUNT = 1
-TESTING = True
+TESTING = False
 defaultPrefix = GG.PREFIX if not TESTING else '*'
 
 
