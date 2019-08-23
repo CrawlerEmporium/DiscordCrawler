@@ -206,8 +206,8 @@ class Blacklist(commands.Cog):
             if message.guild.id in self.GREYGUILDS:
                 for x in self.GREYLIST:
                     if x['guild'] == message.guild.id:
-                        for y in x['terms']:
-                            if message.content.find(y) != -1:
+                        for y in x['terms'].lower():
+                            if message.content.lower().find(y) != -1:
                                 nextBool, previousBool = await self.checkMessage(message, y)
 
                                 if previousBool and nextBool:
@@ -221,8 +221,8 @@ class Blacklist(commands.Cog):
             if message.guild.id in self.GUILDS:
                 for x in self.BLACKLIST:
                     if x['guild'] == message.guild.id:
-                        for y in x['terms']:
-                            if message.content.find(y) != -1:
+                        for y in x['terms'].lower():
+                            if message.content.find(y).lower() != -1:
                                 nextBool, previousBool = await self.checkMessage(message, y)
 
                                 if previousBool and nextBool:
@@ -246,7 +246,7 @@ class Blacklist(commands.Cog):
                                     break
 
     async def checkMessage(self, message, x):
-        start = message.content.find(x)
+        start = message.content.lower().find(x.lower())
         if start != 0:
             previousChar = start - 1
             previousChar = message.content[previousChar]
