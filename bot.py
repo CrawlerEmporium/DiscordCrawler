@@ -62,7 +62,7 @@ class Crawler(commands.AutoShardedBot):
 bot = Crawler(prefix=get_prefix, case_insensitive=True, status=discord.Status.idle,
               description="A bot.", shard_count=SHARD_COUNT, testing=TESTING,
               activity=discord.Game(f"$help | {version}"),
-              help_command=commands.DefaultHelpCommand(command_attrs={"name": "help"}))
+              help_command=commands.DefaultHelpCommand(command_attrs={"name": "oldhelp"}))
 
 
 @bot.event
@@ -74,6 +74,7 @@ async def on_ready():
 @bot.event
 async def on_connect():
     bot.owner = await bot.fetch_user(GG.OWNER)
+    print(f"OWNER: {bot.owner.name}")
 
 
 @bot.event
@@ -96,10 +97,26 @@ async def on_guild_join(guild):
             pass
         await asyncio.sleep(members / 200)
         await guild.leave()
+    elif not guild.me.guild_permission.manage_messages:
+        try:
+            await guild.owner.send(
+                "I'm missing the Manage_Messages permission. I can't do 80% of my commands without this. This is the reason why it's the only mandatory permission.\n\nI will now leave the server. PM the both author if you don't agree with this.")
+        except:
+            pass
+        await guild.leave()
     else:
-        await bot.change_presence(activity=discord.Game(f"with {len(bot.guilds)} servers | $help | {version}"),
+        await bot.change_presence(activity=discord.Game(f"with {len(bot.guilds)} servers | !help | {version}"),
                                   afk=True)
 
+@bot.event
+async def on_command(ctx):
+    try:
+        log.info(
+            "cmd: chan {0.message.channel} ({0.message.channel.id}), serv {0.message.guild} ({0.message.guild.id}), "
+            "auth {0.message.author} ({0.message.author.id}): {0.message.content}".format(
+                ctx))
+    except AttributeError:
+        log.info("Command in PM with {0.message.author} ({0.message.author.id}): {0.message.content}".format(ctx))
 
 @bot.event
 async def on_command_error(ctx, error):
