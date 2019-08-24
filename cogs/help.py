@@ -16,9 +16,6 @@ class Help(commands.Cog):
             message = await ctx.send(embed=embed)
             await message.add_reaction('💬')
             await message.add_reaction('💭')
-            await message.add_reaction('🔎')
-            await message.add_reaction('👪')
-            await message.add_reaction('🎲')
             await message.add_reaction('❓')
             if GG.is_staff_bool(ctx):
                 await message.add_reaction('🔒')
@@ -34,9 +31,6 @@ class Help(commands.Cog):
         def check(reaction, user):
             return (user == ctx.message.author and str(reaction.emoji) == '💬') or \
                    (user == ctx.message.author and str(reaction.emoji) == '💭') or \
-                   (user == ctx.message.author and str(reaction.emoji) == '🔎') or \
-                   (user == ctx.message.author and str(reaction.emoji) == '👪') or \
-                   (user == ctx.message.author and str(reaction.emoji) == '🎲') or \
                    (user == ctx.message.author and str(reaction.emoji) == '❓') or \
                    (user == ctx.message.author and str(reaction.emoji) == '🔒') or \
                    (user == ctx.message.author and str(reaction.emoji) == '📔') or \
@@ -54,12 +48,6 @@ class Help(commands.Cog):
                 embed = self.quoteCommand(ctx)
             if str(reaction.emoji) == '💭':
                 embed = self.personalCommand(ctx)
-            if str(reaction.emoji) == '🔎':
-                embed = self.lookupCommand(ctx)
-            if str(reaction.emoji) == '👪':
-                embed = self.charCommand(ctx)
-            if str(reaction.emoji) == '🎲':
-                embed = self.rollCommand(ctx)
             if str(reaction.emoji) == '❓':
                 embed = self.infoCommand(ctx)
             if str(reaction.emoji) == '🔒':
@@ -94,9 +82,6 @@ class Help(commands.Cog):
         embed.title = "Help command with clickable categories."
         embed.add_field(name='💬', value='Quote')
         embed.add_field(name='💭', value='Personal Quotes')
-        embed.add_field(name='🔎', value='Lookup')
-        embed.add_field(name='👪', value='Character Options')
-        embed.add_field(name='🎲', value='Diceroller')
         embed.add_field(name='❓', value='Information')
         if GG.is_staff_bool(ctx):
             embed.add_field(name='🔒', value='Staff Commands')
@@ -135,40 +120,6 @@ class Help(commands.Cog):
                  'the main menu.\n❌ Deletes this message from chat.')
         return embed
 
-    def rollCommand(self, ctx):
-        embed = GG.EmbedWithAuthor(ctx)
-        embed.title = "An integrated and extended diceroller."
-        embed.add_field(name="iterroll",
-                        value=f"``{self.bot.get_server_prefix(ctx.message)}[iterroll|rrr] <iterations> <rollStr> [dc=0] [args]``\nRolls dice in xdy format, given a set dc.",
-                        inline=False)
-        embed.add_field(name="multiroll",
-                        value=f"``{self.bot.get_server_prefix(ctx.message)}[multiroll|rr] <iterations> <rollStr> [args]``\nRolls dice in xdy format a given number of times.",
-                        inline=False)
-        embed.add_field(name="roll", value=f"``{self.bot.get_server_prefix(ctx.message)}[roll|r] [rollStr=1d20]``\nRolls dice in xdy format.", inline=False)
-        embed.add_field(name="examples",
-                        value=f"__Examples__\n{self.bot.get_server_prefix(ctx.message)}roll xdy Attack!\n{self.bot.get_server_prefix(ctx.message)}roll xdy+z adv Attack with Advantage!\n{self.bot.get_server_prefix(ctx.message)}roll xdy-z dis Hide with Heavy Armor!\n{self.bot.get_server_prefix(ctx.message)}roll xdy+xdy*z\n{self.bot.get_server_prefix(ctx.message)}roll XdYkhZ\n{self.bot.get_server_prefix(ctx.message)}roll 4d6mi2[fire] Elemental Adept, Fire\n{self.bot.get_server_prefix(ctx.message)}roll 2d6e6 Explode on 6\n{self.bot.get_server_prefix(ctx.message)}roll 10d6ra6 Spell Bombardment\n{self.bot.get_server_prefix(ctx.message)}roll 4d6ro<3 Great Weapon Master\n__Supported Operators__\nk (keep)\np (drop)\nro (reroll once)\nrr (reroll infinitely)\nmi/ma (min/max result)\ne (explode dice of value)\nra (reroll and add)\n__Supported Selectors_\nlX (lowest X)\nhX (highest X)\n>X/<X (greater than or less than X)",
-                        inline=False)
-        embed.set_footer(
-            text='These reactions are available for 60 seconds, afterwards it will stop responding.\n📔 Returns to '
-                 'the main menu.\n❌ Deletes this message from chat.')
-        return embed
-
-    def charCommand(self, ctx):
-        embed = GG.EmbedWithAuthor(ctx)
-        embed.title = "Random character generator options."
-        embed.add_field(name="charref",
-                        value=f"``{self.bot.get_server_prefix(ctx.message)}[charref|makechar] <level> [ua]``\nGives you reference stats for a 5e character. Where ua = 'UA' otherwise it won't let you pick UA options.",
-                        inline=False)
-        embed.add_field(name="randchar",
-                        value=f"``{self.bot.get_server_prefix(ctx.message)}randchar [level=0] [ua]``\nMakes a random 5e character. Where ua = 'UA' otherwise it won't let you pick UA options.",
-                        inline=False)
-        embed.add_field(name="randname",
-                        value=f"``{self.bot.get_server_prefix(ctx.message)}[randname|name] [race] [option]``\nGenerates a random name, optionally from a given race.",
-                        inline=False)
-        embed.set_footer(
-            text='These reactions are available for 60 seconds, afterwards it will stop responding.\n📔 Returns to '
-                 'the main menu.\n❌ Deletes this message from chat.')
-        return embed
 
     def personalCommand(self, ctx):
         embed = GG.EmbedWithAuthor(ctx)
@@ -191,46 +142,14 @@ class Help(commands.Cog):
                  'the main menu.\n❌ Deletes this message from chat.')
         return embed
 
-    def lookupCommand(self, ctx):
-        embed = GG.EmbedWithAuthor(ctx)
-        embed.title = "Commands to help look up items, status effects, rules, etc."
-
-        embed.add_field(name="background", value=f"``{self.bot.get_server_prefix(ctx.message)}background <name>``\nLooks up a background.", inline=False)
-        embed.add_field(name="class",
-                        value=f"``{self.bot.get_server_prefix(ctx.message)}class <name> [level]``\nLooks up a class, or all features of a certain level.",
-                        inline=False)
-        embed.add_field(name="classfeat", value=f"``{self.bot.get_server_prefix(ctx.message)}[classfeat|optionalfeat] <name>``\nLooks up a class feature.",
-                        inline=False)
-        embed.add_field(name="condition", value=f"``{self.bot.get_server_prefix(ctx.message)}[condition|status] <name>``\nLooks up a condition.", inline=False)
-        embed.add_field(name="feat", value=f"``{self.bot.get_server_prefix(ctx.message)}feat <name>``\nLooks up a feat.", inline=False)
-        embed.add_field(name="image",
-                        value=f"``{self.bot.get_server_prefix(ctx.message)}image <name>``\nShows an image for a monster. May not support all monsters.",
-                        inline=False)
-        embed.add_field(name="item", value=f"``{self.bot.get_server_prefix(ctx.message)}item <name>``\nLooks up an item.", inline=False)
-        embed.add_field(name="monster", value=f"``{self.bot.get_server_prefix(ctx.message)}[monster|creature] <name>``\nLooks up a monster.", inline=False)
-        embed.add_field(name="race", value=f"``{self.bot.get_server_prefix(ctx.message)}race <name>``\nLooks up a race.", inline=False)
-        embed.add_field(name="racefeat", value=f"``{self.bot.get_server_prefix(ctx.message)}racefeat <name>``\nLooks up a racial feature.", inline=False)
-        embed.add_field(name="rule", value=f"``{self.bot.get_server_prefix(ctx.message)}[rule|variantrules] <name>``\nLooks up a rule.", inline=False)
-        embed.add_field(name="spell", value=f"``{self.bot.get_server_prefix(ctx.message)}spell <name>``\nLooks up a spell.", inline=False)
-        embed.add_field(name="subclass", value=f"``{self.bot.get_server_prefix(ctx.message)}subclass <name>``\nLooks up a subclass.", inline=False)
-        embed.add_field(name="token",
-                        value=f"``{self.bot.get_server_prefix(ctx.message)}token <name>``\nShows a token for a monster. May not support all monsters.",
-                        inline=False)
-        embed.set_footer(
-            text='These reactions are available for 60 seconds, afterwards it will stop responding.\n📔 Returns to '
-                 'the main menu.\n❌ Deletes this message from chat.')
-        return embed
-
     @commands.command(name="staff")
     @GG.is_staff()
     async def staff(self, ctx):
         if GG.checkPermission(ctx, "ar"):
             embed = self.staffCommand(ctx)
             message = await ctx.send(embed=embed)
-            await message.add_reaction('🙊')  # Mute
             await message.add_reaction('📊')  # Poll
             await message.add_reaction('📖')  # Server commands
-            # Secret command SRD 📜
             await message.add_reaction('📔')
             await message.add_reaction('❌')
 
@@ -242,10 +161,8 @@ class Help(commands.Cog):
 
     async def waitStaffChangeMessage(self, ctx, message):
         def check(reaction, user):
-            return (user == ctx.message.author and str(reaction.emoji) == '🙊') or \
-                   (user == ctx.message.author and str(reaction.emoji) == '📊') or \
+            return (user == ctx.message.author and str(reaction.emoji) == '📊') or \
                    (user == ctx.message.author and str(reaction.emoji) == '📖') or \
-                   (user == ctx.message.author and str(reaction.emoji) == '📜') or \
                    (user == ctx.message.author and str(reaction.emoji) == '📔') or \
                    (user == ctx.message.author and str(reaction.emoji) == '❌')
 
@@ -256,14 +173,10 @@ class Help(commands.Cog):
                 await message.clear_reactions()
         else:
             embed = None
-            if str(reaction.emoji) == '🙊':
-                embed = self.muteCommand(ctx)
             if str(reaction.emoji) == '📊':
                 embed = self.pollCommand(ctx)
             if str(reaction.emoji) == '📖':
                 embed = self.serverCommand(ctx)
-            if str(reaction.emoji) == '📜':
-                embed = self.srdCommand(ctx)
             if str(reaction.emoji) == '📔':
                 embed = self.staffCommand(ctx)
             if str(reaction.emoji) == '❌':
@@ -280,26 +193,11 @@ class Help(commands.Cog):
         embed = GG.EmbedWithAuthor(ctx)
         embed.title = "Staff commands with clickable categories. You need to be either Owner of the server. Have " \
                       "Administration permissions, or have been added with the addstaff (📖) command. "
-        embed.add_field(name='🙊', value='Mute')
         embed.add_field(name='📊', value='Poll')
         embed.add_field(name='📖', value='Server commands')
         embed.add_field(name='📔', value='This help message')
         embed.add_field(name='❌', value='Deletes this message')
         embed.set_footer(text='These reactions are available for 60 seconds, afterwards it will stop responding.')
-        return embed
-
-    def muteCommand(self, ctx):
-        embed = GG.EmbedWithAuthor(ctx)
-        embed.title = "Mute a pesky member for a specified amount of minutes, with X reason."
-        embed.add_field(name="mute",
-                        value=f"``{self.bot.get_server_prefix(ctx.message)}mute [member] [epoch=10] [reason=No reason given]``\nMutes a member for X minutes. defaults to 10 minutes.",
-                        inline=False)
-        embed.add_field(name="unmute",
-                        value=f"``{self.bot.get_server_prefix(ctx.message)}unmute [member]``\nUnmutes a muted member.",
-                        inline=False)
-        embed.set_footer(
-            text='These reactions are available for 60 seconds, afterwards it will stop responding.\n📔 Returns to '
-                 'the main menu.\n❌ Deletes this message from chat.')
         return embed
 
     def pollCommand(self, ctx):
@@ -339,17 +237,6 @@ class Help(commands.Cog):
                         inline=False)
         embed.add_field(name="prefix",
                         value=f"``{self.bot.get_server_prefix(ctx.message)}prefix [prefix]``\nSets the bot's prefix for this server.\nForgot the prefix? Reset it with '@5eCrawler#2771 prefix !'.",
-                        inline=False)
-        embed.set_footer(
-            text='These reactions are available for 60 seconds, afterwards it will stop responding.\n📔 Returns to '
-                 'the main menu.\n❌ Deletes this message from chat.')
-        return embed
-
-    def srdCommand(self, ctx):
-        embed = GG.EmbedWithAuthor(ctx)
-        embed.title = "Non-SRD Content access."
-        embed.add_field(name="addsrd",
-                        value=f"``{self.bot.get_server_prefix(ctx.message)}addsrd <serverId> <password>``\nGives your server access to all non-SRD material for the lookup commands.\nThe password is found in the support channel for this bot.",
                         inline=False)
         embed.set_footer(
             text='These reactions are available for 60 seconds, afterwards it will stop responding.\n📔 Returns to '
