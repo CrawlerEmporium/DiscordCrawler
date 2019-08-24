@@ -103,6 +103,15 @@ class Owner(commands.Cog):
     async def checkglobal(self, ctx, GLOBAL: str):
         if GLOBAL == "PREFIXES":
             await ctx.send(GG.PREFIXES)
+        if GLOBAL == "REACTION":
+            await ctx.send(GG.REACTIONROLES)
+
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def log(self, ctx, req="logs/bot.log"):
+        file = discord.File(f"/root/DiscordCrawler/{req}")
+        await ctx.send(file=file)
+        await GG.upCommand("log")
 
     @commands.command(hidden=True)
     @commands.is_owner()
@@ -126,9 +135,43 @@ class Owner(commands.Cog):
 
     @commands.command(hidden=True)
     @commands.is_owner()
-    async def checkglobal(self, ctx, GLOBAL: str):
-        if GLOBAL == "REACTION":
-            await ctx.send(GG.REACTIONROLES)
+    async def getcommand(self, ctx, command: str):
+        count, lastused = await GG.getCommand(command)
+        ts = datetime.datetime.fromtimestamp(lastused).strftime('%Y-%m-%d %H:%M:%S')
+        await ctx.send(f"Current count for {command.lower()} is {count}.\nLast used on: {ts}")
+        await GG.upCommand("getcommand")
+
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def gettotalcount(self, ctx):
+        count = await GG.getTotalCount()
+        await ctx.send(f"Current total count for all commands: {count}")
+        await GG.upCommand("gettotalcount")
+
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def getallcommand(self, ctx):
+        msgQueue = []
+        msg = '```js\n'
+        msg += '{!s:20s} | {!s:8s} | {}\n'.format('Command', 'Count', 'Last Used')
+        commands = await GG.getAllCommands()
+        for i in commands:
+            ts = datetime.datetime.fromtimestamp(i[2]).strftime('%Y-%m-%d %H:%M:%S')
+            msg += '{!s:20s} | {!s:8s} | {}\n'.format(str(i[0]), str(i[1]), ts)
+            if len(msg) > 900:
+                msg += '```'
+                msgQueue.append(msg)
+                msg = '```js\n'
+                msg += '{!s:20s} | {!s:8s} | {}\n'.format('Command', 'Count', 'Last Used')
+        msg += '```'
+        msgQueue.append(msg)
+        if len(msgQueue) > 0:
+            for x in msgQueue:
+                await ctx.send(x)
+        else:
+            await ctx.send(msg)
+        await GG.upCommand("getallcommand")
+
 
 def setup(bot):
     log.info("Loading Owner Cog...")

@@ -16,6 +16,16 @@ c.execute(
 c.execute(
     "CREATE TABLE IF NOT EXISTS Grey (Guild INTEGER, Term TEXT, PRIMARY KEY (Guild, Term))")
 c.execute(
+    "CREATE TABLE IF NOT EXISTS PersonalQuotes (User INTEGER, Trigger TEXT, Response TEXT, Attachments TEXT, PRIMARY KEY (User, Trigger))")
+c.execute(
+    "CREATE TABLE IF NOT EXISTS Reports (User INTEGER, Message INTEGER, PRIMARY KEY (User, Message))")
+c.execute(
+    "CREATE TABLE IF NOT EXISTS ChannelInfo (Guild INTEGER, Channel INTEGER, Type TEXT, PRIMARY KEY (Guild, Channel))")
+c.execute(
+    "CREATE TABLE IF NOT EXISTS ServerStaff (Guild INTEGER, Roles INTEGER, PRIMARY KEY(Guild, Roles))")
+c.execute(
+    "CREATE TABLE IF NOT EXISTS Commands (Command Text unique, Count Integer, LastUsed Timestamp default (strftime('%s', 'now')))")
+c.execute(
     "CREATE TABLE IF NOT EXISTS ReactionRoles (GuildId INTEGER, MessageId INTEGER, RoleId INTEGER, Emoji TEXT, PRIMARY KEY (MessageId, RoleId, Emoji))")
 
 
@@ -36,6 +46,9 @@ class DBService:
         while True:
             await asyncio.sleep(60)
             conn.commit()
+
+    async def save_reporter(message, reporter):
+        DBService.exec("INSERT INTO Reports (User, Message) VALUES (" + str(reporter) + ", " + str(message) + ")")
 
 async def main():
     asyncio.ensure_future(DBService.while_commit())
