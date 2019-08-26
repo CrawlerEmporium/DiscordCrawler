@@ -150,6 +150,28 @@ class Owner(commands.Cog):
 
     @commands.command(hidden=True)
     @commands.is_owner()
+    async def botcheck(self, ctx):
+        await ctx.send(f"Checking {len(ctx.bot.guilds)} servers for bot collection servers.")
+        for guild in ctx.bot.guilds:
+            bots = sum(1 for m in guild.members if m.bot)
+            members = len(guild.members)
+            ratio = bots / members
+            if ratio >= 0.6 and members >= 20:
+                log.info("Detected bot collection server ({}), ratio {}. Leaving.".format(guild.id, ratio))
+                try:
+                    await guild.owner.send("Please do not add me to bot collection servers. "
+                                           "Your server was flagged for having over 60% bots. "
+                                           "If you believe this is an error, please PM the bot author.")
+                except:
+                    pass
+                await asyncio.sleep(members / 200)
+                await guild.leave()
+        await ctx.bot.change_presence(
+            activity=discord.Game(f"with {len(ctx.bot.guilds)} servers | !help | {ctx.bot.version}"), afk=True)
+        await GG.upCommand("botcheck")
+
+    @commands.command(hidden=True)
+    @commands.is_owner()
     async def getallcommand(self, ctx):
         msgQueue = []
         msg = '```js\n'
