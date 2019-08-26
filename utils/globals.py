@@ -110,14 +110,6 @@ async def getAllCommands():
         pass
     return result
 
-def is_owner():
-    async def predicate(ctx):
-        if ctx.author.id == OWNER or ctx.author.id == ctx.guild.owner_id:
-            return True
-        else:
-            return False
-
-    return commands.check(predicate)
 
 def checkPermission(ctx, permission):
     if ctx.guild is None:

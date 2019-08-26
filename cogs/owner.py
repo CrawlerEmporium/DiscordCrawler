@@ -26,7 +26,7 @@ class Owner(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    @GG.is_owner()
+    @commands.is_owner()
     async def mute(self, ctx, id):
         member = await ctx.guild.fetch_member(id)
         guildChannels = member.guild.text_channels
@@ -37,7 +37,7 @@ class Owner(commands.Cog):
             # print(f"SEND in {x}: {x.permissions_for(member).send_messages}")
 
     @commands.command()
-    @GG.is_owner()
+    @commands.is_owner()
     async def unmute(self, ctx, id):
         member = await ctx.guild.fetch_member(id)
         guildChannels = member.guild.text_channels
@@ -45,7 +45,7 @@ class Owner(commands.Cog):
             await x.set_permissions(member, overwrite=None)
 
     @commands.command(hidden=True)
-    @GG.is_owner()
+    @commands.is_owner()
     async def gitpull(self, ctx):
         """Pulls from github and updates bot"""
         await ctx.trigger_typing()
