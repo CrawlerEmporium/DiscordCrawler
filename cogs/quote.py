@@ -29,8 +29,8 @@ class Quote(commands.Cog):
         message = None
         try:
             msg_arg = int(msg_arg)
-        except ValueError:
             perms = ctx.guild.me.permissions_in(ctx.channel)
+        except ValueError:
             if perms.read_messages and perms.read_message_history:
                 async for msg in ctx.channel.history(limit=100, before=ctx.message):
                     if msg_arg.lower() in msg.content.lower():
@@ -61,7 +61,7 @@ class Quote(commands.Cog):
                 await ctx.send(embed=quote_embed(ctx.channel, message, ctx.author))
 
             if reply:
-                if ctx.guild.get_member(GG.BOT).guild_permissions.manage_webhooks:
+                if perms.manage_webhooks:
                     webhook = await ctx.channel.create_webhook(name="Quoting")
                     await webhook.send(content=reply.replace('@everyone', '@еveryone').replace('@here', '@hеre'),
                                        username=ctx.author.display_name, avatar_url=ctx.author.avatar_url)

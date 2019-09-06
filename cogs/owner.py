@@ -26,7 +26,7 @@ class Owner(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    @GG.is_owner()
+    @commands.is_owner()
     async def mute(self, ctx, id):
         member = await ctx.guild.fetch_member(id)
         guildChannels = member.guild.text_channels
@@ -37,7 +37,7 @@ class Owner(commands.Cog):
             # print(f"SEND in {x}: {x.permissions_for(member).send_messages}")
 
     @commands.command()
-    @GG.is_owner()
+    @commands.is_owner()
     async def unmute(self, ctx, id):
         member = await ctx.guild.fetch_member(id)
         guildChannels = member.guild.text_channels
@@ -45,7 +45,7 @@ class Owner(commands.Cog):
             await x.set_permissions(member, overwrite=None)
 
     @commands.command(hidden=True)
-    @GG.is_owner()
+    @commands.is_owner()
     async def gitpull(self, ctx):
         """Pulls from github and updates bot"""
         await ctx.trigger_typing()
@@ -147,6 +147,28 @@ class Owner(commands.Cog):
         count = await GG.getTotalCount()
         await ctx.send(f"Current total count for all commands: {count}")
         await GG.upCommand("gettotalcount")
+
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def botcheck(self, ctx):
+        await ctx.send(f"Checking {len(ctx.bot.guilds)} servers for bot collection servers.")
+        for guild in ctx.bot.guilds:
+            bots = sum(1 for m in guild.members if m.bot)
+            members = len(guild.members)
+            ratio = bots / members
+            if ratio >= 0.6 and members >= 20:
+                log.info("Detected bot collection server ({}), ratio {}. Leaving.".format(guild.id, ratio))
+                try:
+                    await guild.owner.send("Please do not add me to bot collection servers. "
+                                           "Your server was flagged for having over 60% bots. "
+                                           "If you believe this is an error, please PM the bot author.")
+                except:
+                    pass
+                await asyncio.sleep(members / 200)
+                await guild.leave()
+        await ctx.bot.change_presence(
+            activity=discord.Game(f"with {len(ctx.bot.guilds)} servers | !help | {ctx.bot.version}"), afk=True)
+        await GG.upCommand("botcheck")
 
     @commands.command(hidden=True)
     @commands.is_owner()
