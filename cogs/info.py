@@ -78,7 +78,7 @@ class Info(commands.Cog):
     @commands.command(aliases=['stats', 'info'])
     async def botinfo(self, ctx):
         """Shows info about bot"""
-        em = discord.Embed(color=discord.Color.green(), description="5eCrawler, a bot for stuff and things.")
+        em = discord.Embed(color=discord.Color.green(), description="DiscordCrawler, a bot for moderation and other helpful things.")
         em.title = 'Bot Info'
         em.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
         em.add_field(name="Servers", value=str(len(ctx.bot.guilds)))
