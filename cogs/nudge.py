@@ -14,6 +14,7 @@ class Nudge(commands.Cog):
         self.bot = bot
 
     @commands.command()
+    @GG.is_staff()
     async def nudge(self, ctx, messageId):
         channel = self.bot.get_channel(ctx.message.channel.id)
         try:
