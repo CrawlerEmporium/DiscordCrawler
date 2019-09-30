@@ -1,4 +1,6 @@
 import discord
+import math
+
 from DBService import DBService
 from discord.ext import commands
 from utils import logger
@@ -28,13 +30,13 @@ def personal_embed(db_response, author):
     return embed
 
 
-def list_embed(list_personals, author, page_number):
+def list_embed(list_personals, author, page_number, page_numbers):
     if isinstance(author, discord.Member) and author.color != discord.Colour.default():
         embed = discord.Embed(description='\n'.join(['• `' + i[1] + '`' for i in list_personals]), color=author.color)
     else:
         embed = discord.Embed(description='\n'.join(['• `' + i[1] + '`' for i in list_personals]))
     embed.set_author(name='Personal Quotes', icon_url=author.avatar_url)
-    embed.set_footer(text='Page: ' + str(page_number))
+    embed.set_footer(text='Page: ' + str(page_number) +' / '+ str(page_numbers))
     return embed
 
 
@@ -103,7 +105,8 @@ class PersonalQuotes(commands.Cog):
         if len(user_quotes) == 0:
             await ctx.send(content=":x:" + ' **No personal quotes on page `' + str(page_number) + '`**')
         else:
-            await ctx.send(embed=list_embed(user_quotes, ctx.author, page_number))
+            count = math.ceil(DBService.exec("SELECT COUNT(*) FROM PersonalQuotes WHERE User = " + str(ctx.author.id)).fetchone()[0]/10)
+            await ctx.send(embed=list_embed(user_quotes, ctx.author, page_number, count))
         await GG.upCommand("plist")
 
     @commands.command(aliases=['pclear'])

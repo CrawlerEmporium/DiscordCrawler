@@ -1,4 +1,6 @@
 import discord
+import math
+
 from DBService import DBService
 from discord.ext import commands
 from utils import logger
@@ -27,12 +29,12 @@ def global_embed(db_response, author):
     return embed
 
 
-def list_embed(list_personals, author, page_number):
+def list_embed(list_personals, author, page_number, page_numbers):
     if isinstance(author, discord.Member) and author.color != discord.Colour.default():
-        embed = discord.Embed(description='\n'.join(['• `' + i[1] + '`' for i in list_personals]), color=author.color)
+        embed = discord.Embed(description='\n'.join(['• `' + i[0] + '`' for i in list_personals]), color=author.color)
     else:
-        embed = discord.Embed(description='\n'.join(['• `' + i[1] + '`' for i in list_personals]))
-    embed.set_footer(text='Page: ' + str(page_number))
+        embed = discord.Embed(description='\n'.join(['• `' + i[0] + '`' for i in list_personals]))
+    embed.set_footer(text='Page: ' + str(page_number) +' / '+ str(page_numbers))
     return embed
 
 
@@ -103,7 +105,8 @@ class GlobalCommands(commands.Cog):
         if len(user_quotes) == 0:
             await ctx.send(content=":x:" + ' **No global commands on page `' + str(page_number) + '`**')
         else:
-            await ctx.send(embed=list_embed(user_quotes, ctx.author, page_number))
+            count = math.ceil(DBService.exec("SELECT COUNT(*) FROM GlobalCommands").fetchone()[0]/10)
+            await ctx.send(embed=list_embed(user_quotes, ctx.author, page_number, count))
         await GG.upCommand("glist")
 
 
