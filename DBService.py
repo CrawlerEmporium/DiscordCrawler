@@ -18,6 +18,8 @@ c.execute(
 c.execute(
     "CREATE TABLE IF NOT EXISTS PersonalQuotes (User INTEGER, Trigger TEXT, Response TEXT, Attachments TEXT, PRIMARY KEY (User, Trigger))")
 c.execute(
+    "CREATE TABLE IF NOT EXISTS GlobalCommands (Trigger TEXT, Response TEXT, Attachments TEXT, PRIMARY KEY (Trigger))")
+c.execute(
     "CREATE TABLE IF NOT EXISTS Reports (User INTEGER, Message INTEGER, PRIMARY KEY (User, Message))")
 c.execute(
     "CREATE TABLE IF NOT EXISTS ChannelInfo (Guild INTEGER, Channel INTEGER, Type TEXT, PRIMARY KEY (Guild, Channel))")
