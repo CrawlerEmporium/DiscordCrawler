@@ -46,6 +46,7 @@ class GlobalCommands(commands.Cog):
 
     @commands.command(aliases=['gadd'], hidden=True)
     @GG.is_staff()
+    @commands.guild_only()
     async def globaladd(self, ctx, trigger, *, response=None):
         """Adds a global command."""
         if not response and not ctx.message.attachments:
@@ -68,6 +69,7 @@ class GlobalCommands(commands.Cog):
 
     @commands.command(aliases=['gremove', 'grem'], hidden=True)
     @GG.is_staff()
+    @commands.guild_only()
     async def globalremove(self, ctx, *, trigger):
         """Removes a global command."""
         user_quote = DBService.exec(
@@ -83,6 +85,7 @@ class GlobalCommands(commands.Cog):
         await GG.upCommand("grem")
 
     @commands.command(aliases=['g','gc','giddy'])
+    @commands.guild_only()
     async def globalcommand(self, ctx, *, trigger):
         """Returns your chosen global command."""
         trig = trigger.replace('\'', '\'\'')
@@ -99,6 +102,7 @@ class GlobalCommands(commands.Cog):
         await GG.upCommand("g")
 
     @commands.command(aliases=['glist'])
+    @commands.guild_only()
     async def globallist(self, ctx, page_number: int = 1):
         """Returns all global commands."""
         user_quotes = DBService.exec(

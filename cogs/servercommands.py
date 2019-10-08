@@ -12,6 +12,13 @@ categories = [
     'DELIVERY',
     'ANNOUNCEMENT']
 
+def list_embed(list_personals, author):
+    if isinstance(author, discord.Member) and author.color != discord.Colour.default():
+        embed = discord.Embed(description='\n'.join(['• `' + i[1] + '`' for i in list_personals]), color=author.color)
+    else:
+        embed = discord.Embed(description='\n'.join(['• `' + i[1] + '`' for i in list_personals]))
+    embed.title = "Roles that are considered staff according to the bot."
+    return embed
 
 class ServerCommands(commands.Cog):
     def __init__(self, bot):
@@ -30,6 +37,16 @@ class ServerCommands(commands.Cog):
             GG.STAFF.append(int(role.id))
             await ctx.send(f"{role.name} was added to the staff list.")
         await GG.upCommand("addstaff")
+
+    @commands.command()
+    @GG.is_staff()
+    @commands.guild_only()
+    async def stafflist(self, ctx):
+        """[STAFF ONLY]"""
+        user_quotes = DBService.exec(
+            "SELECT * FROM ServerStaff WHERE Guild = " + str(ctx.message.guild.id)).fetchall()
+        await ctx.send(embed=list_embed(user_quotes, ctx.author))
+        await GG.upCommand("stafflist")
 
     @commands.command()
     @GG.is_staff()
