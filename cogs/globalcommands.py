@@ -82,7 +82,7 @@ class GlobalCommands(commands.Cog):
             await ctx.send(content=":x:" + ' **Command with that trigger does not exist.**')
         await GG.upCommand("grem")
 
-    @commands.command(aliases=['g'])
+    @commands.command(aliases=['g','gc'])
     async def globalcommand(self, ctx, *, trigger):
         """Returns your chosen global command."""
         trig = trigger.replace('\'', '\'\'')
