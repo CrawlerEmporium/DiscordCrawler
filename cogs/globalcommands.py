@@ -33,9 +33,9 @@ def global_embed(self, db_response, author, message, command):
 
 def list_embed(list_personals, author, page_number, page_numbers):
     if isinstance(author, discord.Member) and author.color != discord.Colour.default():
-        embed = discord.Embed(description='\n'.join(['• `' + i[0] + '`' for i in list_personals]), color=author.color)
+        embed = discord.Embed(description='\n'.join(['• `' + i[1] + '`' for i in list_personals]), color=author.color)
     else:
-        embed = discord.Embed(description='\n'.join(['• `' + i[0] + '`' for i in list_personals]))
+        embed = discord.Embed(description='\n'.join(['• `' + i[1] + '`' for i in list_personals]))
     embed.set_footer(text='Page: ' + str(page_number) +' / '+ str(page_numbers))
     return embed
 
