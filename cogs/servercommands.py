@@ -14,9 +14,9 @@ categories = [
 
 def list_embed(list_personals, author):
     if isinstance(author, discord.Member) and author.color != discord.Colour.default():
-        embed = discord.Embed(description='\n'.join(['• `' + i[1] + '`' for i in list_personals]), color=author.color)
+        embed = discord.Embed(description='\n'.join(['• `' + i[0] + '`' for i in list_personals]), color=author.color)
     else:
-        embed = discord.Embed(description='\n'.join(['• `' + i[1] + '`' for i in list_personals]))
+        embed = discord.Embed(description='\n'.join(['• `' + i[0] + '`' for i in list_personals]))
     embed.title = "Roles that are considered staff according to the bot."
     return embed
 
