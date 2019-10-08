@@ -11,12 +11,12 @@ log = logger.logger
 
 def global_embed(self, db_response, author, message, command):
     if isinstance(author, discord.Member) and author.color != discord.Colour.default():
-        embed = discord.Embed(description=db_response[1], color=author.color)
+        embed = discord.Embed(description=db_response[2], color=author.color)
     else:
-        embed = discord.Embed(description=db_response[1])
+        embed = discord.Embed(description=db_response[2])
     embed.set_author(name=str(author), icon_url=author.avatar_url)
-    if db_response[2] != None:
-        attachments = db_response[2].split(' | ')
+    if db_response[3] != None:
+        attachments = db_response[3].split(' | ')
         if len(attachments) == 1 and (
                 attachments[0].lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.gifv', '.webp', '.bmp')) or
                 attachments[0].lower().startswith('https://chart.googleapis.com/chart?')):
@@ -53,7 +53,7 @@ class GlobalCommands(commands.Cog):
         else:
             try:
                 DBService.exec("INSERT INTO GlobalCommands (Guild, Trigger" + (", Response" if response else "") + (
-                    ", Attachments" if ctx.message.attachments else "") + ") VALUES (" + str(
+                                    ", Attachments" if ctx.message.attachments else "") + ") VALUES (" + str(
                                     ctx.message.guild.id) + ", '" + trigger.replace('\'','\'\'') + "'" + (
                                    ", '" + response.replace('\'', '\'\'') + "'" if response else "") + (
                                    ", '" + " | ".join(
