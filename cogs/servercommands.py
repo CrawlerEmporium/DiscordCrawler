@@ -12,11 +12,19 @@ categories = [
     'DELIVERY',
     'ANNOUNCEMENT']
 
-def list_embed(list_personals, author):
+
+def getRole(roleID, ctx):
+    guild = ctx.message.guild
+    role = guild.get_role(roleID)
+    return role.name
+
+
+def list_embed(list_personals, author, ctx):
     if isinstance(author, discord.Member) and author.color != discord.Colour.default():
-        embed = discord.Embed(description='\n'.join(['• `' + str(i) + '`' for i in list_personals]), color=author.color)
+
+        embed = discord.Embed(description='\n'.join(['• `' + getRole(i[1], ctx) + '`' for i in list_personals]), color=author.color)
     else:
-        embed = discord.Embed(description='\n'.join(['• `' + str(i) + '`' for i in list_personals]))
+        embed = discord.Embed(description='\n'.join(['• `' + getRole(i[1], ctx) + '`' for i in list_personals]))
     embed.title = "Roles that are considered staff according to the bot."
     return embed
 
@@ -45,7 +53,7 @@ class ServerCommands(commands.Cog):
         """[STAFF ONLY]"""
         user_quotes = DBService.exec(
             "SELECT * FROM ServerStaff WHERE Guild = " + str(ctx.message.guild.id)).fetchall()
-        await ctx.send(embed=list_embed(user_quotes, ctx.author))
+        await ctx.send(embed=list_embed(user_quotes, ctx.author, ctx))
         await GG.upCommand("stafflist")
 
     @commands.command()
