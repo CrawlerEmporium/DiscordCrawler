@@ -49,17 +49,12 @@ TERMS = [int(i[0]) for i in TERMDB]
 GREYDB = DBService.exec("SELECT Guild FROM Grey").fetchall()
 GREYS = [int(i[0]) for i in GREYDB]
 
-def fetchAllReactionRoles():
-    return DBService.exec("Select MessageID, RoleId, Emoji FROM ReactionRoles").fetchall()
-
-REACTIONROLESDB = fetchAllReactionRoles()
-
+REACTIONROLESDB = DBService.exec("Select MessageID, RoleId, Emoji FROM ReactionRoles").fetchall()
 def loadReactionRoles(REACTIONROLESDB):
     reactionRole = {}
     for i in REACTIONROLESDB:
         reactionRole[int(i[0])] = i[1], i[2]
     return reactionRole
-
 REACTIONROLES = loadReactionRoles(REACTIONROLESDB)
 
 CLEANER = [496672117384019969,280892074247716864]
@@ -266,7 +261,8 @@ def checkDays(date):
     return f"{days} {'day' if days == 1 else 'days'} ago"
 
 def reloadReactionRoles():
-    REACTIONROLESDB = fetchAllReactionRoles()
+    REACTIONROLESDB = DBService.exec("Select MessageID, RoleId, Emoji FROM ReactionRoles").fetchall()
+    global REACTIONROLES
     REACTIONROLES = loadReactionRoles(REACTIONROLESDB)
 
 
