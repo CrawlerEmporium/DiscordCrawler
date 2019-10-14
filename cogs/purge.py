@@ -42,7 +42,7 @@ class Purge(commands.Cog):
                 await asyncio.sleep(4)
                 await msg.delete()
         else:
-            ctx.send("I don't have the Manage_Messages permission. It's a mandatory permission, I have noted my owner about this. Please give me this permission, I will end up leaving the server if it happens again.")
+            await ctx.send("I don't have the Manage_Messages permission. It's a mandatory permission, I have noted my owner about this. Please give me this permission, I will end up leaving the server if it happens again.")
         await GG.upCommand("purge")
 
 

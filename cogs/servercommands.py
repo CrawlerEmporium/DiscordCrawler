@@ -112,7 +112,7 @@ class ServerCommands(commands.Cog):
                 await ctx.send(
                     f"{TYPE} is not part of the list of specialized channels you can make. Please use one of the following:\n{categories}")
         else:
-            ctx.send(
+            await ctx.send(
                 "I don't have the Manage_Messages permission. It's a mandatory permission, I have noted my owner about this. Please give me this permission, I will end up leaving the server if it happens again.")
         await GG.upCommand("addchannel")
 
