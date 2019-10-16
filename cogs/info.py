@@ -194,13 +194,14 @@ class Info(commands.Cog):
                 guild = ctx.message.guild
                 string = '{ "channels": ['
                 for textChannel in guild.text_channels:
-                    string += '{ "' + str(textChannel) + '": ['
-                    async for message in textChannel.history(limit=100, oldest_first=True):
-                        if message.author == user:
-                            string += '"' + str(message.content.replace('"', '\\"').replace('\n', '\\n')) + '",'
-                    if string[-1:] != '[':
-                        string = string[:-1]
-                    string += ']},'
+                    if ctx.guild.me.permissions_in(textChannel).read_messages:
+                        string += '{ "' + str(textChannel) + '": ['
+                        async for message in textChannel.history(limit=100, oldest_first=True):
+                            if message.author == user:
+                                string += '"' + str(message.content.replace('"', '\\"').replace('\n', '\\n')) + '",'
+                        if string[-1:] != '[':
+                            string = string[:-1]
+                        string += ']},'
                 string = string[:-1]
                 string += ']}'
                 string = json.dumps(string)

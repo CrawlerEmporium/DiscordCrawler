@@ -7,15 +7,19 @@ from DBService import DBService
 
 log = logger.logger
 
+
 def getGuild(self, payload):
     guild = self.bot.get_guild(payload.guild_id)
     return guild
+
 
 class Roles(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command()
+    @commands.guild_only()
+    @GG.is_staff()
     async def addRole(self, ctx, channelId, messageId, roleId, emoji):
         channel = await self.bot.fetch_channel(channelId)
         message = await channel.fetch_message(messageId)
@@ -31,10 +35,12 @@ class Roles(commands.Cog):
                 GG.reloadReactionRoles()
             except:
                 await message.remove_reaction(emoji, ctx.guild.me)
-                await ctx.send("You are trying to add a reaction to thr message that already exists, or the role it would give as reaction is already in use.\nPlease check if this is correct, if not, please contact my owner in `$support`")
-
+                await ctx.send(
+                    "You are trying to add a reaction to thr message that already exists, or the role it would give as reaction is already in use.\nPlease check if this is correct, if not, please contact my owner in `$support`")
 
     @commands.command()
+    @commands.guild_only()
+    @GG.is_staff()
     async def removeRole(self, ctx, channelId, messageId, roleId, emoji):
         channel = await self.bot.fetch_channel(channelId)
         message = await channel.fetch_message(messageId)
@@ -46,12 +52,28 @@ class Roles(commands.Cog):
                     for y in users:
                         await message.remove_reaction(emoji, y)
         except:
-            await ctx.send("Unknown Emoji, please check if this emoji is still present as a reaction on the message you supplied.")
+            await ctx.send(
+                "Unknown Emoji, please check if this emoji is still present as a reaction on the message you supplied.")
         else:
             DBService.exec(
                 "DELETE FROM ReactionRoles WHERE GuildId = " + str(
-                    ctx.guild.id) + " AND MessageId = " + str(messageId) + " AND RoleId = " + str(roleId) + " AND Emoji = '" + str(emoji) + "'")
+                    ctx.guild.id) + " AND MessageId = " + str(messageId) + " AND RoleId = " + str(
+                    roleId) + " AND Emoji = '" + str(emoji) + "'")
             GG.reloadReactionRoles()
+
+    @commands.command()
+    @commands.guild_only()
+    @GG.is_staff()
+    async def removeall(self, ctx, roleId):
+        guild = await self.bot.fetch_guild(ctx.guild)
+        Role = guild.get_role(roleId)
+        members = guild.members
+        await ctx.send(f"Removing {Role.name} from {len(members)} members.")
+        async with ctx.channel.typing():
+            for x in members:
+                Member = await guild.fetch_member(x.id)
+                await Member.remove_roles(Role)
+        await ctx.send(f"Removed {Role.name} from {len(members)} members.")
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
@@ -69,7 +91,6 @@ class Roles(commands.Cog):
                     Member = await guild.fetch_member(userId)
                     await Member.add_roles(Role)
 
-
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
         if payload.message_id in GG.REACTIONROLES:
@@ -85,6 +106,7 @@ class Roles(commands.Cog):
                     Role = guild.get_role(roleId)
                     Member = await guild.fetch_member(userId)
                     await Member.remove_roles(Role)
+
 
 def setup(bot):
     log.info("Loading Roles Cog...")
