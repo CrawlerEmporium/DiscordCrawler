@@ -190,15 +190,18 @@ class Info(commands.Cog):
             await ctx.send("Member can't be none. Proper command to use ``![history] [member]``")
         else:
             async with ctx.channel.typing():
-                user = member
+                try:
+                    user = await ctx.guild.fetch_member(member)
+                except:
+                    user = member
                 guild = ctx.message.guild
                 string = '{ "channels": ['
                 for textChannel in guild.text_channels:
                     if ctx.guild.me.permissions_in(textChannel).read_messages:
                         string += '{ "' + str(textChannel) + '": ['
                         async for message in textChannel.history(limit=100, oldest_first=True):
-                            if isinstance(user, int):
-                                if message.id == user:
+                            if isinstance(user, str):
+                                if message.author.id == user:
                                     string += '"' + str(message.content.replace('"', '\\"').replace('\n', '\\n')) + '",'
                             else:
                                 if message.author == user:
