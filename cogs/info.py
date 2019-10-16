@@ -1,4 +1,5 @@
 import datetime
+import io
 
 import discord
 import time
@@ -78,7 +79,8 @@ class Info(commands.Cog):
     @commands.command(aliases=['stats', 'info'])
     async def botinfo(self, ctx):
         """Shows info about bot"""
-        em = discord.Embed(color=discord.Color.green(), description="DiscordCrawler, a bot for moderation and other helpful things.")
+        em = discord.Embed(color=discord.Color.green(),
+                           description="DiscordCrawler, a bot for moderation and other helpful things.")
         em.title = 'Bot Info'
         em.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
         em.add_field(name="Servers", value=str(len(ctx.bot.guilds)))
@@ -96,9 +98,10 @@ class Info(commands.Cog):
         em.add_field(name='Text Channels', value=f"{totalText}")
         em.add_field(name='Voice Channels', value=f"{totalVoice}")
         em.add_field(name="Invite",
-                     value="[Click Here](https://discordapp.com/oauth2/authorize?client_id=602774912595263490&scope=bot&permissions=536977472)")
+                     value="[Click Here](https://discordapp.com/oauth2/authorize?client_id=602774912595263490&scope=bot&permissions=805412928)")
         em.add_field(name='Source', value="[Click Here](https://github.com/CrawlerEmporium/DiscordCrawler)")
-        em.add_field(name='Issue Tracker', value="[Click Here](https://github.com/CrawlerEmporium/DiscordCrawler/issues)")
+        em.add_field(name='Issue Tracker',
+                     value="[Click Here](https://github.com/CrawlerEmporium/DiscordCrawler/issues)")
         em.add_field(name="About",
                      value='A multipurpose bot made by LordDusk#0001 .\n[Support Server](https://discord.gg/HEY6BWj)')
         em.set_footer(text=f"DiscordCrawler {ctx.bot.version} | Powered by discord.py")
@@ -121,7 +124,7 @@ class Info(commands.Cog):
         em.title = 'Invite Me!'
         em.description = "Hi, you can easily invite me to your own server by following [this link](" \
                          "https://discordapp.com/oauth2/authorize?client_id=602774912595263490&scope=bot&permissions" \
-                         "=536977472)!\n\nOf the 5 permissions asked, 4 are optional and 1 mandatory for optimal " \
+                         "=805412928)!\n\nOf the 5 permissions asked, 4 are optional and 1 mandatory for optimal " \
                          "usage of the capabilities of the bot.\n\n**Mandatory:**\n__Manage Messages__ - this allows the " \
                          "bot to remove messages from other users.\n\n**Optional:**\n__Manage Webhooks__ - There are 2 " \
                          "ways for the quote command to function. One where it will use a webhook to give a reply as " \
@@ -130,6 +133,7 @@ class Info(commands.Cog):
                          "without this permission it will not be able too.\n\n" \
                          "__Add Reactions__ - For the Anon/Delivery the bot requires to be able to add reactions to " \
                          "messages that are send.\n\n" \
+                         "__Manage Roles__ - For the Reaction Roles, the bot needs to be able to give users a role.\n\n" \
                          "__Read History__ - For some things to work (edit message, add reactions) the bot requires " \
                          "to be able to read the history of the channel. If it lacks this permission, but does have. " \
                          "Add Reactions, it will pelt you with 'Permission not found.'"
@@ -175,6 +179,31 @@ class Info(commands.Cog):
                 await ctx.send(string)
                 string = ""
         await ctx.send(string)
+
+    @commands.command()
+    @commands.guild_only()
+    @GG.is_staff()
+    async def checkMod(self, ctx, member: discord.Member = None):
+        """[STAFF ONLY]"""
+        if member is None:
+            await ctx.send("Member can't be none. Proper command to use ``![checkMod] [member]``")
+        else:
+            async with ctx.channel.typing():
+                user = member
+                guild = ctx.message.guild
+                json = '{ "channels": ['
+                for textChannel in guild.text_channels:
+                    json += '{ "' + str(textChannel) + '": ['
+                    async for message in textChannel.history(oldest_first=True):
+                        if message.author == user:
+                            json += '"' + str(message.content).replace("\r\n"," ") + '",'
+                    json = json[:-1]
+                    json += ']},'
+                json = json[:-1]
+                json += ']}'
+                f = io.BytesIO(str.encode(json))
+                file = discord.File(f, f"{member.name}#{member.discriminator} - chatlog.json")
+                await ctx.send(content=f"Last 100 messages from ``{member.name}#{member.discriminator}`` : {member.nick}" , file=file)
 
 
 def setup(bot):
