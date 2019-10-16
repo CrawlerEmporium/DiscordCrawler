@@ -187,7 +187,7 @@ class Info(commands.Cog):
     async def history(self, ctx, member: discord.Member = None):
         """[STAFF ONLY] Get the post history of an user."""
         if member is None:
-            await ctx.send("Member can't be none. Proper command to use ``![checkMod] [member]``")
+            await ctx.send("Member can't be none. Proper command to use ``![history] [member]``")
         else:
             async with ctx.channel.typing():
                 user = member
