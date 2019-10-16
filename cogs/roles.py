@@ -58,14 +58,17 @@ class Roles(commands.Cog):
         if payload.message_id in GG.REACTIONROLES:
             emoji = payload.emoji
             reaction = GG.REACTIONROLES[payload.message_id][1]
-            if emoji.name == reaction:
-                roleId = GG.REACTIONROLES[payload.message_id][0]
-                userId = payload.user_id
-                guildId = payload.guild_id
-                guild = await self.bot.fetch_guild(guildId)
-                Role = guild.get_role(roleId)
-                Member = await guild.fetch_member(userId)
-                await Member.add_roles(Role)
+            server = GG.REACTIONROLES[payload.message_id]
+            roleId = None
+            for x in server:
+                if emoji.name == x[1]:
+                    roleId = x[0]
+                    userId = payload.user_id
+                    guildId = payload.guild_id
+                    guild = await self.bot.fetch_guild(guildId)
+                    Role = guild.get_role(roleId)
+                    Member = await guild.fetch_member(userId)
+                    await Member.add_roles(Role)
 
 
     @commands.Cog.listener()

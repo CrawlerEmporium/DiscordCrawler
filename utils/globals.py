@@ -53,7 +53,10 @@ REACTIONROLESDB = DBService.exec("Select MessageID, RoleId, Emoji FROM ReactionR
 def loadReactionRoles(REACTIONROLESDB):
     reactionRole = {}
     for i in REACTIONROLESDB:
-        reactionRole[int(i[0])] = i[1], i[2]
+        key = int(i[0])
+        if key not in reactionRole:
+            reactionRole[key] = []
+        reactionRole[key].append((i[1], i[2]))
     return reactionRole
 REACTIONROLES = loadReactionRoles(REACTIONROLESDB)
 
