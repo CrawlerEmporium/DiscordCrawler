@@ -184,7 +184,7 @@ class Info(commands.Cog):
     @commands.command()
     @commands.guild_only()
     @GG.is_staff()
-    async def history(self, ctx, member: discord.Member = None):
+    async def history(self, ctx, member = None):
         """[STAFF ONLY] Get the post history of an user."""
         if member is None:
             await ctx.send("Member can't be none. Proper command to use ``![history] [member]``")
@@ -197,8 +197,12 @@ class Info(commands.Cog):
                     if ctx.guild.me.permissions_in(textChannel).read_messages:
                         string += '{ "' + str(textChannel) + '": ['
                         async for message in textChannel.history(limit=100, oldest_first=True):
-                            if message.author == user:
-                                string += '"' + str(message.content.replace('"', '\\"').replace('\n', '\\n')) + '",'
+                            if isinstance(user, int):
+                                if message.id == user:
+                                    string += '"' + str(message.content.replace('"', '\\"').replace('\n', '\\n')) + '",'
+                            else:
+                                if message.author == user:
+                                    string += '"' + str(message.content.replace('"', '\\"').replace('\n', '\\n')) + '",'
                         if string[-1:] != '[':
                             string = string[:-1]
                         string += ']},'
@@ -206,8 +210,8 @@ class Info(commands.Cog):
                 string += ']}'
                 string = json.dumps(string)
                 f = io.BytesIO(str.encode(string))
-                file = discord.File(f, f"{member.name}#{member.discriminator} - chatlog.json")
-                await ctx.send(content=f"Messages (per channel, capped at 100) from ``{member.name}#{member.discriminator}`` : {member.nick}\n*Note that it isn't a complete history, as Discord has some issues with their history api, so stuff may be missing.*" , file=file)
+                file = discord.File(f, f"{user} - chatlog.json")
+                await ctx.send(content=f"Messages (per channel, capped at 100) from ``{user}``\n*Note that it isn't a complete history, as Discord has some issues with their history api, so stuff may be missing.*" , file=file)
 
 
 def setup(bot):
