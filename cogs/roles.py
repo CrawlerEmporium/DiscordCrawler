@@ -57,7 +57,6 @@ class Roles(commands.Cog):
     async def on_raw_reaction_add(self, payload):
         if payload.message_id in GG.REACTIONROLES:
             emoji = payload.emoji
-            reaction = GG.REACTIONROLES[payload.message_id][1]
             server = GG.REACTIONROLES[payload.message_id]
             roleId = None
             for x in server:
@@ -75,15 +74,17 @@ class Roles(commands.Cog):
     async def on_raw_reaction_remove(self, payload):
         if payload.message_id in GG.REACTIONROLES:
             emoji = payload.emoji
-            reaction = GG.REACTIONROLES[payload.message_id][1]
-            if emoji.name == reaction:
-                roleId = GG.REACTIONROLES[payload.message_id][0]
-                userId = payload.user_id
-                guildId = payload.guild_id
-                guild = await self.bot.fetch_guild(guildId)
-                Role = guild.get_role(roleId)
-                Member = await guild.fetch_member(userId)
-                await Member.remove_roles(Role)
+            server = GG.REACTIONROLES[payload.message_id]
+            roleId = None
+            for x in server:
+                if emoji.name == x[1]:
+                    roleId = x[0]
+                    userId = payload.user_id
+                    guildId = payload.guild_id
+                    guild = await self.bot.fetch_guild(guildId)
+                    Role = guild.get_role(roleId)
+                    Member = await guild.fetch_member(userId)
+                    await Member.remove_roles(Role)
 
 def setup(bot):
     log.info("Loading Roles Cog...")
