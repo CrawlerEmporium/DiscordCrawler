@@ -1,5 +1,6 @@
 import datetime
 import io
+import json
 
 import discord
 import time
@@ -191,19 +192,20 @@ class Info(commands.Cog):
             async with ctx.channel.typing():
                 user = member
                 guild = ctx.message.guild
-                json = '{ "channels": ['
+                string = '{ "channels": ['
                 for textChannel in guild.text_channels:
-                    json += '{ "' + str(textChannel) + '": ['
-                    async for message in textChannel.history(oldest_first=True):
+                    string += '{ "' + str(textChannel) + '": ['
+                    async for message in textChannel.history(limit=100, oldest_first=True):
                         if message.author == user:
-                            json += '"' + str(message.content).replace("\r\n"," ") + '",'
-                    json = json[:-1]
-                    json += ']},'
-                json = json[:-1]
-                json += ']}'
-                f = io.BytesIO(str.encode(json))
+                            string += '"' + str(message.content).replace("\r\n"," ") + '",'
+                    string = string[:-1]
+                    string += ']},'
+                string = string[:-1]
+                string += ']}'
+                string = json.dumps(string)
+                f = io.BytesIO(str.encode(string))
                 file = discord.File(f, f"{member.name}#{member.discriminator} - chatlog.json")
-                await ctx.send(content=f"Last 100 messages from ``{member.name}#{member.discriminator}`` : {member.nick}" , file=file)
+                await ctx.send(content=f"Messages (per channel, capped at 100) from ``{member.name}#{member.discriminator}`` : {member.nick}" , file=file)
 
 
 def setup(bot):
