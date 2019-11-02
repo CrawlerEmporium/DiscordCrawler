@@ -30,7 +30,10 @@ class Dictionary(commands.Cog):
                 result = result[0]
 
                 word = result['word']
-                phonetic = result['phonetic']
+                try:
+                    phonetic = result['phonetic']
+                except:
+                    phonetic = "no pronunciation available."
 
                 embed = GG.EmbedWithAuthor(ctx)
                 embed.title = word.capitalize()
