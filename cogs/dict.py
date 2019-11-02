@@ -1,10 +1,8 @@
-import asyncio
-import discord
-import utils.globals as GG
 import requests
 from discord.ext import commands
+
+import utils.globals as GG
 from utils import logger
-from DBService import DBService
 
 log = logger.logger
 
@@ -38,45 +36,49 @@ class Dictionary(commands.Cog):
                 embed.title = word.capitalize()
                 embed.description = phonetic
 
-                for x in result['meaning'].keys():
+                meaning_ = result['meaning']
+                for x in meaning_.keys():
                     if x == "adjective":
                         try:
-                            example = result['meaning']['adjective'][0]['example'].capitalize()
+                            example = meaning_['adjective'][0]['example'].capitalize()
                         except:
                             example = "-"
-                        definition = f"{result['meaning']['adjective'][0]['definition']}\n**Example**: {example}"
-                        embed.add_field(name="Description (adjective)",value=definition, inline=False)
+                        definition = f"{meaning_['adjective'][0]['definition']}\n**Example**: {example}"
+                        embed.add_field(name="Description (adjective)", value=definition, inline=False)
                     elif x == "exclamation":
                         try:
-                            example = result['meaning']['exclamation'][0]['example'].capitalize()
+                            example = meaning_['exclamation'][0]['example'].capitalize()
                         except:
                             example = "-"
-                        definition = f"{result['meaning']['exclamation'][0]['definition']}\n**Example**: {example}"
-                        embed.add_field(name="Description (exclamation)",value=definition, inline=False)
+                        definition = f"{meaning_['exclamation'][0]['definition']}\n**Example**: {example}"
+                        embed.add_field(name="Description (exclamation)", value=definition, inline=False)
                     elif x == "adverb":
                         try:
-                            example = result['meaning']['adverb'][0]['example'].capitalize()
+                            example = meaning_['adverb'][0]['example'].capitalize()
                         except:
                             example = "-"
-                        definition = f"{result['meaning']['adverb'][0]['definition']}\n**Example**: {example}"
-                        embed.add_field(name="Description (adverb)", value=definition,inline=False)
+                        definition = f"{meaning_['adverb'][0]['definition']}\n**Example**: {example}"
+                        embed.add_field(name="Description (adverb)", value=definition, inline=False)
                     elif x == "noun":
-                        try :
-                            example = result['meaning']['noun'][0]['example'].capitalize()
+                        try:
+                            example = meaning_['noun'][0]['example'].capitalize()
                         except:
                             example = "-"
-                        definition = f"{result['meaning']['noun'][0]['definition']}\n**Example**: {example}"
-                        embed.add_field(name="Description (noun)", value=definition,inline=False)
+                        definition = f"{meaning_['noun'][0]['definition']}\n**Example**: {example}"
+                        embed.add_field(name="Description (noun)", value=definition, inline=False)
                     elif x == "verb":
                         try:
-                            example = result['meaning']['verb'][0]['example'].capitalize()
+                            example = meaning_['verb'][0]['example'].capitalize()
                         except:
                             example = "-"
-                        definition = f"{result['meaning']['verb'][0]['definition']}\n**Example**: {example}"
-                        embed.add_field(name="Description (verb)", value=definition,inline=False)
+                        definition = f"{meaning_['verb'][0]['definition']}\n**Example**: {example}"
+                        embed.add_field(name="Description (verb)", value=definition, inline=False)
+                    else:
+                        owner = self.bot.get_user(GG.OWNER)
+                        await owner.send(f"**MISSING KEY FOUND**\nIn the word {search}, a key was found that isn't being used: {x}.")
                 if result.get('origin') is not None:
-                    embed.add_field(name="Origin", value=result['origin'].capitalize(),inline=False)
-                embed.set_footer(text=f"Source: Google Dictionary")
+                    embed.add_field(name="Origin", value=result['origin'].capitalize(), inline=False)
+                embed.set_footer(text=f"Source: Google Dictionary (Unofficial API)")
                 await ctx.send(embed=embed)
 
 
