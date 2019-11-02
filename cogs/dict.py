@@ -37,22 +37,37 @@ class Dictionary(commands.Cog):
                 embed = GG.EmbedWithAuthor(ctx)
                 embed.title = word.capitalize()
                 embed.description = phonetic
-                for x in result.get('meaning'):
-                    if "adjective" in x:
+
+                for x in result['meaning'].keys():
+                    if x == "adjective":
                         try:
                             example = result['meaning']['adjective'][0]['example'].capitalize()
                         except:
                             example = "-"
                         definition = f"{result['meaning']['adjective'][0]['definition']}\n**Example**: {example}"
                         embed.add_field(name="Description (adjective)",value=definition, inline=False)
-                    elif "noun" in x:
+                    elif x == "exclamation":
+                        try:
+                            example = result['meaning']['exclamation'][0]['example'].capitalize()
+                        except:
+                            example = "-"
+                        definition = f"{result['meaning']['exclamation'][0]['definition']}\n**Example**: {example}"
+                        embed.add_field(name="Description (exclamation)",value=definition, inline=False)
+                    elif x == "adverb":
+                        try:
+                            example = result['meaning']['adverb'][0]['example'].capitalize()
+                        except:
+                            example = "-"
+                        definition = f"{result['meaning']['adverb'][0]['definition']}\n**Example**: {example}"
+                        embed.add_field(name="Description (adverb)", value=definition,inline=False)
+                    elif x == "noun":
                         try :
                             example = result['meaning']['noun'][0]['example'].capitalize()
                         except:
                             example = "-"
                         definition = f"{result['meaning']['noun'][0]['definition']}\n**Example**: {example}"
                         embed.add_field(name="Description (noun)", value=definition,inline=False)
-                    elif "verb" in x:
+                    elif x == "verb":
                         try:
                             example = result['meaning']['verb'][0]['example'].capitalize()
                         except:
