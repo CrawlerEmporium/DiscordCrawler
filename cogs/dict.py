@@ -27,25 +27,26 @@ class Dictionary(commands.Cog):
                     f"3. You might have made a typo...\n"
                     f"All 3 options are easily verifiable through Google itself.")
             else:
-                result = result[0]
+                for i in range(len(result)):
+                    current = result[i]
 
-                word = result['word']
-                try:
-                    phonetic = result['phonetic']
-                except:
-                    phonetic = "no pronunciation available."
+                    word = current['word']
+                    try:
+                        phonetic = current['phonetic']
+                    except:
+                        phonetic = "no pronunciation available."
 
-                embed = GG.EmbedWithAuthor(ctx)
-                embed.title = word.capitalize()
-                embed.description = phonetic
+                    embed = GG.EmbedWithAuthor(ctx)
+                    embed.title = word.capitalize()
+                    embed.description = phonetic
 
-                meaning_ = result['meaning']
-                for x in meaning_.keys():
-                    await self.getExampleAndDefinition(embed, meaning_, x)
-                if result.get('origin') is not None:
-                    embed.add_field(name="Origin", value=result['origin'].capitalize(), inline=False)
-                embed.set_footer(text=f"Source: Google Dictionary (Unofficial API)")
-                await ctx.send(embed=embed)
+                    meaning_ = current['meaning']
+                    for x in meaning_.keys():
+                        await self.getExampleAndDefinition(embed, meaning_, x)
+                    if current.get('origin') is not None:
+                        embed.add_field(name="Origin", value=current['origin'].capitalize(), inline=False)
+                    embed.set_footer(text=f"Source: Google Dictionary (Unofficial API)")
+                    await ctx.send(embed=embed)
 
     async def getExampleAndDefinition(self, embed, meaning_, x):
         for y in range(len(meaning_[f'{x}'])):
