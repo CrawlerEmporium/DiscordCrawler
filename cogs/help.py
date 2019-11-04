@@ -112,7 +112,7 @@ class Help(commands.Cog):
     def dictCommand(self, ctx):
         embed = GG.EmbedWithAuthor(ctx)
         embed.title = "Dictionary."
-        embed.add_field(name="quote",
+        embed.add_field(name="Dictionary",
                         value=f"``{self.bot.get_server_prefix(ctx.message)}[dictionary|dict|define] [term]``\nLooks up the definition of a word.",
                         inline=False)
         embed.set_footer(
