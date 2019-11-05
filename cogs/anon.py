@@ -63,7 +63,7 @@ class Anon(commands.Cog):
                                         "SELECT User FROM Reports WHERE Message = " + str(msg_id)).fetchone()
                                     reporter = self.bot.get_user(int(reporter[0]))
 
-                                    await LordDusk.send(f"Name: {reporter.name}\nID: {reporter.id}\nDiscriminator: {reporter.discriminator}\nDisplay Name: {reporter.display_name}")
+                                    await LordDusk.send(f"Anon Troll ---\nName: {reporter.name}\nID: {reporter.id}\nDiscriminator: {reporter.discriminator}\nDisplay Name: {reporter.display_name}")
                             else:
                                 await LordDusk.send("User not found...")
                             await message.delete()
