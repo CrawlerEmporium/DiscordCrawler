@@ -61,6 +61,7 @@ class Anon(commands.Cog):
                                 if int(msg_id) in GG.REPORTERS:
                                     reporter = DBService.exec(
                                         "SELECT User FROM Reports WHERE Message = " + str(msg_id)).fetchone()
+                                    print(reporter)
                                     begin = str(reporter[0])[:-2]
                                     end = str(reporter[0])[-2:]
                                     sendString = ""
