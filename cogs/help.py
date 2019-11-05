@@ -17,6 +17,7 @@ class Help(commands.Cog):
             await message.add_reaction('💬')
             await message.add_reaction('💭')
             await message.add_reaction('❓')
+            await message.add_reaction('📘')
             if GG.is_staff_bool(ctx):
                 await message.add_reaction('🔒')
             await message.add_reaction('📔')
@@ -32,6 +33,7 @@ class Help(commands.Cog):
             return (user == ctx.message.author and str(reaction.emoji) == '💬') or \
                    (user == ctx.message.author and str(reaction.emoji) == '💭') or \
                    (user == ctx.message.author and str(reaction.emoji) == '❓') or \
+                   (user == ctx.message.author and str(reaction.emoji) == '📘') or \
                    (user == ctx.message.author and str(reaction.emoji) == '🔒') or \
                    (user == ctx.message.author and str(reaction.emoji) == '📔') or \
                    (user == ctx.message.author and str(reaction.emoji) == '❌')
@@ -50,15 +52,19 @@ class Help(commands.Cog):
                 embed = self.personalCommand(ctx)
             if str(reaction.emoji) == '❓':
                 embed = self.infoCommand(ctx)
+            if str(reaction.emoji) == '📘':
+                embed = self.dictCommand(ctx)
             if str(reaction.emoji) == '🔒':
                 if GG.is_staff_bool(ctx):
                     embed = self.staffCommand(ctx)
                     await message.clear_reactions()
-                    await message.add_reaction('🙊')
-                    await message.add_reaction('📊')
-                    await message.add_reaction('📖')
+                    await message.add_reaction('📊')  # Poll
+                    await message.add_reaction('📖')  # Server commands
+                    await message.add_reaction('📝')  # Server quotes
+                    # await message.add_reaction('🔇')  # Mute
                     await message.add_reaction('📔')
                     await message.add_reaction('❌')
+
                     staff = True
                 else:
                     pass
@@ -82,6 +88,8 @@ class Help(commands.Cog):
         embed.title = "Help command with clickable categories."
         embed.add_field(name='💬', value='Quote')
         embed.add_field(name='💭', value='Personal Quotes')
+        embed.add_field(name='📝', value='Server Quotes')
+        embed.add_field(name='📘', value='Dictionary')
         embed.add_field(name='❓', value='Information')
         if GG.is_staff_bool(ctx):
             embed.add_field(name='🔒', value='Staff Commands')
@@ -95,6 +103,17 @@ class Help(commands.Cog):
         embed.title = "Quoting of other people."
         embed.add_field(name="quote",
                         value=f"``{self.bot.get_server_prefix(ctx.message)}[quote|q] [msgId] [reply]``\nAllows you to quote someone else, anywhere in the server.",
+                        inline=False)
+        embed.set_footer(
+            text='These reactions are available for 60 seconds, afterwards it will stop responding.\n📔 Returns to '
+                 'the main menu.\n❌ Deletes this message from chat.')
+        return embed
+
+    def dictCommand(self, ctx):
+        embed = GG.EmbedWithAuthor(ctx)
+        embed.title = "Dictionary."
+        embed.add_field(name="Dictionary",
+                        value=f"``{self.bot.get_server_prefix(ctx.message)}[dictionary|dict|define] [term]``\nLooks up the definition of a word.",
                         inline=False)
         embed.set_footer(
             text='These reactions are available for 60 seconds, afterwards it will stop responding.\n📔 Returns to '
@@ -150,6 +169,8 @@ class Help(commands.Cog):
             message = await ctx.send(embed=embed)
             await message.add_reaction('📊')  # Poll
             await message.add_reaction('📖')  # Server commands
+            await message.add_reaction('📝')  # Server quotes
+            # await message.add_reaction('🔇')  # Mute
             await message.add_reaction('📔')
             await message.add_reaction('❌')
 
@@ -163,8 +184,10 @@ class Help(commands.Cog):
         def check(reaction, user):
             return (user == ctx.message.author and str(reaction.emoji) == '📊') or \
                    (user == ctx.message.author and str(reaction.emoji) == '📖') or \
+                   (user == ctx.message.author and str(reaction.emoji) == '📝') or \
                    (user == ctx.message.author and str(reaction.emoji) == '📔') or \
                    (user == ctx.message.author and str(reaction.emoji) == '❌')
+                    # (user == ctx.message.author and str(reaction.emoji) == '🔇') or \
 
         try:
             reaction, user = await ctx.bot.wait_for('reaction_add', timeout=60.0, check=check)
@@ -179,6 +202,10 @@ class Help(commands.Cog):
                 embed = self.serverCommand(ctx)
             if str(reaction.emoji) == '📔':
                 embed = self.staffCommand(ctx)
+            # if str(reaction.emoji) == '🔇':
+            #     embed = self.muteCommand(ctx)
+            if str(reaction.emoji) == '📝':
+                embed = self.serverQuoteCommand(ctx)
             if str(reaction.emoji) == '❌':
                 await message.delete()
                 if not isinstance(message.channel, discord.DMChannel):
@@ -195,6 +222,8 @@ class Help(commands.Cog):
                       "Administration permissions, or have been added with the addstaff (📖) command. "
         embed.add_field(name='📊', value='Poll')
         embed.add_field(name='📖', value='Server commands')
+        embed.add_field(name='📔', value='Server quotes')
+        # embed.add_field(name='🔇', value='Mute')
         embed.add_field(name='📔', value='This help message')
         embed.add_field(name='❌', value='Deletes this message')
         embed.set_footer(text='These reactions are available for 60 seconds, afterwards it will stop responding.')
@@ -208,6 +237,24 @@ class Help(commands.Cog):
                         inline=False)
         embed.add_field(name="poll option 2",
                         value="``"+self.bot.get_server_prefix(ctx.message)+"poll {title} [answer1] [answer2] ... [answer20]``\nThis command can be used to create a poll with a specific title and specific answers. Note that this command supports up to 20 answers. and the {} around the title and [] around the answers are **required**",
+                        inline=False)
+        embed.set_footer(
+            text='These reactions are available for 60 seconds, afterwards it will stop responding.\n📔 Returns to '
+                 'the main menu.\n❌ Deletes this message from chat.')
+        return embed
+
+    def serverQuoteCommand(self, ctx):
+        embed = GG.EmbedWithAuthor(ctx)
+        embed.title = "Your server quotes in the bot."
+        embed.add_field(name='global', value=f'``{self.bot.get_server_prefix(ctx.message)}[globalcommand|g] <trigger>``\nReturns your chosen server quote.',
+                        inline=False)
+        embed.add_field(name='globaladd',
+                        value=f'``{self.bot.get_server_prefix(ctx.message)}[globaladd|gadd] <trigger> [response]``\nAdds a server quote.',
+                        inline=False)
+        embed.add_field(name='globalremove',
+                        value=f'``{self.bot.get_server_prefix(ctx.message)}[globalremove|gremove|grem] <trigger>``\nRemoves a server quote.', inline=False)
+        embed.add_field(name='globallist',
+                        value=f'``{self.bot.get_server_prefix(ctx.message)}[globallist|glist] [page_number=1]``\nReturns all server quotes.',
                         inline=False)
         embed.set_footer(
             text='These reactions are available for 60 seconds, afterwards it will stop responding.\n📔 Returns to '
@@ -235,8 +282,14 @@ class Help(commands.Cog):
         embed.add_field(name="delstaff",
                         value=f"``{self.bot.get_server_prefix(ctx.message)}delstaff <roleId>``\nRemoves a role from the staff list.",
                         inline=False)
+        embed.add_field(name="nudge",
+                        value=f"``{self.bot.get_server_prefix(ctx.message)}nudge <msgId>``\nMoves a message to the proper channel, with a little warning.",
+                        inline=False)
         embed.add_field(name="prefix",
                         value=f"``{self.bot.get_server_prefix(ctx.message)}prefix [prefix]``\nSets the bot's prefix for this server.\nForgot the prefix? Reset it with '@DiscordCrawler#6716 prefix !'.",
+                        inline=False)
+        embed.add_field(name="purge",
+                        value=f"``{self.bot.get_server_prefix(ctx.message)}purge <amount>``\nPurges an x amount of messages, with a little warning.",
                         inline=False)
         embed.set_footer(
             text='These reactions are available for 60 seconds, afterwards it will stop responding.\n📔 Returns to '
