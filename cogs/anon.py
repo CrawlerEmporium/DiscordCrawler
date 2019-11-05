@@ -59,22 +59,13 @@ class Anon(commands.Cog):
                         if command == "!fake":
                             if message.author.id == LordDusk.id:
                                 if int(msg_id) in GG.REPORTERS:
-                                    reporter = DBService.exec(
+                                    reporterDB = DBService.exec(
                                         "SELECT User FROM Reports WHERE Message = " + str(msg_id)).fetchone()
-                                    print(reporter)
-                                    begin = str(reporter[0])[:-2]
-                                    end = str(reporter[0])[-2:]
-                                    sendString = ""
-                                    if end == "00":
-                                        for i in range(100):
-                                            sendString += f"<@{begin}{i}>\n"
-                                            if len(sendString) > 1500:
-                                                await LordDusk.send(f"{sendString}")
-                                                sendString = ""
-                                        await LordDusk.send(f"{sendString}")
-                                    else:
-                                        reporter = self.bot.get_user(int(reporter[0]))
+                                    reporter = self.bot.get_user(int(reporterDB[0]))
+                                    try:
                                         await LordDusk.send(f"Anon Troll ---\nName: {reporter.name}\nID: {reporter.id}\nDiscriminator: {reporter.discriminator}\nDisplay Name: {reporter.display_name}")
+                                    except:
+                                        await message.channel.send(f"Ths user left the server. So I can't do anything about this. User: <@{reporterDB[0]}>")
                             else:
                                 await LordDusk.send("User not found...")
                             await message.delete()
