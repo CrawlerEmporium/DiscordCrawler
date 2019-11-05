@@ -71,25 +71,29 @@ class Anon(commands.Cog):
                             await message.delete()
                         elif command == "!reply":
                             if int(msg_id) in GG.REPORTERS:
-                                reporter = DBService.exec(
+                                reporterDB = DBService.exec(
                                     "SELECT User FROM Reports WHERE Message = " + str(msg_id)).fetchone()
-                                reporter = self.bot.get_user(int(reporter[0]))
-                                if reporter.dm_channel is None:
-                                    dm_channel = await reporter.create_dm()
+                                reporter = self.bot.get_user(int(reporterDB[0]))
+                                if reporter is not None:
+                                    if reporter.dm_channel is None:
+                                        dm_channel = await reporter.create_dm()
+                                    else:
+                                        dm_channel = reporter.dm_channel
+                                    author = message.author
+                                    em = discord.Embed(title=f"A member of staff has a reaction to your report.",
+                                                       author=author.display_name, description=reply)
+                                    try:
+                                        await dm_channel.send(embed=em)
+                                        msg = await channel.fetch_message(msg_id)
+                                        await msg.add_reaction("✅")
+                                        await message.add_reaction("✅")
+                                    except discord.errors.Forbidden:
+                                        await message.channel.send(
+                                            "Sorry, I can't reach this person, they either blocked me, or turned off their "
+                                            "DM's for me (more likely).")
                                 else:
-                                    dm_channel = reporter.dm_channel
-                                author = message.author
-                                em = discord.Embed(title=f"A member of staff has a reaction to your report.",
-                                                   author=author.display_name, description=reply)
-                                try:
-                                    await dm_channel.send(embed=em)
-                                    msg = await channel.fetch_message(msg_id)
-                                    await msg.add_reaction("✅")
-                                    await message.add_reaction("✅")
-                                except discord.errors.Forbidden:
                                     await message.channel.send(
-                                        "Sorry, I can't reach this person, they either blocked me, or turned off their "
-                                        "DM's for me (more likely).")
+                                        f"Ths user left the server. So I can't do anything about this. User: <@{reporterDB[0]}>")
                             else:
                                 await message.channel.send(
                                     f"[DEBUG] Sorry, reporter not found. I'll DM my owner {LordDusk.mention} for you.")
