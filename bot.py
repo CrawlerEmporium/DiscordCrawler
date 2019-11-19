@@ -203,8 +203,7 @@ if __name__ == "__main__":
     bot.state = "run"
     for extension in [f.replace('.py', '') for f in listdir(GG.COGS) if isfile(join(GG.COGS, f))]:
         try:
-            if extension != "blacklist" and bot.testing == False:
-                bot.load_extension(GG.COGS + "." + extension)
+            bot.load_extension(GG.COGS + "." + extension)
         except Exception as e:
             log.error(f'Failed to load extension {extension}')
     bot.run(bot.token)
