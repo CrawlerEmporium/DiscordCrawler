@@ -54,8 +54,13 @@ class Dictionary(commands.Cog):
                 example = meaning_[f'{x}'][y]['example'].capitalize()
             except:
                 example = "-"
-            definition = f"{meaning_[f'{x}'][y]['definition']}\n**Example**: {example}"
-            embed.add_field(name=f"Description ({x})", value=definition, inline=False)
+            try:
+                definition = f"{meaning_[f'{x}'][y]['definition']}\n**Example**: {example}"
+                embed.add_field(name=f"Description ({x})", value=definition, inline=False)
+            except:
+                definition = f"**Example**: {example}"
+                embed.add_field(name=f"** **", value=definition, inline=False)
+
 
 
 def setup(bot):
