@@ -29,7 +29,11 @@ class Poll(commands.Cog):
     @is_staff()
     @commands.guild_only()
     async def poll(self, ctx):
-        """[STAFF ONLY]"""
+        """[STAFF ONLY]
+        $poll {title} [answer1] [answer2] ... [answer20]
+        This command can be used to create a poll with a specific title and specific answers.
+        Note that this command supports up to 20 answers. and the {} around the title and [] around the answers are required"""
+
         if GG.checkPermission(ctx, "ar"):
             message = ctx.message
             if not message.author.bot:
