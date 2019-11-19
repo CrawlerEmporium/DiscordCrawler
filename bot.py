@@ -64,6 +64,10 @@ bot = Crawler(prefix=get_prefix, case_insensitive=True, status=discord.Status.id
               activity=discord.Game(f"$help | {version}"),
               help_command=commands.DefaultHelpCommand(command_attrs={"name": "oldhelp"}))
 
+@bot.event
+async def on_message(msg):
+    if msg.author.id == 645958319982510110 or not msg.author.bot:
+        await bot.invoke(await bot.get_context(msg))
 
 @bot.event
 async def on_ready():
@@ -199,7 +203,8 @@ if __name__ == "__main__":
     bot.state = "run"
     for extension in [f.replace('.py', '') for f in listdir(GG.COGS) if isfile(join(GG.COGS, f))]:
         try:
-            bot.load_extension(GG.COGS + "." + extension)
+            if extension != "blacklist" and bot.testing == True:
+                bot.load_extension(GG.COGS + "." + extension)
         except Exception as e:
             log.error(f'Failed to load extension {extension}')
     bot.run(bot.token)
