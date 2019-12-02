@@ -38,7 +38,7 @@ def list_embed(list_personals, author):
         lst = list_personals[i:i + 10]
         desc = ""
         for item in lst:
-            desc += '\n'.join('• `' + str(item[2]) + '`')
+            desc += '• `' + str(item[1]) + '`\n'
         if isinstance(author, discord.Member) and author.color != discord.Colour.default():
             embed = discord.Embed(description=desc, color=author.color)
         else:
