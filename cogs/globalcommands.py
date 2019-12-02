@@ -2,6 +2,7 @@ import discord
 import math
 
 from DBService import DBService
+from disputils import BotEmbedPaginator
 from discord.ext import commands
 from utils import logger
 import utils.globals as GG
@@ -31,13 +32,20 @@ def global_embed(self, db_response, author, message, command):
     return embed
 
 
-def list_embed(list_personals, author, page_number, page_numbers):
-    if isinstance(author, discord.Member) and author.color != discord.Colour.default():
-        embed = discord.Embed(description='\n'.join(['• `' + i[1] + '`' for i in list_personals]), color=author.color)
-    else:
-        embed = discord.Embed(description='\n'.join(['• `' + i[1] + '`' for i in list_personals]))
-    embed.set_footer(text='Page: ' + str(page_number) +' / '+ str(page_numbers))
-    return embed
+def list_embed(list_personals, author):
+    embedList = []
+    for i in range(0, len(list_personals), 10):
+        lst = list_personals[i:i + 10]
+        desc = "** **"
+        for item in lst:
+            desc = '\n'.join('• `' + item[1] + '`')
+        if isinstance(author, discord.Member) and author.color != discord.Colour.default():
+            embed = discord.Embed(description=desc, color=author.color)
+        else:
+            embed = discord.Embed(description=desc)
+        embed.set_author(name='Personal Quotes', icon_url=author.avatar_url)
+        embedList.append(embed)
+    return embedList
 
 
 class GlobalCommands(commands.Cog):
@@ -106,13 +114,13 @@ class GlobalCommands(commands.Cog):
     async def globallist(self, ctx, page_number: int = 1):
         """Returns all global commands."""
         user_quotes = DBService.exec(
-            "SELECT * FROM GlobalCommands WHERE Guild = " + str(ctx.message.guild.id) + " LIMIT 10 OFFSET " + str(
-                10 * (page_number - 1))).fetchall()
+            "SELECT * FROM GlobalCommands WHERE Guild = " + str(ctx.message.guild.id)).fetchall()
         if len(user_quotes) == 0:
-            await ctx.send(content=":x:" + ' **No global commands on page `' + str(page_number) + '`**')
+            await ctx.send(content=":x:" + ' **You have no global quotes**')
         else:
-            count = math.ceil(DBService.exec("SELECT COUNT(*) FROM GlobalCommands WHERE Guild = " + str(ctx.message.guild.id)).fetchone()[0]/10)
-            await ctx.send(embed=list_embed(user_quotes, ctx.author, page_number, count))
+            embeds = list_embed(user_quotes, ctx.author)
+            paginator = BotEmbedPaginator(ctx, embeds)
+            await paginator.run()
         await GG.upCommand("glist")
 
 

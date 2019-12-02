@@ -1,10 +1,10 @@
 import discord
-import math
-
-from DBService import DBService
 from discord.ext import commands
-from utils import logger
+from disputils import BotEmbedPaginator
+
 import utils.globals as GG
+from DBService import DBService
+from utils import logger
 
 log = logger.logger
 
@@ -30,14 +30,20 @@ def personal_embed(db_response, author):
     return embed
 
 
-def list_embed(list_personals, author, page_number, page_numbers):
-    if isinstance(author, discord.Member) and author.color != discord.Colour.default():
-        embed = discord.Embed(description='\n'.join(['• `' + i[1] + '`' for i in list_personals]), color=author.color)
-    else:
-        embed = discord.Embed(description='\n'.join(['• `' + i[1] + '`' for i in list_personals]))
-    embed.set_author(name='Personal Quotes', icon_url=author.avatar_url)
-    embed.set_footer(text='Page: ' + str(page_number) +' / '+ str(page_numbers))
-    return embed
+def list_embed(list_personals, author):
+    embedList = []
+    for i in range(0, len(list_personals), 10):
+        lst = list_personals[i:i + 10]
+        desc = "** **"
+        for item in lst:
+            desc = '\n'.join('• `' + item[1] + '`')
+        if isinstance(author, discord.Member) and author.color != discord.Colour.default():
+            embed = discord.Embed(description=desc, color=author.color)
+        else:
+            embed = discord.Embed(description=desc)
+        embed.set_author(name='Personal Quotes', icon_url=author.avatar_url)
+        embedList.append(embed)
+    return embedList
 
 
 class PersonalQuotes(commands.Cog):
@@ -97,16 +103,16 @@ class PersonalQuotes(commands.Cog):
         await GG.upCommand("p")
 
     @commands.command(aliases=['plist'])
-    async def personallist(self, ctx, page_number: int = 1):
+    async def personallist(self, ctx):
         """Returns all your personal quotes."""
         user_quotes = DBService.exec(
-            "SELECT * FROM PersonalQuotes WHERE User = " + str(ctx.author.id) + " LIMIT 10 OFFSET " + str(
-                10 * (page_number - 1))).fetchall()
+            "SELECT * FROM PersonalQuotes WHERE User = " + str(ctx.author.id)).fetchall()
         if len(user_quotes) == 0:
-            await ctx.send(content=":x:" + ' **No personal quotes on page `' + str(page_number) + '`**')
+            await ctx.send(content=":x:" + ' **You have no personal quotes**')
         else:
-            count = math.ceil(DBService.exec("SELECT COUNT(*) FROM PersonalQuotes WHERE User = " + str(ctx.author.id)).fetchone()[0]/10)
-            await ctx.send(embed=list_embed(user_quotes, ctx.author, page_number, count))
+            embeds = list_embed(user_quotes, ctx.author)
+            paginator = BotEmbedPaginator(ctx, embeds)
+            await paginator.run()
         await GG.upCommand("plist")
 
     @commands.command(aliases=['pclear'])
