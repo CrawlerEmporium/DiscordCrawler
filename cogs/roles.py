@@ -36,7 +36,7 @@ class Roles(commands.Cog):
             except:
                 await message.remove_reaction(emoji, ctx.guild.me)
                 await ctx.send(
-                    "You are trying to add a reaction to thr message that already exists, or the role it would give as reaction is already in use.\nPlease check if this is correct, if not, please contact my owner in `$support`")
+                    "You are trying to add a reaction to the message that already exists, or the role it would give as reaction is already in use.\nPlease check if this is correct, if not, please contact my owner in `$support`")
 
     @commands.command()
     @commands.guild_only()
