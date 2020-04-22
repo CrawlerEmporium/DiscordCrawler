@@ -3,6 +3,7 @@ from discord.ext import commands
 
 import utils.globals as GG
 from utils import logger
+from utils.checks import is_staff_trouble
 
 log = logger.logger
 
@@ -19,13 +20,26 @@ class Nudge(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    @GG.is_staff()
+    @is_staff_trouble()
     async def nudge(self, ctx, messages: commands.Greedy[int]):
         msgs = []
+        msgAuthors = []
         channel = self.bot.get_channel(ctx.message.channel.id)
+        perms = ctx.guild.me.permissions_in(ctx.channel)
+
+        if ctx.author.roles is not None:
+            for r in ctx.author.roles:
+                if r.id not in GG.STAFF and r.id == 593720945324326914:
+                    if ctx.message.channel.id not in [470673352395325455, 607182631381237771, 586998165962490023]:
+                        await ctx.message.delete()
+                        await ctx.send("You are only allowed to nudge messages to the issue channels.")
+                        return
+
         for message in messages:
             try:
                 msg = await ctx.channel.fetch_message(message)
+                if msg.author not in msgAuthors:
+                    msgAuthors.append(msg.author)
                 msgs.append(msg)
                 await msg.delete()
             except:
@@ -42,21 +56,32 @@ class Nudge(commands.Cog):
                     else:
                         break
 
+        await ctx.message.delete()
+
         length = len(messages)
         if length <= 0:
             await ctx.send("I need one or more message Ids")
         else:
-            message = f"{msgs[0].author.mention} Your recent {singleOrMulti(length)[0]} should have been posted in this channel (see the channel description below).\n" \
-                      f"Your prior {singleOrMulti(length)[0]} {singleOrMulti(length)[1]} removed and {singleOrMulti(length)[2]} appended below. Thank you for helping keep conversations in their intended topics."
-
-            embed = discord.Embed()
-            embed.add_field(name="Channel Description", value=ctx.message.channel.topic, inline=False)
-            embed.add_field(name="Your original posts", value=msgs[0].content, inline=False)
-            for msg in msgs[1:]:
-                embed.add_field(name="** **", value=msg.content, inline=False)
-
-            await ctx.message.delete()
-            await ctx.send(content=message, embed=embed)
+            authors = ""
+            for author in msgAuthors:
+                authors += f"{author.mention}, "
+            message = f"{authors[:-2]} Your recent {singleOrMulti(length)[0]} should have been posted in this channel. (see the channel description below).\n" \
+                      f"Your prior {singleOrMulti(length)[0]} {singleOrMulti(length)[1]} removed and {singleOrMulti(length)[2]} appended below. Thank you for helping keep conversations in their intended topics.\n\n" \
+                      f"Channel Description: {ctx.message.channel.topic}"
+            if perms.manage_webhooks:
+                webhook = await ctx.channel.create_webhook(name="Nudging")
+                await ctx.send(content=message)
+                for msg in msgs:
+                    await webhook.send(content=msg.content.replace('@everyone', '@еveryone').replace('@here', '@hеre'),
+                                       username=msg.author.display_name, avatar_url=msg.author.avatar_url)
+                await webhook.delete()
+            else:
+                embed = discord.Embed()
+                embed.add_field(name="Channel Description", value=ctx.message.channel.topic, inline=False)
+                embed.add_field(name="Your original posts", value=msgs[0].content, inline=False)
+                for msg in msgs[1:]:
+                    embed.add_field(name="** **", value=msg.content, inline=False)
+                await ctx.send(content=message, embed=embed)
 
 
 def setup(bot):

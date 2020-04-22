@@ -1,12 +1,12 @@
 import random
-import string
-import time
 
 import discord
-from discord.ext import commands
-from environs import Env
+import motor.motor_asyncio
+import time
 from discord import VerificationLevel as VL
 from discord import VoiceRegion as VR
+from discord.ext import commands
+from environs import Env
 
 from DBService import DBService
 
@@ -20,24 +20,33 @@ OWNER = int(env('OWNER'))
 
 BOT = 574554734187380756
 PM_TRUE = True
+MDB = motor.motor_asyncio.AsyncIOMotorClient(env('MONGODB'))['models']
 
 CHANNELDB = DBService.exec("SELECT Channel, Type FROM ChannelInfo").fetchall()
+
+
 def loadChannels(CHANNELDB):
     channel = {}
     for i in CHANNELDB:
         channel[int(i[0])] = i[1]
     return channel
+
+
 CHANNEL = loadChannels(CHANNELDB)
 
 REPORTERSDB = DBService.exec("SELECT Message FROM Reports").fetchall()
 REPORTERS = [int(i[0]) for i in REPORTERSDB]
 
 PREFIXESDB = DBService.exec("SELECT Guild, Prefix FROM Prefixes").fetchall()
+
+
 def loadChannels(PREFIXESDB):
     prefixes = {}
     for i in PREFIXESDB:
         prefixes[str(i[0])] = str(i[1])
     return prefixes
+
+
 PREFIXES = loadChannels(PREFIXESDB)
 
 STAFFDB = DBService.exec("SELECT Roles FROM ServerStaff").fetchall()
@@ -50,6 +59,8 @@ GREYDB = DBService.exec("SELECT Guild FROM Grey").fetchall()
 GREYS = [int(i[0]) for i in GREYDB]
 
 REACTIONROLESDB = DBService.exec("Select MessageID, RoleId, Emoji FROM ReactionRoles").fetchall()
+
+
 def loadReactionRoles(REACTIONROLESDB):
     reactionRole = {}
     for i in REACTIONROLESDB:
@@ -58,9 +69,12 @@ def loadReactionRoles(REACTIONROLESDB):
             reactionRole[key] = []
         reactionRole[key].append((i[1], i[2]))
     return reactionRole
+
+
 REACTIONROLES = loadReactionRoles(REACTIONROLESDB)
 
-CLEANER = [496672117384019969,280892074247716864]
+CLEANER = [496672117384019969, 280892074247716864]
+
 
 async def upCommand(command):
     try:
@@ -123,11 +137,13 @@ def checkPermission(ctx, permission):
     else:
         return False
 
+
 def is_in_guild(guild_id):
     async def predicate(ctx):
         return ctx.guild and ctx.guild.id == guild_id
 
     return commands.check(predicate)
+
 
 def is_staff():
     async def predicate(ctx):
@@ -164,6 +180,7 @@ def is_staff():
 
     return commands.check(predicate)
 
+
 def is_staff_bool(ctx):
     global allowed
     if isinstance(ctx.author, discord.Member):
@@ -196,6 +213,7 @@ def is_staff_bool(ctx):
 
     return allowed
 
+
 def is_cleaner():
     async def predicate(ctx):
         if isinstance(ctx.author, discord.Member):
@@ -206,17 +224,21 @@ def is_cleaner():
                 return False
             return False
         return False
+
     return commands.check(predicate)
+
 
 def cutStringInPieces(input):
     n = 900
     output = [input[i:i + n] for i in range(0, len(input), n)]
     return output
 
+
 def cutListInPieces(input):
     n = 30
     output = [input[i:i + n] for i in range(0, len(input), n)]
     return output
+
 
 def countChannels(channels):
     channelCount = 0
@@ -230,9 +252,9 @@ def countChannels(channels):
             pass
     return channelCount, voiceCount
 
+
 def get_server_prefix(self, msg):
     return self.get_prefix(self, msg)[-1]
-
 
 
 VERIFLEVELS = {VL.none: "None", VL.low: "Low", VL.medium: "Medium", VL.high: "(╯°□°）╯︵  ┻━┻",
@@ -257,11 +279,13 @@ REGION = {VR.brazil: ":flag_br: Brazil",
           VR.japan: ":flag_jp: Japan",
           VR.southafrica: ":flag_za:  South Africa"}
 
+
 def checkDays(date):
     now = date.fromtimestamp(time.time())
     diff = now - date
     days = diff.days
     return f"{days} {'day' if days == 1 else 'days'} ago"
+
 
 def reloadReactionRoles():
     REACTIONROLESDB = DBService.exec("Select MessageID, RoleId, Emoji FROM ReactionRoles").fetchall()
