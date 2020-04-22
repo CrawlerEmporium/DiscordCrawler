@@ -15,8 +15,6 @@ def global_embed(self, db_response, author, message, command):
         embed = discord.Embed(description=db_response[2], color=author.color)
     else:
         embed = discord.Embed(description=db_response[2])
-    embed.set_author(name=str(author), icon_url=author.avatar_url)
-    embed.title = command
     if db_response[3] != None:
         attachments = db_response[3].split(' | ')
         if len(attachments) == 1 and (
