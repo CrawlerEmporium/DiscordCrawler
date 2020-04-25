@@ -49,6 +49,8 @@ class Nudge(commands.Cog):
                         continue
                     try:
                         msg = await channel.fetch_message(message)
+                        if msg.author not in msgAuthors:
+                            msgAuthors.append(msg.author)
                         msgs.append(msg)
                         await msg.delete()
                     except:
