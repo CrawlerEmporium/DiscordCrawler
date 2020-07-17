@@ -240,8 +240,15 @@ class Blacklist(commands.Cog):
                                         await DM.send(
                                             f"Hey, your post was [redacted], because you used a blacklisted term: ``{y}``, watch your language. If you think this is an error and/or the term should be whitelisted, please contact a member of staff.\nYour message for the sake of completion: ```{message.content}```")
                                     except discord.Forbidden:
-                                        await self.bot.get_channel(message.channel.id).send(
-                                            f"I also tried DMing the person this, but he either has me blocked, or doesn't allow DM's")
+                                        if message.guild.id == 154312731879669770:
+                                            await self.bot.get_channel(154312731879669770).send(
+                                                f"I also tried DMing the person this, but he either has me blocked, or doesn't allow DM's")
+                                        elif message.guild.id == 584842413135101990:
+                                            await self.bot.get_channel(604728578801795074).send(
+                                                f"I also tried DMing the person this, but he either has me blocked, or doesn't allow DM's")
+                                        else:
+                                            await self.bot.get_channel(message.channel.id).send(
+                                                f"I also tried DMing the person this, but he either has me blocked, or doesn't allow DM's")
                                     await message.delete()
                                     break
 
