@@ -126,7 +126,7 @@ class Blacklist(commands.Cog):
 
     @commands.command(aliases=['bl'])
     @commands.guild_only()
-    # @commands.has_permissions(administrator=True)
+    @commands.has_permissions(administrator=True)
     async def blacklist(self, ctx, *, args):
         DBService.exec(
             "INSERT INTO Terms (Guild, Term) VALUES (" + str(ctx.guild.id) + ",'" + str(args) + "')")
