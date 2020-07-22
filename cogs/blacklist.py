@@ -163,8 +163,7 @@ class Blacklist(commands.Cog):
     @commands.command()
     @commands.guild_only()
     async def blacklisted(self, ctx):
-        TERMS = DBService.exec("SELECT Term FROM TERMS WHERE Guild = " + str(ctx.guild.id) + "").fetchall()
-        TERMS = [''.join(i) for i in TERMS]
+        TERMS = await GG.MDB.blacklist.find({"guild": ctx.guild.id}).to_list(length=None)
         if ctx.author.dm_channel is not None:
             DM = ctx.author.dm_channel
         else:
@@ -177,14 +176,13 @@ class Blacklist(commands.Cog):
             em.add_field(name="Blacklisted words", value=string)
             await DM.send(embed=em)
         except discord.Forbidden:
-            await ctx.send(f"I tried DMing you, but you either blocked me, or don't allow DM's")
+            await ctx.send(f"{ctx.author.mention} I tried DMing you, but you either blocked me, or you don't allow DM's")
         await ctx.message.delete()
 
     @commands.command(aliases=['graylisted'])
     @commands.guild_only()
     async def greylisted(self, ctx):
-        TERMS = DBService.exec("SELECT Term FROM Grey WHERE Guild = " + str(ctx.guild.id) + "").fetchall()
-        TERMS = [''.join(i) for i in TERMS]
+        TERMS = await GG.MDB.greylist.find({"guild": ctx.guild.id}).to_list(length=None)
         if ctx.author.dm_channel is not None:
             DM = ctx.author.dm_channel
         else:
@@ -232,6 +230,7 @@ class Blacklist(commands.Cog):
                                     if message.guild.id == 584842413135101990:
                                         await self.bot.get_channel(604728578801795074).send(
                                             f"{message.author.display_name} ({message.author.mention}) used a blacklisted term in {message.channel.mention}.\nThe message: ```{message.content}```")
+                                    await message.delete()
                                     if message.author.dm_channel is not None:
                                         DM = message.author.dm_channel
                                     else:
@@ -249,7 +248,6 @@ class Blacklist(commands.Cog):
                                         else:
                                             await self.bot.get_channel(message.channel.id).send(
                                                 f"I also tried DMing the person this, but he either has me blocked, or doesn't allow DM's")
-                                    await message.delete()
                                     break
 
     async def checkMessage(self, message, x):
