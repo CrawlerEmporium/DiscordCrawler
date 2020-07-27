@@ -66,7 +66,6 @@ class JoinLeave(commands.Cog):
         await self.bot.change_presence(
             activity=discord.Game(f"with {len(self.bot.guilds)} servers | !help | v{self.bot.version}"),
             afk=True)
-        await GG.DB.srd_enabled.delete_one({"guildId": guild.id})
 
 
 def setup(bot):
