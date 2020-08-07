@@ -88,7 +88,6 @@ class Help(commands.Cog):
         embed.title = "Help command with clickable categories."
         embed.add_field(name='💬', value='Quote')
         embed.add_field(name='💭', value='Personal Quotes')
-        embed.add_field(name='📝', value='Server Quotes')
         embed.add_field(name='📘', value='Dictionary')
         embed.add_field(name='❓', value='Information')
         if GG.is_staff_bool(ctx):
@@ -222,7 +221,7 @@ class Help(commands.Cog):
                       "Administration permissions, or have been added with the addstaff (📖) command. "
         embed.add_field(name='📊', value='Poll')
         embed.add_field(name='📖', value='Server commands')
-        embed.add_field(name='📔', value='Server quotes')
+        embed.add_field(name='📝', value='Server quotes')
         # embed.add_field(name='🔇', value='Mute')
         embed.add_field(name='📔', value='This help message')
         embed.add_field(name='❌', value='Deletes this message')
