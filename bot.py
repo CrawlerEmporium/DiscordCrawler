@@ -206,10 +206,10 @@ async def on_command_error(ctx, error):
 
 if __name__ == "__main__":
     bot.state = "run"
-    bot.load_extension('cogs.quote')
-    # for extension in [f.replace('.py', '') for f in listdir(GG.COGS) if isfile(join(GG.COGS, f))]:
-    #     try:
-    #         bot.load_extension(GG.COGS + "." + extension)
-    #     except Exception as e:
-    #         log.error(f'Failed to load extension {extension}')
+    # bot.load_extension('cogs.quote')
+    for extension in [f.replace('.py', '') for f in listdir(GG.COGS) if isfile(join(GG.COGS, f))]:
+        try:
+            bot.load_extension(GG.COGS + "." + extension)
+        except Exception as e:
+            log.error(f'Failed to load extension {extension}')
     bot.run(bot.token)
