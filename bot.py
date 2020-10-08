@@ -26,6 +26,7 @@ version = "v1.0"
 SHARD_COUNT = 1
 TESTING = False
 defaultPrefix = GG.PREFIX if not TESTING else '*'
+intents = discord.Intents().all()
 
 
 def get_prefix(b, message):
@@ -59,15 +60,17 @@ class Crawler(commands.AutoShardedBot):
         await super(Crawler, self).launch_shards()
 
 
-bot = Crawler(prefix=get_prefix, case_insensitive=True, status=discord.Status.idle,
+bot = Crawler(prefix=get_prefix, intents=intents, case_insensitive=True, status=discord.Status.idle,
               description="A bot.", shard_count=SHARD_COUNT, testing=TESTING,
               activity=discord.Game(f"$help | {version}"),
               help_command=commands.DefaultHelpCommand(command_attrs={"name": "oldhelp"}))
+
 
 @bot.event
 async def on_message(msg):
     if msg.author.id == 645958319982510110 or not msg.author.bot:
         await bot.invoke(await bot.get_context(msg))
+
 
 @bot.event
 async def on_ready():
@@ -112,6 +115,7 @@ async def on_guild_join(guild):
         await bot.change_presence(activity=discord.Game(f"with {len(bot.guilds)} servers | !help | {version}"),
                                   afk=True)
 
+
 @bot.event
 async def on_command(ctx):
     try:
@@ -121,6 +125,7 @@ async def on_command(ctx):
                 ctx))
     except AttributeError:
         log.info("Command in PM with {0.message.author} ({0.message.author.id}): {0.message.content}".format(ctx))
+
 
 @bot.event
 async def on_command_error(ctx, error):
@@ -135,7 +140,7 @@ async def on_command_error(ctx, error):
     if isinstance(error,
                   (commands.MissingRequiredArgument, commands.BadArgument, commands.NoPrivateMessage, ValueError)):
         return await ctx.send("Error: " + str(
-            error) + f"\nUse `{ctx.prefix}help " + ctx.command.qualified_name + "` for help.")
+            error) + f"\nUse `{ctx.prefix}oldhelp " + ctx.command.qualified_name + "` for help.")
     elif isinstance(error, commands.CheckFailure):
         return await ctx.send("Error: You are not allowed to run this command.")
     elif isinstance(error, commands.CommandOnCooldown):
@@ -146,7 +151,7 @@ async def on_command_error(ctx, error):
             e = original.original
             if not isinstance(e, CrawlerException):
                 tb = f"```py\nError when parsing expression {original.expression}:\n" \
-                    f"{''.join(traceback.format_exception(type(e), e, e.__traceback__, limit=0, chain=False))}\n```"
+                     f"{''.join(traceback.format_exception(type(e), e, e.__traceback__, limit=0, chain=False))}\n```"
                 try:
                     await ctx.author.send(tb)
                 except Exception as e:
@@ -201,9 +206,10 @@ async def on_command_error(ctx, error):
 
 if __name__ == "__main__":
     bot.state = "run"
-    for extension in [f.replace('.py', '') for f in listdir(GG.COGS) if isfile(join(GG.COGS, f))]:
-        try:
-            bot.load_extension(GG.COGS + "." + extension)
-        except Exception as e:
-            log.error(f'Failed to load extension {extension}')
+    bot.load_extension('cogs.quote')
+    # for extension in [f.replace('.py', '') for f in listdir(GG.COGS) if isfile(join(GG.COGS, f))]:
+    #     try:
+    #         bot.load_extension(GG.COGS + "." + extension)
+    #     except Exception as e:
+    #         log.error(f'Failed to load extension {extension}')
     bot.run(bot.token)
