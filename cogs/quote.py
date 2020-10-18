@@ -1,12 +1,6 @@
 import datetime
 import re
-import typing
 import discord
-import json
-import time
-import dateutil.parser
-import requests
-from discord import Webhook, AsyncWebhookAdapter, Permissions
 from utils import globals as GG
 from discord.ext import commands
 from utils import logger
@@ -20,25 +14,30 @@ class Quote(commands.Cog):
 
     @commands.command(aliases=['q'])
     @commands.guild_only()
-    async def quote(self, ctx, msg_arg=None, *, reply=None):
-        if not msg_arg:
-            return await ctx.send(content=":x:" + ' **Please provide a valid message argument.**')
+    async def quote(self, ctx, msgId: int = None, *, reply=None):
+        if not msgId:
+            await ctx.send(content=":x:" + ' **Please provide a valid message argument.**')
+            return
+
+        if not isinstance(msgId, int):
+            await ctx.send(content=":x:" + " **I work only with message Id's.**")
+            return
 
         await ctx.message.delete()
 
         message = None
         try:
-            msg_arg = int(msg_arg)
+            msgId = int(msgId)
             perms = ctx.guild.me.permissions_in(ctx.channel)
         except ValueError:
             if perms.read_messages and perms.read_message_history:
                 async for msg in ctx.channel.history(limit=100, before=ctx.message):
-                    if msg_arg.lower() in msg.content.lower():
+                    if msgId.lower() in msg.content.lower():
                         message = msg
                         break
         else:
             try:
-                message = await ctx.channel.fetch_message(msg_arg)
+                message = await ctx.channel.fetch_message(msgId)
             except:
                 for channel in ctx.guild.text_channels:
                     perms = ctx.guild.me.permissions_in(channel)
@@ -46,7 +45,7 @@ class Quote(commands.Cog):
                         continue
 
                     try:
-                        message = await channel.fetch_message(msg_arg)
+                        message = await channel.fetch_message(msgId)
                     except:
                         continue
                     else:
@@ -83,6 +82,7 @@ def parse_time(timestamp):
 
 
 def quote_embed(context_channel, message, user):
+    print(message)
     if not message.content and message.embeds and message.author.bot:
         embed = message.embeds[0]
     else:
@@ -104,6 +104,8 @@ def quote_embed(context_channel, message, user):
                 embed.add_field(name='Attachments', value=':underage: **Quoted message belongs in NSFW channel.**')
             elif len(message.attachments) == 1 and message.attachments[0].url.lower().endswith(
                     ('.jpg', '.jpeg', '.png', '.gif', '.gifv', '.webp', '.bmp')):
+                print(message.attachments[0].filename)
+                print(message.attachments[0].url)
                 embed.set_image(url=message.attachments[0].url)
             else:
                 for attachment in message.attachments:
