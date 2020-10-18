@@ -30,7 +30,7 @@ class Nudge(commands.Cog):
         if ctx.author.roles is not None:
             for r in ctx.author.roles:
                 if r.id not in GG.STAFF and r.id == 593720945324326914:
-                    if ctx.message.channel.id not in [470673352395325455, 607182631381237771, 586998165962490023]:
+                    if ctx.message.channel.id not in [470673352395325455, 607182631381237771, 586998165962490023, 470680051638075423]:
                         await ctx.message.delete()
                         await ctx.send("You are only allowed to nudge messages to the issue channels.")
                         return
