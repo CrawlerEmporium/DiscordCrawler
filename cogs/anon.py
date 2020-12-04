@@ -5,7 +5,6 @@ from discord import File as reportFile
 from discord.ext import commands
 from utils import globals as GG
 from utils import logger
-from DBService import DBService
 
 log = logger.logger
 
@@ -27,14 +26,13 @@ class Anon(commands.Cog):
                 TYPE = GG.CHANNEL[channel.id]
 
                 if TYPE == "ANON":
-                    delivery_channel = DBService.exec("SELECT Channel FROM ChannelInfo WHERE Guild = " + str(
-                        message.guild.id) + " AND Type = 'DELIVERY'").fetchone()
+                    delivery_channel = await GG.MDB['channelinfo'].find_one({"guild": message.guild.id, "type": "DELIVERY"})
                     if delivery_channel is None:
                         await self.noDeliveryChannel(message)
                         await self.notifyOwner(message)
                         await message.delete()
                     else:
-                        delivery_channel = self.bot.get_channel(delivery_channel[0])
+                        delivery_channel = self.bot.get_channel(delivery_channel['channel'])
                         content = message.content
                         author = message.author
                         em = discord.Embed(title=f"New report", author=author.display_name, description=content)
@@ -48,32 +46,17 @@ class Anon(commands.Cog):
                                 Bytes = await a.read()
                                 await delivery_channel.send(content=content,
                                                             file=reportFile(BytesIO(Bytes), filename="Image.png"))
-                        await DBService.save_reporter(report.id, author.id)
-                        GG.REPORTERS.append(report.id)
+                        await GG.MDB['channelinfo'].insert_one({"user": author.id, "message": report.id})
                         await message.delete()
 
                 if TYPE == "DELIVERY":
                     content = message.content
                     try:
                         command, msg_id, reply = content.split(" ", 2)
-                        if command == "!fake":
-                            if message.author.id == LordDusk.id:
-                                if int(msg_id) in GG.REPORTERS:
-                                    reporterDB = DBService.exec(
-                                        "SELECT User FROM Reports WHERE Message = " + str(msg_id)).fetchone()
-                                    reporter = self.bot.get_user(int(reporterDB[0]))
-                                    try:
-                                        await LordDusk.send(f"Anon Troll ---\nName: {reporter.name}\nID: {reporter.id}\nDiscriminator: {reporter.discriminator}\nDisplay Name: {reporter.display_name}")
-                                    except:
-                                        await message.channel.send(f"Ths user left the server. So I can't do anything about this. User: <@{reporterDB[0]}>")
-                            else:
-                                await LordDusk.send("User not found...")
-                            await message.delete()
-                        elif command == "!reply":
-                            if int(msg_id) in GG.REPORTERS:
-                                reporterDB = DBService.exec(
-                                    "SELECT User FROM Reports WHERE Message = " + str(msg_id)).fetchone()
-                                reporter = self.bot.get_user(int(reporterDB[0]))
+                        if command == "!reply":
+                            checkIfExist = await GG.MDB['reports'].find_one({"message": msg_id})
+                            if checkIfExist is not None:
+                                reporter = self.bot.get_user(int(checkIfExist['user']))
                                 if reporter is not None:
                                     if reporter.dm_channel is None:
                                         dm_channel = await reporter.create_dm()
@@ -97,7 +80,6 @@ class Anon(commands.Cog):
                             else:
                                 await message.channel.send(
                                     f"[DEBUG] Sorry, reporter not found. I'll DM my owner {LordDusk.mention} for you.")
-                            await GG.upCommand("reply")
                     except ValueError as e:
                         return
 
@@ -143,5 +125,5 @@ class Anon(commands.Cog):
 
 
 def setup(bot):
-    log.info("Loading Anon Report Cog...")
+    log.info("[Cog] Anon Report")
     bot.add_cog(Anon(bot))

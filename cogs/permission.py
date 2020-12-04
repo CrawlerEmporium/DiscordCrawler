@@ -53,4 +53,5 @@ class Permission(commands.Cog):
 
 
 def setup(bot):
+    log.info("[Cog] Permission Check")
     bot.add_cog(Permission(bot))

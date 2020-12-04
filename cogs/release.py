@@ -226,7 +226,7 @@ class Release(commands.Cog):
 
 
 def setup(bot):
-    log.info("Loading Releases Cog...")
+    log.info("[Cog] Releases")
     bot.add_cog(Release(bot))
 
 

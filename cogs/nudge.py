@@ -87,5 +87,5 @@ class Nudge(commands.Cog):
 
 
 def setup(bot):
-    log.info("Loading Nudge Cog...")
+    log.info("[Cog] Nudge")
     bot.add_cog(Nudge(bot))

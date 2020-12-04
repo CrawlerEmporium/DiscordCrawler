@@ -75,7 +75,6 @@ class Info(commands.Cog):
         embed.add_field(name="Creation Date", value=f"{ctx.guild.created_at}\n{checkDays(ctx.guild.created_at)}")
         embed.set_thumbnail(url=ctx.guild.icon_url)
         await ctx.send(embed=embed)
-        await GG.upCommand("serverinfo")
 
     @commands.command(aliases=['stats', 'info'])
     async def botinfo(self, ctx):
@@ -107,7 +106,6 @@ class Info(commands.Cog):
                      value='A multipurpose bot made by LordDusk#0001 .\n[Support Server](https://discord.gg/HEY6BWj)')
         em.set_footer(text=f"DiscordCrawler {ctx.bot.version} | Powered by discord.py")
         await ctx.send(embed=em)
-        await GG.upCommand("botinfo")
 
     @commands.command()
     async def support(self, ctx):
@@ -117,7 +115,6 @@ class Info(commands.Cog):
                          "This server allows you to ask questions about the bot. Do feature requests, and talk with other bot users!\n\n" \
                          "If you want to somehow support my developer, you can buy me a cup of coffee (or 2) [here](https://ko-fi.com/5ecrawler)"
         await ctx.send(embed=em)
-        await GG.upCommand("support")
 
     @commands.command()
     async def invite(self, ctx):
@@ -139,35 +136,6 @@ class Info(commands.Cog):
                          "to be able to read the history of the channel. If it lacks this permission, but does have. " \
                          "Add Reactions, it will pelt you with 'Permission not found.'"
         await ctx.send(embed=em)
-        await GG.upCommand("invite")
-
-    @commands.command(aliases=['whois'])
-    @commands.guild_only()
-    @GG.is_staff()
-    async def check(self, ctx, member: discord.Member = None):
-        """[STAFF ONLY]"""
-        if member is None:
-            await ctx.send("Member can't be none. Proper command to use ``![check|whois] [member]``")
-        else:
-            user = member
-            guild = ctx.message.guild
-            guild_owner = guild.owner
-            avi = user.avatar_url
-            roles = sorted(user.roles, key=lambda r: r.position)
-            rolenames = ', '.join([r.name for r in roles if r != '@everyone']) or 'None'
-            time = ctx.message.created_at
-            desc = f'{user.name} is currently in {user.status} mode.'
-            member_number = sorted(guild.members, key=lambda m: m.joined_at).index(user) + 1
-            em = discord.Embed(color=user.color, description=desc, timestamp=time)
-            em.add_field(name='Name', value=user.name),
-            em.add_field(name="Display Name", value=member.display_name),
-            em.add_field(name='Member Number', value=str(member_number)),
-            em.add_field(name='Account Created', value=user.created_at.__format__('%A, %B %d, %Y')),
-            em.add_field(name='Join Date', value=user.joined_at.__format__('%A, %B %d, %Y')),
-            em.add_field(name='Roles', value=rolenames)
-            em.set_thumbnail(url=avi or None)
-            await ctx.send(embed=em)
-        await GG.upCommand("whois")
 
     @commands.command(hidden=True)
     @commands.guild_only()
@@ -181,42 +149,42 @@ class Info(commands.Cog):
                 string = ""
         await ctx.send(string)
 
-    @commands.command()
-    @commands.guild_only()
-    @GG.is_staff()
-    async def history(self, ctx, member = None):
-        """[STAFF ONLY] Get the post history of an user."""
-        if member is None:
-            await ctx.send("Member can't be none. Proper command to use ``![history] [member]``")
-        else:
-            async with ctx.channel.typing():
-                try:
-                    user = await ctx.guild.fetch_member(member)
-                except:
-                    user = member
-                guild = ctx.message.guild
-                string = '{ "channels": ['
-                for textChannel in guild.text_channels:
-                    if ctx.guild.me.permissions_in(textChannel).read_messages:
-                        string += '{ "' + str(textChannel) + '": ['
-                        async for message in textChannel.history(limit=100, oldest_first=True):
-                            if isinstance(user, str):
-                                if message.author.id == user:
-                                    string += '"' + str(message.content.replace('"', '\\"').replace('\n', '\\n')) + '",'
-                            else:
-                                if message.author == user:
-                                    string += '"' + str(message.content.replace('"', '\\"').replace('\n', '\\n')) + '",'
-                        if string[-1:] != '[':
-                            string = string[:-1]
-                        string += ']},'
-                string = string[:-1]
-                string += ']}'
-                string = json.dumps(string)
-                f = io.BytesIO(str.encode(string))
-                file = discord.File(f, f"{user} - chatlog.json")
-                await ctx.send(content=f"Messages (per channel, capped at 100) from ``{user}``\n*Note that it isn't a complete history, as Discord has some issues with their history api, so stuff may be missing.*" , file=file)
+    # @commands.command()
+    # @commands.guild_only()
+    # @GG.is_staff()
+    # async def history(self, ctx, member = None):
+    #     """[STAFF ONLY] Get the post history of an user."""
+    #     if member is None:
+    #         await ctx.send("Member can't be none. Proper command to use ``![history] [member]``")
+    #     else:
+    #         async with ctx.channel.typing():
+    #             try:
+    #                 user = await ctx.guild.fetch_member(member)
+    #             except:
+    #                 user = member
+    #             guild = ctx.message.guild
+    #             string = '{ "channels": ['
+    #             for textChannel in guild.text_channels:
+    #                 if ctx.guild.me.permissions_in(textChannel).read_messages:
+    #                     string += '{ "' + str(textChannel) + '": ['
+    #                     async for message in textChannel.history(limit=100, oldest_first=True):
+    #                         if isinstance(user, str):
+    #                             if message.author.id == user:
+    #                                 string += '"' + str(message.content.replace('"', '\\"').replace('\n', '\\n')) + '",'
+    #                         else:
+    #                             if message.author == user:
+    #                                 string += '"' + str(message.content.replace('"', '\\"').replace('\n', '\\n')) + '",'
+    #                     if string[-1:] != '[':
+    #                         string = string[:-1]
+    #                     string += ']},'
+    #             string = string[:-1]
+    #             string += ']}'
+    #             string = json.dumps(string)
+    #             f = io.BytesIO(str.encode(string))
+    #             file = discord.File(f, f"{user} - chatlog.json")
+    #             await ctx.send(content=f"Messages (per channel, capped at 100) from ``{user}``\n*Note that it isn't a complete history, as Discord has some issues with their history api, so stuff may be missing.*" , file=file)
 
 
 def setup(bot):
-    log.info("Loading Info Cog...")
+    log.info("[Cog] Info")
     bot.add_cog(Info(bot))

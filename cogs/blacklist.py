@@ -1,164 +1,98 @@
 import json
-import typing
 import discord
-from discord import Permissions
 from discord.ext import commands
 from utils import logger
 from utils import globals as GG
-from DBService import DBService
 
 log = logger.logger
 
 CHECKS = [' ', ',', '.', '!', '?', None, '"', '\'', '(', ')', '{', '}', '[', ']', '_', '-', ':', '|', '*', '~']
 
-
-def fillBlackList(BLACKLIST, GUILDS):
-    BLACKLIST = "["
-    TERMDB = DBService.exec("SELECT Guild, Term FROM Terms").fetchall()
-    guildList = []
-    for x in TERMDB:
-        if x[0] not in guildList:
-            guildList.append(x[0])
-    for y in guildList:
-        guildTermList = []
-        for x in TERMDB:
-            if y == x[0]:
-                guildTermList.append(x[1])
-        termList = ""
-        for x in guildTermList:
-            termList += f'"{x}",'
-        termList = termList[:-1]
-        guildTerms = '{"guild":' + str(y) + ',"terms":[' + termList + ']},'
-        BLACKLIST += guildTerms
-    BLACKLIST = BLACKLIST[:-1]
-    BLACKLIST += "]"
-    BLACKLIST = json.loads(BLACKLIST)
-    for x in BLACKLIST:
-        GUILDS.append(x['guild'])
-    return BLACKLIST, GUILDS
-
-
-def fillGreyList(GREYLIST, GREYGUILDS):
-    GREYLIST = "["
-    TERMDB = DBService.exec("SELECT Guild, Term FROM Grey").fetchall()
-    guildList = []
-    for x in TERMDB:
-        if x[0] not in guildList:
-            guildList.append(x[0])
-    for y in guildList:
-        guildTermList = []
-        for x in TERMDB:
-            if y == x[0]:
-                guildTermList.append(x[1])
-        termList = ""
-        for x in guildTermList:
-            termList += f'"{x}",'
-        termList = termList[:-1]
-        guildTerms = '{"guild":' + str(y) + ',"terms":[' + termList + ']},'
-        GREYLIST += guildTerms
-    GREYLIST = GREYLIST[:-1]
-    GREYLIST += "]"
-    GREYLIST = json.loads(GREYLIST)
-    for x in GREYLIST:
-        GREYGUILDS.append(x['guild'])
-    return GREYLIST, GREYGUILDS
-
-
 class Blacklist(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.BLACKLIST = ""
-        self.GREYLIST = ""
-        self.GUILDS = []
-        self.GREYGUILDS = []
-        self.BLACKLIST, self.GUILDS = fillBlackList(self.BLACKLIST, self.GUILDS)
-        self.GREYLIST, self.GREYGUILDS = fillGreyList(self.GREYLIST, self.GREYGUILDS)
 
     @commands.command()
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def refillLists(self, ctx):
-        self.BLACKLIST = "["
-        TERMDB = DBService.exec("SELECT Guild, Term FROM Terms").fetchall()
+        GG.BLACKLIST = "["
+        TERMDB = await GG.MDB['blacklist'].find({}).to_list(length=None)
         guildList = []
         for x in TERMDB:
-            if x[0] not in guildList:
-                guildList.append(x[0])
+            if x['guild'] not in guildList:
+                guildList.append(x['guild'])
         for y in guildList:
             guildTermList = []
             for x in TERMDB:
-                if y == x[0]:
-                    guildTermList.append(x[1])
+                if y == x['guild']:
+                    guildTermList.append(x['term'])
             termList = ""
             for x in guildTermList:
                 termList += f'"{x}",'
             termList = termList[:-1]
             guildTerms = '{"guild":' + str(y) + ',"terms":[' + termList + ']},'
-            self.BLACKLIST += guildTerms
-        self.BLACKLIST = self.BLACKLIST[:-1]
-        self.BLACKLIST += "]"
-        self.BLACKLIST = json.loads(self.BLACKLIST)
-        for x in self.BLACKLIST:
-            self.GUILDS.append(x['guild'])
+            GG.BLACKLIST += guildTerms
+        GG.BLACKLIST = GG.BLACKLIST[:-1]
+        GG.BLACKLIST += "]"
+        GG.BLACKLIST = json.loads(GG.BLACKLIST)
+        for x in GG.BLACKLIST:
+            GG.GUILDS.append(x['guild'])
 
-        self.GREYLIST = "["
-        TERMDB = DBService.exec("SELECT Guild, Term FROM Grey").fetchall()
+        GG.GREYLIST = "["
+        TERMDB = await GG.MDB['greylist'].find({}).to_list(length=None)
         guildList = []
         for x in TERMDB:
-            if x[0] not in guildList:
-                guildList.append(x[0])
+            if x['guild'] not in guildList:
+                guildList.append(x['guild'])
         for y in guildList:
             guildTermList = []
             for x in TERMDB:
-                if y == x[0]:
-                    guildTermList.append(x[1])
+                if y == x['guild']:
+                    guildTermList.append(x['term'])
             termList = ""
             for x in guildTermList:
                 termList += f'"{x}",'
             termList = termList[:-1]
             guildTerms = '{"guild":' + str(y) + ',"terms":[' + termList + ']},'
-            self.GREYLIST += guildTerms
-        self.GREYLIST = self.GREYLIST[:-1]
-        self.GREYLIST += "]"
-        self.GREYLIST = json.loads(self.GREYLIST)
-        for x in self.GREYLIST:
-            self.GREYGUILDS.append(x['guild'])
+            GG.GREYLIST += guildTerms
+        GG.GREYLIST = GG.GREYLIST[:-1]
+        GG.GREYLIST += "]"
+        GG.GREYLIST = json.loads(GG.GREYLIST)
+        for x in GG.GREYLIST:
+            GG.GREYGUILDS.append(x['guild'])
 
     @commands.command(aliases=['bl'])
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def blacklist(self, ctx, *, args):
-        DBService.exec(
-            "INSERT INTO Terms (Guild, Term) VALUES (" + str(ctx.guild.id) + ",'" + str(args) + "')")
-        self.BLACKLIST, self.GUILDS = fillBlackList(self.BLACKLIST, self.GUILDS)
+        await GG.MDB['blacklist'].insert_one({"guild": ctx.guild.id, "term": args})
+        GG.BLACKLIST, GG.GUILDS = await GG.fillBlackList(GG.BLACKLIST, GG.GUILDS)
         await ctx.send(f"{args} was added to the term blacklist.")
 
     @commands.command(aliases=['greylist', 'graylist', 'grayblacklist', 'gbl', 'gl'])
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def greyblacklist(self, ctx, *, args):
-        DBService.exec(
-            "INSERT INTO Grey (Guild, Term) VALUES (" + str(ctx.guild.id) + ",'" + str(args) + "')")
-        self.BLACKLIST, self.GUILDS = fillBlackList(self.BLACKLIST, self.GUILDS)
+        await GG.MDB['greylist'].insert_one({"guild": ctx.guild.id, "term": args})
+        GG.BLACKLIST, GG.GUILDS = await GG.fillGreyList(GG.BLACKLIST, GG.GUILDS)
         await ctx.send(f"{args} was added to the term greylist.")
 
     @commands.command(aliases=['wl'])
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def whitelist(self, ctx, *, args):
-        DBService.exec(
-            "DELETE FROM Terms WHERE Guild = " + str(ctx.guild.id) + " AND Term = '" + str(args) + "'")
-        self.BLACKLIST, self.GUILDS = fillBlackList(self.BLACKLIST, self.GUILDS)
-        await ctx.send(f"{args} was delete from the term blacklist.")
+        await GG.MDB['blacklist'].delete_one({"guild": ctx.guild.id, "term": args})
+        GG.BLACKLIST, GG.GUILDS = await GG.fillBlackList(GG.BLACKLIST, GG.GUILDS)
+        await ctx.send(f"{args} was deleted from the term blacklist.")
 
     @commands.command(aliases=['graywhitelist', 'gwl'])
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def greywhitelist(self, ctx, *, args):
-        DBService.exec(
-            "DELETE FROM Grey WHERE Guild = " + str(ctx.guild.id) + " AND Term = '" + str(args) + "'")
-        self.GREYLIST, self.GREYGUILDS = fillGreyList(self.GREYLIST, self.GREYGUILDS)
-        await ctx.send(f"{args} was delete from the term greylist.")
+        await GG.MDB['greylist'].delete_one({"guild": ctx.guild.id, "term": args})
+        GG.GREYLIST, GG.GREYGUILDS = await GG.fillGreyList(GG.GREYLIST, GG.GREYGUILDS)
+        await ctx.send(f"{args} was deleted from the term greylist.")
 
     @commands.command()
     @commands.guild_only()
@@ -201,8 +135,8 @@ class Blacklist(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.author.id != 602774912595263490 and message.author.id != 109133673172828160:
-            if message.guild.id in self.GREYGUILDS:
-                for x in self.GREYLIST:
+            if message.guild.id in GG.GREYGUILDS:
+                for x in GG.GREYLIST:
                     if x['guild'] == message.guild.id:
                         for y in x['terms']:
                             if message.content.lower().find(y.lower()) != -1:
@@ -216,8 +150,8 @@ class Blacklist(commands.Cog):
                                         await self.bot.get_channel(604728578801795074).send(
                                             f"{message.author.display_name} ({message.author.mention}) used a greylisted term in {message.channel.mention}.\nThe message: ```{message.content}```")
                                     break
-            if message.guild.id in self.GUILDS:
-                for x in self.BLACKLIST:
+            if message.guild.id in GG.GUILDS:
+                for x in GG.BLACKLIST:
                     if x['guild'] == message.guild.id:
                         for y in x['terms']:
                             if message.content.lower().find(y.lower()) != -1:
@@ -276,5 +210,5 @@ class Blacklist(commands.Cog):
 
 
 def setup(bot):
-    log.info("Loading Blacklist Terms Filter Cog...")
+    log.info("[Cog] Blacklist Terms Filter")
     bot.add_cog(Blacklist(bot))

@@ -1,9 +1,7 @@
-import discord
 import utils.globals as GG
 
 from discord.ext import commands
 from utils import logger
-from DBService import DBService
 
 log = logger.logger
 
@@ -29,10 +27,8 @@ class Roles(commands.Cog):
             await ctx.send("Unknown Emoji, please only use default emoji's or emoji's from this server.")
         else:
             try:
-                DBService.exec(
-                    "INSERT INTO ReactionRoles (GuildId, MessageId, RoleId, Emoji) VALUES (" + str(
-                        ctx.guild.id) + "," + str(messageId) + "," + str(roleId) + ",'" + str(emoji) + "')")
-                GG.reloadReactionRoles()
+                await GG.MDB['reactionroles'].insert_one({"guildId": ctx.guild.id, "messageId": messageId, "roleId": roleId, "emoji": str(emoji)})
+                await GG.reloadReactionRoles()
             except:
                 await message.remove_reaction(emoji, ctx.guild.me)
                 await ctx.send(
@@ -55,11 +51,8 @@ class Roles(commands.Cog):
             await ctx.send(
                 "Unknown Emoji, please check if this emoji is still present as a reaction on the message you supplied.")
         else:
-            DBService.exec(
-                "DELETE FROM ReactionRoles WHERE GuildId = " + str(
-                    ctx.guild.id) + " AND MessageId = " + str(messageId) + " AND RoleId = " + str(
-                    roleId) + " AND Emoji = '" + str(emoji) + "'")
-            GG.reloadReactionRoles()
+            await GG.MDB['reactionroles'].delete_one({"guildId": ctx.guild.id, "messageId": messageId, "roleId": roleId, "emoji": str(emoji)})
+            await GG.reloadReactionRoles()
 
     @commands.command()
     @commands.guild_only()
@@ -109,5 +102,5 @@ class Roles(commands.Cog):
 
 
 def setup(bot):
-    log.info("Loading Roles Cog...")
+    log.info("[Cog] Roles")
     bot.add_cog(Roles(bot))

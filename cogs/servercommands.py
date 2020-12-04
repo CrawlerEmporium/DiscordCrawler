@@ -3,7 +3,6 @@ import utils.globals as GG
 
 from discord.ext import commands
 from utils import logger
-from DBService import DBService
 
 log = logger.logger
 
@@ -22,11 +21,12 @@ def getRole(roleID, ctx):
 def list_embed(list_personals, author, ctx):
     if isinstance(author, discord.Member) and author.color != discord.Colour.default():
 
-        embed = discord.Embed(description='\n'.join(['• `' + getRole(i[1], ctx) + '`' for i in list_personals]), color=author.color)
+        embed = discord.Embed(description='\n'.join(['• `' + getRole(i['roles'], ctx) + '`' for i in list_personals]), color=author.color)
     else:
-        embed = discord.Embed(description='\n'.join(['• `' + getRole(i[1], ctx) + '`' for i in list_personals]))
+        embed = discord.Embed(description='\n'.join(['• `' + getRole(i['roles'], ctx) + '`' for i in list_personals]))
     embed.title = "Roles that are considered staff according to the bot."
     return embed
+
 
 class ServerCommands(commands.Cog):
     def __init__(self, bot):
@@ -40,38 +40,33 @@ class ServerCommands(commands.Cog):
         if role.id in GG.STAFF:
             await ctx.send(f"{role.name} is already on the staff list.")
         else:
-            DBService.exec(
-                "INSERT INTO ServerStaff (Guild, Roles) VALUES (" + str(ctx.guild.id) + "," + str(role.id) + ")")
+            await GG.MDB['serverstaff'].insert_one({"guild": ctx.guild.id, "roles": int(role.id)})
             GG.STAFF.append(int(role.id))
             await ctx.send(f"{role.name} was added to the staff list.")
-        await GG.upCommand("addstaff")
 
     @commands.command()
     @GG.is_staff()
     @commands.guild_only()
     async def stafflist(self, ctx):
         """[STAFF ONLY]"""
-        user_quotes = DBService.exec(
-            "SELECT * FROM ServerStaff WHERE Guild = " + str(ctx.message.guild.id)).fetchall()
-        await ctx.send(embed=list_embed(user_quotes, ctx.author, ctx))
-        await GG.upCommand("stafflist")
+        user_quotes = await GG.MDB['serverstaff'].find({"guild": ctx.message.guild.id}).to_list(length=None)
+        if user_quotes is not None:
+            await ctx.send(embed=list_embed(user_quotes, ctx.author, ctx))
+        else:
+            await ctx.send("This server has no roles assigned as staff.")
 
     @commands.command()
     @GG.is_staff()
     @commands.guild_only()
     async def delstaff(self, ctx, role: discord.Role):
         """[STAFF ONLY]"""
-        if role.id in GG.STAFF:
-            DBService.exec("DELETE FROM ServerStaff WHERE Roles = " + str(role.id) + "")
+        exist = await GG.MDB['serverstaff'].find_one({"guild": ctx.guild.id, "roles": int(role.id)})
+        if exist is not None:
+            await GG.MDB['serverstaff'].delete_one({"guild": ctx.guild.id, "roles": int(role.id)})
             GG.STAFF.remove(int(role.id))
             await ctx.send(f"{role.name} was removed from the staff list.")
         else:
-            try:
-                DBService.exec("DELETE FROM ServerStaff WHERE Roles = " + str(role.id) + "")
-            except Exception as e:
-                log.error("Tried to deleting a staff role that doesn't exist in the database.")
             await ctx.send(f"{role.name} is not on the staff list.")
-        await GG.upCommand("delstaff")
 
     @commands.command()
     @commands.guild_only()
@@ -79,33 +74,29 @@ class ServerCommands(commands.Cog):
     @commands.guild_only()
     async def prefix(self, ctx, prefix: str = None):
         """Sets the bot's prefix for this server.
-        Forgot the prefix? Reset it with "@5eCrawler#2771 prefix !".
+        Forgot the prefix? Reset it with "@DiscordCrawler#6716 prefix !".
         """
         guild_id = str(ctx.guild.id)
         if prefix is None:
             return await ctx.send(f"My current prefix is: `{self.bot.get_server_prefix(ctx.message)}`")
-        DBService.exec(
-            "REPLACE INTO Prefixes (Guild, Prefix) VALUES (" + str(ctx.guild.id) + ",'" + str(prefix) + "')")
+        await GG.MDB['prefixes'].update_one({"guild": guild_id}, {"$set": {"prefix": str(prefix)}}, upsert=True)
         self.bot.prefixes[guild_id] = prefix
         GG.PREFIXES[guild_id] = prefix
         await ctx.send("Prefix set to `{}` for this server.".format(prefix))
-        await GG.upCommand("prefix")
-
 
     @commands.command()
     @GG.is_staff()
     @commands.guild_only()
     async def addchannel(self, ctx, TYPE: str, channel: discord.TextChannel):
         """[STAFF ONLY]"""
-        if GG.checkPermission(ctx,"mm"):
+        if GG.checkPermission(ctx, "mm"):
             TYPE = TYPE.upper()
             if TYPE in categories:
-                if channel.id in GG.CHANNEL:
+                channelExists = await GG.MDB['channelinfo'].find_one({"channel": channel.id})
+                if channelExists is not None:
                     await ctx.send(f"{channel.name} is already on the special channel list.")
                 else:
-                    DBService.exec(
-                        "INSERT INTO ChannelInfo (Guild, Channel, Type) VALUES (" + str(ctx.guild.id) + "," + str(
-                            channel.id) + ",'" + str(TYPE) + "')")
+                    await GG.MDB['channelinfo'].insert_one({"guild": ctx.guild.id, "channel": channel.id, "type": TYPE})
                     GG.CHANNEL[channel.id] = str(TYPE)
                     await ctx.send(f"{channel.name} was added to the special channel list as {TYPE}")
             else:
@@ -114,24 +105,19 @@ class ServerCommands(commands.Cog):
         else:
             await ctx.send(
                 "I don't have the Manage_Messages permission. It's a mandatory permission, I have noted my owner about this. Please give me this permission, I will end up leaving the server if it happens again.")
-        await GG.upCommand("addchannel")
 
     @commands.command()
     @GG.is_staff()
     @commands.guild_only()
     async def delchannel(self, ctx, channel: discord.TextChannel):
         """[STAFF ONLY]"""
-        if channel.id in GG.CHANNEL:
-            DBService.exec("DELETE FROM ChannelInfo WHERE Channel = " + str(channel.id) + "")
+        channelExists = await GG.MDB['channelinfo'].find_one({"channel": channel.id})
+        if channelExists is not None:
+            await GG.MDB['channelinfo'].delete_one({"channel": channel.id})
             del GG.CHANNEL[channel.id]
             await ctx.send(f"{channel.name} was removed from the special channel list.")
         else:
-            try:
-                DBService.exec("DELETE FROM ChannelInfo WHERE Channel = " + str(channel.id) + "")
-            except Exception as e:
-                log.error("Tried to deleting a channel that doesn't exist in the database.")
             await ctx.send(f"{channel.name} is not on the special channel list.")
-        await GG.upCommand("delchannel")
 
     @commands.command()
     @GG.is_staff()
@@ -139,9 +125,8 @@ class ServerCommands(commands.Cog):
     async def channeltypes(self, ctx):
         """[STAFF ONLY]"""
         await ctx.send(f"You can use one of the following channel types:\n{categories}")
-        await GG.upCommand("channeltypes")
 
 
 def setup(bot):
-    log.info("Loading ServerCommands Cog...")
+    log.info("[Cog] ServerCommands")
     bot.add_cog(ServerCommands(bot))

@@ -1,16 +1,13 @@
 import asyncio
-import datetime
 import os
 import subprocess
 import inspect
-from os.path import isfile, join
 
 import discord
 
-from DBService import DBService
 import utils.globals as GG
-from discord import Permissions
 from discord.ext import commands
+
 from utils import logger
 
 log = logger.logger
@@ -21,25 +18,6 @@ path = GG.COGS + '.'
 class Owner(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-    @commands.command()
-    @commands.is_owner()
-    async def mute(self, ctx, id):
-        member = await ctx.guild.fetch_member(id)
-        guildChannels = member.guild.text_channels
-        overwrite = discord.PermissionOverwrite()
-        overwrite.send_messages = False
-        for x in guildChannels:
-            await x.set_permissions(member, overwrite=overwrite)
-            # print(f"SEND in {x}: {x.permissions_for(member).send_messages}")
-
-    @commands.command()
-    @commands.is_owner()
-    async def unmute(self, ctx, id):
-        member = await ctx.guild.fetch_member(id)
-        guildChannels = member.guild.text_channels
-        for x in guildChannels:
-            await x.set_permissions(member, overwrite=None)
 
     @commands.command(hidden=True)
     @commands.is_owner()
@@ -80,36 +58,6 @@ class Owner(commands.Cog):
         else:
             await ctx.send(msg)
 
-    @commands.command(hidden=True, rest_is_raw=True)
-    @commands.is_owner()
-    async def exec(self, ctx, TYPE: str, *, arg):
-        response = "You can only use ``one``, ``all``, or ``command``"
-        try:
-            if TYPE == "one":
-                response = DBService.exec(arg).fetchone()
-            if TYPE == "all":
-                response = DBService.exec(arg).fetchall()
-            if TYPE == "command":
-                response = DBService.exec(arg)
-        except Exception as e:
-            response = e
-        await ctx.send(response)
-
-    @commands.command(hidden=True)
-    @commands.is_owner()
-    async def checkglobal(self, ctx, GLOBAL: str):
-        if GLOBAL == "PREFIXES":
-            await ctx.send(GG.PREFIXES)
-        if GLOBAL == "REACTION":
-            await ctx.send(GG.REACTIONROLES)
-
-    @commands.command(hidden=True)
-    @commands.is_owner()
-    async def log(self, ctx, req="logs/bot.log"):
-        file = discord.File(f"/root/DiscordCrawler/{req}")
-        await ctx.send(file=file)
-        await GG.upCommand("log")
-
     @commands.command(hidden=True)
     @commands.is_owner()
     async def load(self, ctx, extension_name: str):
@@ -132,21 +80,6 @@ class Owner(commands.Cog):
 
     @commands.command(hidden=True)
     @commands.is_owner()
-    async def getcommand(self, ctx, command: str):
-        count, lastused = await GG.getCommand(command)
-        ts = datetime.datetime.fromtimestamp(lastused).strftime('%Y-%m-%d %H:%M:%S')
-        await ctx.send(f"Current count for {command.lower()} is {count}.\nLast used on: {ts}")
-        await GG.upCommand("getcommand")
-
-    @commands.command(hidden=True)
-    @commands.is_owner()
-    async def gettotalcount(self, ctx):
-        count = await GG.getTotalCount()
-        await ctx.send(f"Current total count for all commands: {count}")
-        await GG.upCommand("gettotalcount")
-
-    @commands.command(hidden=True)
-    @commands.is_owner()
     async def botcheck(self, ctx):
         await ctx.send(f"Checking {len(ctx.bot.guilds)} servers for bot collection servers.")
         for guild in ctx.bot.guilds:
@@ -165,33 +98,8 @@ class Owner(commands.Cog):
                 await guild.leave()
         await ctx.bot.change_presence(
             activity=discord.Game(f"with {len(ctx.bot.guilds)} servers | !help | {ctx.bot.version}"), afk=True)
-        await GG.upCommand("botcheck")
-
-    @commands.command(hidden=True)
-    @commands.is_owner()
-    async def getallcommand(self, ctx):
-        msgQueue = []
-        msg = '```js\n'
-        msg += '{!s:20s} | {!s:8s} | {}\n'.format('Command', 'Count', 'Last Used')
-        commands = await GG.getAllCommands()
-        for i in commands:
-            ts = datetime.datetime.fromtimestamp(i[2]).strftime('%Y-%m-%d %H:%M:%S')
-            msg += '{!s:20s} | {!s:8s} | {}\n'.format(str(i[0]), str(i[1]), ts)
-            if len(msg) > 900:
-                msg += '```'
-                msgQueue.append(msg)
-                msg = '```js\n'
-                msg += '{!s:20s} | {!s:8s} | {}\n'.format('Command', 'Count', 'Last Used')
-        msg += '```'
-        msgQueue.append(msg)
-        if len(msgQueue) > 0:
-            for x in msgQueue:
-                await ctx.send(x)
-        else:
-            await ctx.send(msg)
-        await GG.upCommand("getallcommand")
 
 
 def setup(bot):
-    log.info("Loading Owner Cog...")
+    log.info("[Cog] Owner")
     bot.add_cog(Owner(bot))

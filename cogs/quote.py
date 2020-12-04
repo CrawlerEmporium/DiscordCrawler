@@ -72,7 +72,6 @@ class Quote(commands.Cog):
                             '@here', '@hеre'))
         else:
             await ctx.send(content=":x:" + ' **Could not find the specified message.**')
-        await GG.upCommand("quote")
 
 
 def parse_time(timestamp):
@@ -118,5 +117,5 @@ def quote_embed(context_channel, message, user):
 
 
 def setup(bot):
-    log.info("Loading Quote Cog...")
+    log.info("[Cog] Quote")
     bot.add_cog(Quote(bot))

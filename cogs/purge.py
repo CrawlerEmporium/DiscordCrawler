@@ -5,7 +5,6 @@ from disputils import BotConfirmation
 
 from discord.ext import commands
 from utils import logger
-from DBService import DBService
 
 log = logger.logger
 
@@ -49,8 +48,7 @@ class Purge(commands.Cog):
                 await msg.delete()
         else:
             await ctx.send("I don't have the Manage_Messages permission. It's a mandatory permission, I have noted my owner about this. Please give me this permission, I will end up leaving the server if it happens again.")
-        await GG.upCommand("purge")
 
 def setup(bot):
-    log.info("Loading Purge Cog...")
+    log.info("[Cog] Purge")
     bot.add_cog(Purge(bot))

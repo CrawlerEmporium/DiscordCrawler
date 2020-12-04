@@ -1,18 +1,11 @@
 import asyncio
-import os
-import logging
-import random
-import string
-import sys
 import traceback
-
 import discord
+import utils.globals as GG
+
 from aiohttp import ClientResponseError, ClientOSError
 from discord import Forbidden, HTTPException, InvalidArgument, NotFound
-import DBService
-import utils.globals as GG
 from errors import CrawlerException, InvalidArgument, EvaluationError
-
 from utils import logger
 from os import listdir
 from os.path import isfile, join
@@ -22,9 +15,9 @@ from utils.functions import gen_error_message, discord_trim
 
 log = logger.logger
 
-version = "v1.0"
+version = "v2.0"
 SHARD_COUNT = 1
-TESTING = False
+TESTING = True
 defaultPrefix = GG.PREFIX if not TESTING else '*'
 intents = discord.Intents().all()
 
@@ -32,6 +25,7 @@ intents = discord.Intents().all()
 def get_prefix(b, message):
     if not message.guild:
         return commands.when_mentioned_or(defaultPrefix)(b, message)
+
     gp = b.prefixes.get(str(message.guild.id), defaultPrefix)
     return commands.when_mentioned_or(gp)(b, message)
 
@@ -43,6 +37,7 @@ class Crawler(commands.AutoShardedBot):
         self.owner = None
         self.testing = TESTING
         self.token = GG.TOKEN
+        self.mdb = GG.MDB
         self.prefixes = GG.PREFIXES
 
     def get_server_prefix(self, msg):
@@ -80,6 +75,7 @@ async def on_ready():
 
 @bot.event
 async def on_connect():
+    await fillGlobals()
     bot.owner = await bot.fetch_user(GG.OWNER)
     print(f"OWNER: {bot.owner.name}")
 
@@ -204,12 +200,55 @@ async def on_command_error(ctx, error):
     log.error("Error caused by message: `{}`".format(ctx.message.content))
 
 
+async def fillGlobals():
+    log.info("Filling Globals")
+    CHANNELDB = await GG.MDB['channelInfo'].find({}).to_list(length=None)
+    GG.CHANNEL = GG.loadChannels(CHANNELDB)
+
+    REPORTERSDB = await GG.MDB['reports'].find({}).to_list(length=None)
+    GG.REPORTERS = [int(i['message']) for i in REPORTERSDB]
+
+    PREFIXESDB = await GG.MDB['prefixes'].find({}).to_list(length=None)
+    GG.PREFIXES = GG.loadPrefixes(PREFIXESDB)
+    bot.prefixes = GG.PREFIXES
+
+    STAFFDB = await GG.MDB['serverstaff'].find({}).to_list(length=None)
+    GG.STAFF = [int(i['roles']) for i in STAFFDB]
+
+    TERMDB = await GG.MDB['blacklist'].find({}).to_list(length=None)
+    GG.TERMS = [int(i['guild']) for i in TERMDB]
+
+    GREYDB = await GG.MDB['greylist'].find({}).to_list(length=None)
+    GG.GREYS = [int(i['guild']) for i in GREYDB]
+
+    REACTIONROLESDB = await GG.MDB['reactionroles'].find({}).to_list(length=None)
+    GG.REACTIONROLES = GG.loadReactionRoles(REACTIONROLESDB)
+
+    GG.BLACKLIST, GG.GUILDS = await GG.fillBlackList(GG.BLACKLIST, GG.GUILDS)
+    GG.GREYLIST, GG.GREYGUILDS = await GG.fillGreyList(GG.GREYLIST, GG.GREYGUILDS)
+    log.info("Finished Filling Globals")
+
+
 if __name__ == "__main__":
     bot.state = "run"
-    # bot.load_extension('cogs.quote')
     for extension in [f.replace('.py', '') for f in listdir(GG.COGS) if isfile(join(GG.COGS, f))]:
         try:
             bot.load_extension(GG.COGS + "." + extension)
+        except Exception as e:
+            log.error(f'Failed to load extension {extension}')
+    for extension in [f.replace('.py', '') for f in listdir(GG.COGSECONOMY) if isfile(join(GG.COGSECONOMY, f))]:
+        try:
+            bot.load_extension(GG.COGSECONOMY + "." + extension)
+        except Exception as e:
+            log.error(f'Failed to load extension {extension}')
+    for extension in [f.replace('.py', '') for f in listdir(GG.COGSADMIN) if isfile(join(GG.COGSADMIN, f))]:
+        try:
+            bot.load_extension(GG.COGSADMIN + "." + extension)
+        except Exception as e:
+            log.error(f'Failed to load extension {extension}')
+    for extension in [f.replace('.py', '') for f in listdir(GG.COGSEVENTS) if isfile(join(GG.COGSEVENTS, f))]:
+        try:
+            bot.load_extension(GG.COGSEVENTS + "." + extension)
         except Exception as e:
             log.error(f'Failed to load extension {extension}')
     bot.run(bot.token)

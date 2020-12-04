@@ -3,6 +3,9 @@ import typing
 import discord
 from discord.ext import commands
 from utils import globals as GG
+from utils import logger
+
+log = logger.logger
 
 
 class Help(commands.Cog):
@@ -26,7 +29,6 @@ class Help(commands.Cog):
             await self.waitChangeMessage(ctx, message)
         else:
             await ctx.invoke(self.bot.get_command("oldhelp"))
-        await GG.upCommand("help")
 
     async def waitChangeMessage(self, ctx, message):
         def check(reaction, user):
@@ -176,7 +178,6 @@ class Help(commands.Cog):
             await self.waitStaffChangeMessage(ctx, message)
         else:
             await ctx.invoke(self.bot.get_command("oldhelp"))
-        await GG.upCommand("staff")
 
 
     async def waitStaffChangeMessage(self, ctx, message):
@@ -297,4 +298,5 @@ class Help(commands.Cog):
 
 
 def setup(bot):
+    log.info("[Cog] Help")
     bot.add_cog(Help(bot))

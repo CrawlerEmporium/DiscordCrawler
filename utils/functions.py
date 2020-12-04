@@ -1,6 +1,7 @@
 import logging
 import random
 import re
+import utils.globals as GG
 
 log = logging.getLogger(__name__)
 
@@ -18,6 +19,30 @@ def discord_trim(string):
         result.append(string[lastLen:trimLen])
         lastLen += 1999
     return result
+
+
+async def get_next_case_num():
+    reportNum = await GG.MDB['properties'].find_one({'key': 'caseId'})
+    num = reportNum['amount'] + 1
+    reportNum['amount'] += 1
+    await GG.MDB['properties'].replace_one({"key": 'caseId'}, reportNum)
+    return num
+
+
+def make_ordinal(n):
+    '''
+    Convert an integer into its ordinal representation::
+
+        make_ordinal(0)   => '0th'
+        make_ordinal(3)   => '3rd'
+        make_ordinal(122) => '122nd'
+        make_ordinal(213) => '213th'
+    '''
+    n = int(n)
+    suffix = ['th', 'st', 'nd', 'rd', 'th'][min(n % 10, 4)]
+    if 11 <= (n % 100) <= 13:
+        suffix = 'th'
+    return str(n) + suffix
 
 
 def gen_error_message():

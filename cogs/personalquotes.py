@@ -3,7 +3,6 @@ from discord.ext import commands
 from disputils import BotEmbedPaginator
 
 import utils.globals as GG
-from DBService import DBService
 from utils import logger
 
 log = logger.logger
@@ -11,12 +10,12 @@ log = logger.logger
 
 def personal_embed(db_response, author):
     if isinstance(author, discord.Member) and author.color != discord.Colour.default():
-        embed = discord.Embed(description=db_response[2], color=author.color)
+        embed = discord.Embed(description=db_response['response'], color=author.color)
     else:
-        embed = discord.Embed(description=db_response[2])
+        embed = discord.Embed(description=db_response['response'])
     embed.set_author(name=str(author), icon_url=author.avatar_url)
-    if db_response[3] != None:
-        attachments = db_response[3].split(' | ')
+    if db_response['attachments'] != None:
+        attachments = db_response['attachments']
         if len(attachments) == 1 and (
                 attachments[0].lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.gifv', '.webp', '.bmp')) or
                 attachments[0].lower().startswith('https://chart.googleapis.com/chart?')):
@@ -36,7 +35,7 @@ def list_embed(list_personals, author):
         lst = list_personals[i:i + 10]
         desc = ""
         for item in lst:
-            desc += '• `' + str(item[1]) + '`\n'
+            desc += '• `' + str(item['trigger']) + '`\n'
         if isinstance(author, discord.Member) and author.color != discord.Colour.default():
             embed = discord.Embed(description=desc, color=author.color)
         else:
@@ -57,72 +56,57 @@ class PersonalQuotes(commands.Cog):
             return await ctx.send(
                 content=":x:" + ' **You must include at least a response or an attachment in your message.**')
         else:
-            try:
-                DBService.exec("INSERT INTO PersonalQuotes (User, Trigger" + (", Response" if response else "") + (
-                    ", Attachments" if ctx.message.attachments else "") + ") VALUES (" + str(
-                    ctx.author.id) + ", '" + trigger.replace('\'', '\'\'') + "'" + (
-                                   ", '" + response.replace('\'', '\'\'') + "'" if response else "") + (
-                                   ", '" + " | ".join(
-                                       [attachment.url for attachment in ctx.message.attachments]).replace('\'',
-                                                                                                           '\'\'') + "'" if ctx.message.attachments else "") + ")")
-            except Exception:
-                return await ctx.send(content=":x:" + ' **You already have a quote with that trigger.**')
+            trig = trigger.replace('\'', '\'\'')
+            response = response.replace('\'', '\'\'')
+            checkIfExist = await GG.MDB['personalcommands'].find_one({"user": ctx.message.author.id, "trigger": trig})
+            if checkIfExist is not None:
+                return await ctx.send(content=":x:" + ' **You already have a command with that trigger.**')
+            else:
+                await GG.MDB['personalcommands'].insert_one({"user": ctx.message.author.id, "trigger": trig, "response": response, "attachments": [attachment.url for attachment in ctx.message.attachments]})
 
-        await ctx.send(content=":white_check_mark:" + ' **Quote added.**')
-        await GG.upCommand("padd")
+        await ctx.send(content=":white_check_mark:" + ' **Command added.**')
 
     @commands.command(aliases=['premove', 'prem'])
     async def personalremove(self, ctx, *, trigger):
         """Removes a personal quote."""
-        user_quote = DBService.exec(
-            "SELECT * FROM PersonalQuotes WHERE User = " + str(ctx.author.id) + " AND Trigger = '" + trigger.replace(
-                '\'', '\'\'') + "'").fetchone()
-        if user_quote:
-            DBService.exec(
-                "DELETE FROM PersonalQuotes WHERE User = " + str(ctx.author.id) + " AND Trigger = '" + trigger.replace(
-                    '\'', '\'\'') + "'")
-            await ctx.send(content=":white_check_mark:" + ' **Quote deleted.**')
+        result = await GG.MDB['personalcommands'].delete_one({"user": ctx.message.author.id, "trigger": trigger.replace('\'', '\'\'')})
+        if result.deleted_count > 0:
+            await ctx.send(content=":white_check_mark:" + ' **Command deleted.**')
         else:
-            await ctx.send(content=":x:" + ' **Quote with that trigger does not exist.**')
-        await GG.upCommand("prem")
+            await ctx.send(content=":x:" + ' **Command with that trigger does not exist.**')
 
     @commands.command(aliases=['p'])
     async def personal(self, ctx, *, trigger):
         """Returns your chosen personal quote."""
-        user_quote = DBService.exec(
-            "SELECT * FROM PersonalQuotes WHERE User = " + str(ctx.author.id) + " AND Trigger = '" + trigger.replace(
-                '\'', '\'\'') + "'").fetchone()
-        if not user_quote:
-            await ctx.send(content=":x:" + ' **Quote with that trigger does not exist.**')
+        trig = trigger.replace('\'', '\'\'')
+        user_quote = await GG.MDB['personalcommands'].find_one({"user": ctx.message.author.id, "trigger": trig})
+        if user_quote is None:
+            await ctx.send(content=":x:" + ' **Command with that trigger does not exist.**')
         else:
             if ctx.guild and ctx.guild.me.permissions_in(
                     ctx.channel).manage_messages:
                 await ctx.message.delete()
 
             await ctx.send(embed=personal_embed(user_quote, ctx.author))
-        await GG.upCommand("p")
 
     @commands.command(aliases=['plist'])
     async def personallist(self, ctx):
         """Returns all your personal quotes."""
-        user_quotes = DBService.exec(
-            "SELECT * FROM PersonalQuotes WHERE User = " + str(ctx.author.id)).fetchall()
-        if len(user_quotes) == 0:
-            await ctx.send(content=":x:" + ' **You have no personal quotes**')
+        user_quotes = await GG.MDB['[personalcommands]'].find({"user": ctx.message.author.id}).to_list(length=None)
+        if user_quotes is None:
+            await ctx.send(content=":x:" + ' **You have no personal commands**')
         else:
             embeds = list_embed(user_quotes, ctx.author)
             paginator = BotEmbedPaginator(ctx, embeds)
             await paginator.run()
-        await GG.upCommand("plist")
 
     @commands.command(aliases=['pclear'])
     async def personalclear(self, ctx):
         """Deletes **ALL** your personal quotes."""
-        DBService.exec("DELETE FROM PersonalQuotes WHERE User = " + str(ctx.author.id))
+        await GG.MDB['personalcommands'].delete_many({"user": ctx.message.author.id})
         await ctx.send(content=":white_check_mark:" + ' **Cleared all your personal quotes.**')
-        await GG.upCommand("pclear")
 
 
 def setup(bot):
-    log.info("Loading PersonalQuotes Cog...")
+    log.info("[Cog] PersonalQuotes")
     bot.add_cog(PersonalQuotes(bot))

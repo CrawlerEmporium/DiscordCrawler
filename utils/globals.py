@@ -1,3 +1,4 @@
+import json
 import random
 
 import discord
@@ -8,119 +9,112 @@ from discord import VoiceRegion as VR
 from discord.ext import commands
 from environs import Env
 
-from DBService import DBService
-
 env = Env()
 env.read_env()
 
 PREFIX = env('PREFIX')
 TOKEN = env('TOKEN')
 COGS = env('COGS')
+COGSECONOMY = env('COGSECONOMY')
+COGSADMIN = env('COGSADMIN')
+COGSEVENTS = env('COGSEVENTS')
 OWNER = int(env('OWNER'))
+MONGODB = env('MONGODB')
+
+MDB = motor.motor_asyncio.AsyncIOMotorClient(MONGODB)['discordCrawler']
 
 BOT = 574554734187380756
 PM_TRUE = True
-MDB = motor.motor_asyncio.AsyncIOMotorClient(env('MONGODB'))['models']
 
-CHANNELDB = DBService.exec("SELECT Channel, Type FROM ChannelInfo").fetchall()
+CHANNEL = []
+PREFIXES = []
+REPORTERS = []
+STAFF = []
+TERMS = []
+GREYS = []
+REACTIONROLES = []
+
+BLACKLIST = ""
+GREYLIST = ""
+GUILDS = []
+GREYGUILDS = []
 
 
 def loadChannels(CHANNELDB):
     channel = {}
     for i in CHANNELDB:
-        channel[int(i[0])] = i[1]
+        channel[int(i['channel'])] = i['type']
     return channel
 
 
-CHANNEL = loadChannels(CHANNELDB)
-
-REPORTERSDB = DBService.exec("SELECT Message FROM Reports").fetchall()
-REPORTERS = [int(i[0]) for i in REPORTERSDB]
-
-PREFIXESDB = DBService.exec("SELECT Guild, Prefix FROM Prefixes").fetchall()
-
-
-def loadChannels(PREFIXESDB):
+def loadPrefixes(PREFIXESDB):
     prefixes = {}
     for i in PREFIXESDB:
-        prefixes[str(i[0])] = str(i[1])
+        prefixes[str(i['guild'])] = str(i['prefix'])
     return prefixes
-
-
-PREFIXES = loadChannels(PREFIXESDB)
-
-STAFFDB = DBService.exec("SELECT Roles FROM ServerStaff").fetchall()
-STAFF = [int(i[0]) for i in STAFFDB]
-
-TERMDB = DBService.exec("SELECT Guild FROM Terms").fetchall()
-TERMS = [int(i[0]) for i in TERMDB]
-
-GREYDB = DBService.exec("SELECT Guild FROM Grey").fetchall()
-GREYS = [int(i[0]) for i in GREYDB]
-
-REACTIONROLESDB = DBService.exec("Select MessageID, RoleId, Emoji FROM ReactionRoles").fetchall()
 
 
 def loadReactionRoles(REACTIONROLESDB):
     reactionRole = {}
     for i in REACTIONROLESDB:
-        key = int(i[0])
+        key = int(i['messageId'])
         if key not in reactionRole:
             reactionRole[key] = []
-        reactionRole[key].append((i[1], i[2]))
+        reactionRole[key].append((i['roleId'], i['emoji']))
     return reactionRole
 
+async def fillBlackList(BLACKLIST, GUILDS):
+    BLACKLIST = "["
+    TERMDB = await MDB['blacklist'].find({}).to_list(length=None)
+    guildList = []
+    for x in TERMDB:
+        if x['guild'] not in guildList:
+            guildList.append(x['guild'])
+    for y in guildList:
+        guildTermList = []
+        for x in TERMDB:
+            if y == x['guild']:
+                guildTermList.append(x['term'])
+        termList = ""
+        for x in guildTermList:
+            termList += f'"{x}",'
+        termList = termList[:-1]
+        guildTerms = '{"guild":' + str(y) + ',"terms":[' + termList + ']},'
+        BLACKLIST += guildTerms
+    BLACKLIST = BLACKLIST[:-1]
+    BLACKLIST += "]"
+    BLACKLIST = json.loads(BLACKLIST)
+    for x in BLACKLIST:
+        GUILDS.append(x['guild'])
+    return BLACKLIST, GUILDS
 
-REACTIONROLES = loadReactionRoles(REACTIONROLESDB)
+
+async def fillGreyList(GREYLIST, GREYGUILDS):
+    GREYLIST = "["
+    TERMDB = await MDB['greylist'].find({}).to_list(length=None)
+    guildList = []
+    for x in TERMDB:
+        if x['guild'] not in guildList:
+            guildList.append(x['guild'])
+    for y in guildList:
+        guildTermList = []
+        for x in TERMDB:
+            if y == x['guild']:
+                guildTermList.append(x['term'])
+        termList = ""
+        for x in guildTermList:
+            termList += f'"{x}",'
+        termList = termList[:-1]
+        guildTerms = '{"guild":' + str(y) + ',"terms":[' + termList + ']},'
+        GREYLIST += guildTerms
+    GREYLIST = GREYLIST[:-1]
+    GREYLIST += "]"
+    GREYLIST = json.loads(GREYLIST)
+    for x in GREYLIST:
+        GREYGUILDS.append(x['guild'])
+    return GREYLIST, GREYGUILDS
 
 CLEANER = [496672117384019969, 280892074247716864]
-
-
-async def upCommand(command):
-    try:
-        count = DBService.exec("SELECT Count FROM Commands WHERE Command = '" + str(command) + "'").fetchone()
-    except:
-        pass
-    if count is None:
-        count = 0
-    elif len(count) == 0:
-        count = 0
-    else:
-        count = count[0]
-    count = count + 1
-    epoch = time.time()
-    DBService.exec(
-        "INSERT OR REPLACE INTO Commands VALUES('" + str(command) + "'," + str(count) + "," + str(epoch) + ")")
-
-
-async def getCommand(command):
-    try:
-        result = DBService.exec(
-            "SELECT Count, LastUsed FROM Commands WHERE Command = '" + str(command) + "'").fetchone()
-    except:
-        pass
-    count = result[0]
-    lastused = result[1]
-    return count, lastused
-
-
-async def getTotalCount():
-    try:
-        result = DBService.exec("SELECT Count FROM Commands").fetchall()
-    except:
-        pass
-    count = 0
-    for i in result:
-        count += int(i[0])
-    return count
-
-
-async def getAllCommands():
-    try:
-        result = DBService.exec("SELECT Command,Count,LastUsed FROM Commands ORDER BY Count DESC").fetchall()
-    except:
-        pass
-    return result
 
 
 def checkPermission(ctx, permission):
@@ -287,8 +281,8 @@ def checkDays(date):
     return f"{days} {'day' if days == 1 else 'days'} ago"
 
 
-def reloadReactionRoles():
-    REACTIONROLESDB = DBService.exec("Select MessageID, RoleId, Emoji FROM ReactionRoles").fetchall()
+async def reloadReactionRoles():
+    REACTIONROLESDB = await MDB['reactionrole'].find({}).to_list(length=None)
     global REACTIONROLES
     REACTIONROLES = loadReactionRoles(REACTIONROLESDB)
 

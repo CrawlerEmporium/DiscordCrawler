@@ -64,5 +64,5 @@ class Dictionary(commands.Cog):
 
 
 def setup(bot):
-    log.info("Loading Dictionary Cog...")
+    log.info("[Cog] Dictionary")
     bot.add_cog(Dictionary(bot))
