@@ -15,7 +15,7 @@ from utils.functions import gen_error_message, discord_trim
 
 log = logger.logger
 
-version = "v2.0"
+version = "v2.0.1"
 SHARD_COUNT = 1
 TESTING = False
 defaultPrefix = GG.PREFIX if not TESTING else '*'
