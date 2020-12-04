@@ -202,15 +202,15 @@ async def on_command_error(ctx, error):
 
 async def fillGlobals():
     log.info("Filling Globals")
+    PREFIXESDB = await GG.MDB['prefixes'].find({}).to_list(length=None)
+    GG.PREFIXES = GG.loadPrefixes(PREFIXESDB)
+    bot.prefixes = GG.PREFIXES
+
     CHANNELDB = await GG.MDB['channelInfo'].find({}).to_list(length=None)
     GG.CHANNEL = GG.loadChannels(CHANNELDB)
 
     REPORTERSDB = await GG.MDB['reports'].find({}).to_list(length=None)
     GG.REPORTERS = [int(i['message']) for i in REPORTERSDB]
-
-    PREFIXESDB = await GG.MDB['prefixes'].find({}).to_list(length=None)
-    GG.PREFIXES = GG.loadPrefixes(PREFIXESDB)
-    bot.prefixes = GG.PREFIXES
 
     STAFFDB = await GG.MDB['serverstaff'].find({}).to_list(length=None)
     GG.STAFF = [int(i['roles']) for i in STAFFDB]

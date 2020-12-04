@@ -282,9 +282,8 @@ def checkDays(date):
 
 
 async def reloadReactionRoles():
-    REACTIONROLESDB = await MDB['reactionrole'].find({}).to_list(length=None)
-    global REACTIONROLES
-    REACTIONROLES = loadReactionRoles(REACTIONROLESDB)
+    REACTIONROLESDB = await MDB['reactionroles'].find({}).to_list(length=None)
+    return loadReactionRoles(REACTIONROLESDB)
 
 
 class EmbedWithAuthor(discord.Embed):
