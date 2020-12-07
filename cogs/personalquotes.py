@@ -92,8 +92,8 @@ class PersonalQuotes(commands.Cog):
     @commands.command(aliases=['plist'])
     async def personallist(self, ctx):
         """Returns all your personal quotes."""
-        user_quotes = await GG.MDB['[personalcommands]'].find({"user": ctx.message.author.id}).to_list(length=None)
-        if user_quotes is None:
+        user_quotes = await GG.MDB['personalcommands'].find({"user": ctx.message.author.id}).to_list(length=None)
+        if len(user_quotes) == 0:
             await ctx.send(content=":x:" + ' **You have no personal commands**')
         else:
             embeds = list_embed(user_quotes, ctx.author)

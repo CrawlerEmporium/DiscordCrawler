@@ -39,7 +39,7 @@ def list_embed(list_personals, author):
             embed = discord.Embed(description=desc, color=author.color)
         else:
             embed = discord.Embed(description=desc)
-        embed.set_author(name='Personal Quotes', icon_url=author.avatar_url)
+        embed.set_author(name='Server Commands', icon_url=author.avatar_url)
         embedList.append(embed)
     return embedList
 
@@ -97,10 +97,11 @@ class GlobalCommands(commands.Cog):
     async def globallist(self, ctx):
         """Returns all global commands."""
         user_quotes = await GG.MDB['globalcommands'].find({"Guild": ctx.message.guild.id}).to_list(length=None)
-        if user_quotes is None:
+        if len(user_quotes) == 0:
             await ctx.send(content=":x:" + ' **You have no global quotes**')
         else:
             embeds = list_embed(user_quotes, ctx.author)
+            print(embeds)
             paginator = BotEmbedPaginator(ctx, embeds)
             await paginator.run()
 
