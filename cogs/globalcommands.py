@@ -101,7 +101,6 @@ class GlobalCommands(commands.Cog):
             await ctx.send(content=":x:" + ' **You have no global quotes**')
         else:
             embeds = list_embed(user_quotes, ctx.author)
-            print(embeds)
             paginator = BotEmbedPaginator(ctx, embeds)
             await paginator.run()
 
