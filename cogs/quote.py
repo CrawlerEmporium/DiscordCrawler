@@ -81,7 +81,6 @@ def parse_time(timestamp):
 
 
 def quote_embed(context_channel, message, user):
-    print(message)
     if not message.content and message.embeds and message.author.bot:
         embed = message.embeds[0]
     else:
@@ -103,8 +102,6 @@ def quote_embed(context_channel, message, user):
                 embed.add_field(name='Attachments', value=':underage: **Quoted message belongs in NSFW channel.**')
             elif len(message.attachments) == 1 and message.attachments[0].url.lower().endswith(
                     ('.jpg', '.jpeg', '.png', '.gif', '.gifv', '.webp', '.bmp')):
-                print(message.attachments[0].filename)
-                print(message.attachments[0].url)
                 embed.set_image(url=message.attachments[0].url)
             else:
                 for attachment in message.attachments:
