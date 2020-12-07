@@ -56,9 +56,9 @@ class PersonalQuotes(commands.Cog):
             return await ctx.send(
                 content=":x:" + ' **You must include at least a response or an attachment in your message.**')
         else:
-            trig = trigger.replace('\'', '\'\'')
+            trig = trigger
             if response is not None:
-                response = response.replace('\'', '\'\'')
+                response = response
             checkIfExist = await GG.MDB['personalcommands'].find_one({"user": ctx.message.author.id, "trigger": trig})
             if checkIfExist is not None:
                 return await ctx.send(content=":x:" + ' **You already have a command with that trigger.**')
