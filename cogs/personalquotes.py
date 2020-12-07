@@ -107,6 +107,20 @@ class PersonalQuotes(commands.Cog):
         await GG.MDB['personalcommands'].delete_many({"user": ctx.message.author.id})
         await ctx.send(content=":white_check_mark:" + ' **Cleared all your personal quotes.**')
 
+    @commands.command(aliases=['pc'])
+    @commands.guild_only()
+    async def personalcode(self, ctx, *, trigger):
+        """Returns your chosen global command."""
+        trig = trigger
+        user_quote = await GG.MDB['personalcommands'].find_one({"user": ctx.message.author.id, "trigger": trig})
+        if user_quote is None:
+            await ctx.send(content=":x:" + ' **Command with that trigger does not exist.**')
+        else:
+            if ctx.guild and ctx.guild.me.permissions_in(ctx.channel).manage_messages:
+                await ctx.message.delete()
+
+            await ctx.send(f"```{user_quote['response']}```", files=user_quote['attachments'])
+
 
 def setup(bot):
     log.info("[Cog] PersonalQuotes")

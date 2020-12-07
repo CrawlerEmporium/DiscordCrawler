@@ -78,11 +78,11 @@ class GlobalCommands(commands.Cog):
         else:
             await ctx.send(content=":x:" + ' **Command with that trigger does not exist.**')
 
-    @commands.command(aliases=['g', 'gc'])
+    @commands.command(aliases=['g'])
     @commands.guild_only()
     async def globalcommand(self, ctx, *, trigger):
         """Returns your chosen global command."""
-        trig = trigger.replace('\'', '\'\'')
+        trig = trigger
         user_quote = await GG.MDB['globalcommands'].find_one({"Guild": ctx.message.guild.id, "Trigger": trig})
         if user_quote is None:
             await ctx.send(content=":x:" + ' **Command with that trigger does not exist.**')
@@ -104,6 +104,21 @@ class GlobalCommands(commands.Cog):
             embeds = list_embed(user_quotes, ctx.author)
             paginator = BotEmbedPaginator(ctx, embeds)
             await paginator.run()
+
+    @commands.command(aliases=['gc'])
+    @commands.guild_only()
+    async def globalcode(self, ctx, *, trigger):
+        """Returns your chosen global command."""
+        trig = trigger
+        user_quote = await GG.MDB['globalcommands'].find_one({"Guild": ctx.message.guild.id, "Trigger": trig})
+        if user_quote is None:
+            await ctx.send(content=":x:" + ' **Command with that trigger does not exist.**')
+        else:
+            if ctx.guild and ctx.guild.me.permissions_in(ctx.channel).manage_messages:
+                await ctx.message.delete()
+
+            await ctx.send(f"```{user_quote['Response']}```", files=user_quote['Attachments'])
+
 
 
 def setup(bot):
