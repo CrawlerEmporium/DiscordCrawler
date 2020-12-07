@@ -58,7 +58,8 @@ class GlobalCommands(commands.Cog):
                 content=":x:" + ' **You must include at least a response or an attachment in your message.**')
         else:
             trig = trigger.replace('\'', '\'\'')
-            response = response.replace('\'', '\'\'')
+            if response is not None:
+                response = response.replace('\'', '\'\'')
             checkIfExist = await GG.MDB['globalcommands'].find_one({"Guild": ctx.message.guild.id, "Trigger": trig})
             if checkIfExist is not None:
                 return await ctx.send(content=":x:" + ' **This server already has a command with that trigger.**')
