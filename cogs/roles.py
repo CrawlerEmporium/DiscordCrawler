@@ -75,7 +75,8 @@ class Roles(commands.Cog):
             server = GG.REACTIONROLES[payload.message_id]
             roleId = None
             for x in server:
-                if emoji.name == x[1]:
+                dbEmoji = x[1][2:].split(":")
+                if emoji.name == dbEmoji[0]:
                     roleId = int(x[0])
                     userId = payload.user_id
                     guildId = payload.guild_id
@@ -92,7 +93,8 @@ class Roles(commands.Cog):
             server = GG.REACTIONROLES[payload.message_id]
             roleId = None
             for x in server:
-                if emoji.name == x[1]:
+                dbEmoji = x[1][2:].split(":")
+                if emoji.name == dbEmoji[0]:
                     roleId = int(x[0])
                     userId = payload.user_id
                     guildId = payload.guild_id
