@@ -76,7 +76,7 @@ class Roles(commands.Cog):
             roleId = None
             for x in server:
                 dbEmoji = x[1][2:].split(":")
-                if emoji.name == dbEmoji[0]:
+                if emoji.name == dbEmoji[0] or emoji.name == x[1]:
                     roleId = int(x[0])
                     userId = payload.user_id
                     guildId = payload.guild_id
@@ -94,7 +94,7 @@ class Roles(commands.Cog):
             roleId = None
             for x in server:
                 dbEmoji = x[1][2:].split(":")
-                if emoji.name == dbEmoji[0]:
+                if emoji.name == dbEmoji[0] or emoji.name == x[1]:
                     roleId = int(x[0])
                     userId = payload.user_id
                     guildId = payload.guild_id
