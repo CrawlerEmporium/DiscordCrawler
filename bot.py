@@ -206,7 +206,7 @@ async def fillGlobals():
     GG.PREFIXES = GG.loadPrefixes(PREFIXESDB)
     bot.prefixes = GG.PREFIXES
 
-    CHANNELDB = await GG.MDB['channelInfo'].find({}).to_list(length=None)
+    CHANNELDB = await GG.MDB['channelinfo'].find({}).to_list(length=None)
     GG.CHANNEL = GG.loadChannels(CHANNELDB)
 
     REPORTERSDB = await GG.MDB['reports'].find({}).to_list(length=None)
