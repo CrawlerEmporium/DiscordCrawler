@@ -134,7 +134,7 @@ class Blacklist(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if message.author.id != 602774912595263490 and message.author.id != 109133673172828160:
+        if message.author.id != 602774912595263490 and message.author.id != 109133673172828160 and message.author.id != 95486109852631040:
             if message.guild.id in GG.GREYGUILDS:
                 for x in GG.GREYLIST:
                     if x['guild'] == message.guild.id:
