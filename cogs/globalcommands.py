@@ -93,6 +93,31 @@ class GlobalCommands(commands.Cog):
 
             await ctx.send(embed=global_embed(self, user_quote, ctx.author, ctx.message, trig))
 
+    @commands.command(aliases=['w'])
+    @commands.guild_only()
+    async def whispercommand(self, ctx, *, trigger):
+        """Returns your chosen global command."""
+        trig = trigger
+        user_quote = await GG.MDB['globalcommands'].find_one({"Guild": ctx.message.guild.id, "Trigger": trig})
+        if ctx.author.dm_channel is not None:
+            DM = ctx.author.dm_channel
+        else:
+            DM = await ctx.author.create_dm()
+
+        if user_quote is None:
+            try:
+                await DM.send(content=":x:" + ' **Command with that trigger does not exist.**')
+            except discord.Forbidden:
+                await ctx.send(f"{ctx.author.mention} I tried DMing you, but you either blocked me, or you don't allow DM's")
+        else:
+            if ctx.guild and ctx.guild.me.permissions_in(
+                    ctx.channel).manage_messages:
+                await ctx.message.delete()
+            try:
+                await DM.send(embed=global_embed(self, user_quote, ctx.author, ctx.message, trig))
+            except discord.Forbidden:
+                await ctx.send(f"{ctx.author.mention} I tried DMing you, but you either blocked me, or you don't allow DM's")
+
     @commands.command(aliases=['glist'])
     @commands.guild_only()
     async def globallist(self, ctx):
