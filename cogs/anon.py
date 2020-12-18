@@ -46,7 +46,7 @@ class Anon(commands.Cog):
                                 Bytes = await a.read()
                                 await delivery_channel.send(content=content,
                                                             file=reportFile(BytesIO(Bytes), filename="Image.png"))
-                        await GG.MDB['channelinfo'].insert_one({"user": author.id, "message": report.id})
+                        await GG.MDB['reports'].insert_one({"user": author.id, "message": report.id})
                         await message.delete()
 
                 if TYPE == "DELIVERY":
@@ -76,13 +76,12 @@ class Anon(commands.Cog):
                                             "DM's for me (more likely).")
                                 else:
                                     await message.channel.send(
-                                        f"Ths user left the server. So I can't do anything about this. User: <@{reporterDB[0]}>")
+                                        f"Ths user left the server. So I can't do anything about this")
                             else:
                                 await message.channel.send(
                                     f"[DEBUG] Sorry, reporter not found. I'll DM my owner {LordDusk.mention} for you.")
                     except ValueError as e:
                         return
-
 
     async def notifyOwner(self, message):
         ServerOwner = self.bot.get_user(message.guild.owner.id)
@@ -94,8 +93,8 @@ class Anon(commands.Cog):
         Embed = discord.Embed(title=f"No delivery channel exists.",
                               author=author.display_name,
                               description=f"Hello, a user of your server {message.guild.name} tried to make an "
-                              f"anonymous report, but you have yet to make a delivery channel. You can do this by "
-                              f"executing the following command: ``!addchannel <id> DELIVERY``. Thank you!")
+                                          f"anonymous report, but you have yet to make a delivery channel. You can do this by "
+                                          f"executing the following command: ``!addchannel <id> DELIVERY``. Thank you!")
         try:
             await dm_channel.send(embed=Embed)
         except discord.errors.Forbidden:
