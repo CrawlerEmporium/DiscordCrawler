@@ -48,7 +48,7 @@ class Case(commands.Cog):
     @case.command(name='close')
     @commands.guild_only()
     @GG.is_staff()
-    async def close_case(self, ctx, caseId: int, *, message):
+    async def close_case(self, ctx, caseId: int, *, message=""):
         caseId = await self.validId(caseId, ctx)
         if caseId == 0:
             return
@@ -65,7 +65,7 @@ class Case(commands.Cog):
     @case.command(name='update')
     @commands.guild_only()
     @GG.is_staff()
-    async def update_case(self, ctx, caseId: int, *, message):
+    async def update_case(self, ctx, caseId: int, *, message=""):
         caseId = await self.validId(caseId, ctx)
         if caseId == 0:
             return
@@ -82,10 +82,9 @@ class Case(commands.Cog):
     @case.command(name='list')
     @commands.guild_only()
     @GG.is_staff()
-    async def list_case(self, ctx, member: typing.Optional[discord.Member]):
+    async def list_case(self, ctx, member: typing.Optional[discord.Member] = None):
         if member is None:
-            await ctx.send("Member can't be none. Proper command to use ``![check|whois] [member]``")
-            return
+            return await ctx.send("Member can't be none. Proper command to use ``$case list [memberId]``")
         user = member
         guild = ctx.message.guild
         await guild.chunk()

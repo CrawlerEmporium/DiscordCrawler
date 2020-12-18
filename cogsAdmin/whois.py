@@ -1,4 +1,5 @@
 import discord
+import typing
 
 import utils.globals as GG
 from discord.ext import commands
@@ -16,10 +17,10 @@ class Whois(commands.Cog):
     @commands.command(aliases=['whois'])
     @commands.guild_only()
     @GG.is_staff()
-    async def check(self, ctx, member: discord.Member = None):
+    async def check(self, ctx, member: typing.Optional[discord.Member] = None):
         """[STAFF ONLY]"""
         if member is None:
-            await ctx.send("Member can't be none. Proper command to use ``![check|whois] [member]``")
+            return await ctx.send("Member can't be none.``")
         else:
             user = member
             guild = ctx.message.guild
