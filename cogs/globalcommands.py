@@ -8,7 +8,7 @@ import utils.globals as GG
 log = logger.logger
 
 
-def global_embed(self, db_response, author, message, command):
+def global_embed(self, db_response, author, message, command, whisper=False):
     if isinstance(author, discord.Member) and author.color != discord.Colour.default():
         embed = discord.Embed(description=db_response['Response'], color=author.color)
     else:
@@ -24,7 +24,10 @@ def global_embed(self, db_response, author, message, command):
             for attachment in attachments:
                 attachment_count += 1
                 embed.add_field(name='Attachment ' + str(attachment_count), value=attachment, inline=False)
-    embed.set_footer(text=f'You too can use this command. {self.bot.get_server_prefix(message)}g {command}')
+    if not whisper:
+        embed.set_footer(text=f'You too can use this command. {self.bot.get_server_prefix(message)}g {command}')
+    else:
+        embed.set_footer(text=f'This command was triggered on the <> server. You can trigger it there by running {self.bot.get_server_prefix(message)}g {command}')
     return embed
 
 
@@ -114,7 +117,7 @@ class GlobalCommands(commands.Cog):
                     ctx.channel).manage_messages:
                 await ctx.message.delete()
             try:
-                await DM.send(embed=global_embed(self, user_quote, ctx.author, ctx.message, trig))
+                await DM.send(embed=global_embed(self, user_quote, ctx.author, ctx.message, trig, True))
             except discord.Forbidden:
                 await ctx.send(f"{ctx.author.mention} I tried DMing you, but you either blocked me, or you don't allow DM's")
 
