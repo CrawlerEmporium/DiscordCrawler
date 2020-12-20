@@ -212,9 +212,9 @@ class Raffle(commands.Cog):
                         raffle['ended'] = 1
                         await self.bot.mdb['raffle'].replace_one({"id": raffle['id']}, raffle)
                         await asyncio.sleep(8)
-                        await confirmation.delete()
+                        await confirmation.quit()
                     else:
-                        await confirmation.delete()
+                        await confirmation.quit()
                 else:
                     await ctx.send("This raffle was already canceled or is already ended.")
             else:

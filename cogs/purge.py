@@ -35,9 +35,9 @@ class Purge(commands.Cog):
                             deleted += len(await ctx.channel.purge(limit=cap, before=ctx.message))
                             limit -= cap
                         await asyncio.sleep(8)
-                        await confirmation.delete()
+                        await confirmation.quit()
                     else:
-                        await confirmation.delete()
+                        await confirmation.quit()
                 else:
                     msg = await ctx.send("I need a number for how many messages I need to purge...")
                     await asyncio.sleep(4)
