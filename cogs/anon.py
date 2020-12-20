@@ -54,7 +54,7 @@ class Anon(commands.Cog):
                     try:
                         command, msg_id, reply = content.split(" ", 2)
                         if command == "!reply":
-                            checkIfExist = await GG.MDB['reports'].find_one({"message": msg_id})
+                            checkIfExist = await GG.MDB['reports'].find_one({"message": int(msg_id)})
                             if checkIfExist is not None:
                                 reporter = self.bot.get_user(int(checkIfExist['user']))
                                 if reporter is not None:
