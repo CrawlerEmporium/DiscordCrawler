@@ -6,7 +6,7 @@ from utils import logger
 
 log = logger.logger
 
-DATA_SRC = "https://googledictionaryapi.eu-gb.mybluemix.net/?define="
+DATA_SRC = "https://api.dictionaryapi.dev/api/v1/entries/en/"
 
 
 class Dictionary(commands.Cog):
@@ -32,9 +32,14 @@ class Dictionary(commands.Cog):
 
                     word = current['word']
                     try:
-                        phonetic = current['phonetic']
+                        phonetic = ""
+                        phonetic_ = current['phonetics']
+                        for x in phonetic_:
+                            phonetic += x['text'] + ", "
                     except:
                         phonetic = "no pronunciation available."
+
+                    phonetic = phonetic[:-2]
 
                     embed = GG.EmbedWithAuthor(ctx)
                     embed.title = word.capitalize()
@@ -60,7 +65,6 @@ class Dictionary(commands.Cog):
             except:
                 definition = f"**Example**: {example}"
                 embed.add_field(name=f"** **", value=definition, inline=False)
-
 
 
 def setup(bot):
