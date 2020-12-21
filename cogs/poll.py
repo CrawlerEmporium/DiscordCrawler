@@ -27,7 +27,6 @@ class Poll(commands.Cog):
     @commands.command()
     @commands.guild_only()
     async def poll(self, ctx):
-        await ctx.message.delete()
         message = ctx.message
         if not message.author.bot:
             messageContent = message.clean_content
@@ -36,6 +35,7 @@ class Poll(commands.Cog):
                 await message.add_reaction('👎')
                 await message.add_reaction('🤷')
             else:
+                await ctx.message.delete()
                 first = messageContent.find("{") + 1
                 second = messageContent.find("}")
                 title = messageContent[first:second]
