@@ -1,3 +1,5 @@
+import discord
+
 import utils.globals as GG
 
 from discord.ext import commands
@@ -37,7 +39,7 @@ class Roles(commands.Cog):
     @commands.command()
     @commands.guild_only()
     @GG.is_staff()
-    async def removeRole(self, ctx, channelId, messageId, roleId, emoji):
+    async def removeRole(self, ctx, channelId, messageId, roleId, emoji: discord.Emoji):
         channel = await self.bot.fetch_channel(channelId)
         message = await channel.fetch_message(messageId)
         try:
@@ -57,16 +59,19 @@ class Roles(commands.Cog):
     @commands.command()
     @commands.guild_only()
     @GG.is_staff()
-    async def removeall(self, ctx, roleId):
-        guild = await self.bot.fetch_guild(ctx.guild)
+    async def removeAll(self, ctx, roleId):
+        guild = await self.bot.fetch_guild(ctx.guild.id)
         Role = guild.get_role(roleId)
-        members = guild.members
-        await ctx.send(f"Removing {Role.name} from {len(members)} members.")
-        async with ctx.channel.typing():
-            for x in members:
-                Member = await guild.fetch_member(x.id)
-                await Member.remove_roles(Role)
-        await ctx.send(f"Removed {Role.name} from {len(members)} members.")
+        if Role is not None:
+            members = guild.members
+            await ctx.send(f"Removing {Role.name} from {len(members)} members.")
+            async with ctx.channel.typing():
+                for x in members:
+                    Member = await guild.fetch_member(x.id)
+                    await Member.remove_roles(Role)
+            await ctx.send(f"Removed {Role.name} from {len(members)} members.")
+        else:
+            await ctx.send(f"Role doesn't exist, or you used a wrong id.")
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
