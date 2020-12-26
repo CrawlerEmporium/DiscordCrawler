@@ -19,6 +19,8 @@ class Dictionary(commands.Cog):
             resp = s.get(DATA_SRC + search)
             try:
                 result = resp.json()
+                if result[0]['word']:
+                    pass
             except:
                 await ctx.send(
                     f"One of the following three errors occurred (in order of most likely happening)\n"
