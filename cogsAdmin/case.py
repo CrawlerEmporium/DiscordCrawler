@@ -85,6 +85,7 @@ class Case(commands.Cog):
     async def list_case(self, ctx, member: typing.Optional[discord.Member] = None):
         if member is None:
             return await ctx.send("Member can't be none. Proper command to use ``$case list [memberId]``")
+
         user = member
         guild = ctx.message.guild
         await guild.chunk()

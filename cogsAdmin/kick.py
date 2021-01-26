@@ -22,9 +22,8 @@ class Kick(commands.Cog):
     @commands.guild_only()
     @GG.is_staff()
     async def kick(self, ctx, member: typing.Optional[discord.Member], *, message):
-        pass
         if member is None:
-            await ctx.send("Member wasn't found, try again.")
+            return await ctx.send("Member wasn't found.\n\nCheck the ID, it might not be a member.\nAlso you can't kick someone who isn't on the server.")
 
         memberDB = await GG.MDB.members.find_one({"server": ctx.guild.id, "user": member.id})
         caseId = await get_next_case_num()
