@@ -214,9 +214,10 @@ class Blacklist(commands.Cog):
                               description=f"```{message.content[:1020]}```")
         embed.add_field(name="Who", value=f"{message.author.display_name} ({message.author.mention})")
         embed.add_field(name="Where", value=f"[Here]({message.jump_url}) in {message.channel.mention}")
-        embed.add_field(name="** **", value="** **")
-        embed.add_field(name="MSGID", value=f"{message.id}")
-        embed.add_field(name="CHANNELID", value=f"{message.channel.id}")
+        if type != 'blacklisted':
+            embed.add_field(name="** **", value="** **")
+            embed.add_field(name="MSGID", value=f"{message.id}")
+            embed.add_field(name="CHANNELID", value=f"{message.channel.id}")
         return embed
 
     async def checkMessage(self, message, x):
