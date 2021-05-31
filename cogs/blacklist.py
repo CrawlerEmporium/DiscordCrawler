@@ -216,7 +216,6 @@ class Blacklist(commands.Cog):
         embed.add_field(name="Where", value=f"[Here]({message.jump_url}) in {message.channel.mention}")
         embed.add_field(name=f"{type.title()} term", value=f"{term}")
         if type != 'blacklisted':
-            embed.add_field(name="** **", value="** **")
             embed.add_field(name="MSGID", value=f"{message.id}")
             embed.add_field(name="CHANNELID", value=f"{message.channel.id}")
         return embed
