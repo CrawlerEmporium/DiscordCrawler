@@ -1,3 +1,5 @@
+import typing
+
 import discord
 
 import utils.globals as GG
@@ -17,97 +19,36 @@ class Roles(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.group(invoke_without_command=True)
     @commands.guild_only()
     @GG.is_staff()
-    async def addRole(self, ctx, channelId, messageId, roleId, emoji):
-        channel = await self.bot.fetch_channel(channelId)
-        message = await channel.fetch_message(messageId)
-        try:
-            await message.add_reaction(emoji)
-        except:
-            await ctx.send("Unknown Emoji, please only use default emoji's or emoji's from this server.")
+    async def role(self, ctx):
+        if GG.is_staff_bool:
+            return await ctx.send("This is the command that allows you to add roles that people can add themselves by command.")
         else:
-            try:
-                await GG.MDB['reactionroles'].insert_one({"guildId": ctx.guild.id, "messageId": messageId, "roleId": roleId, "emoji": str(emoji)})
-                GG.REACTIONROLES = await GG.reloadReactionRoles()
-            except:
-                await message.remove_reaction(emoji, ctx.guild.me)
-                await ctx.send(
-                    "You are trying to add a reaction to the message that already exists, or the role it would give as reaction is already in use.\nPlease check if this is correct, if not, please contact my owner in `$support`")
+            return await ctx.send("This is the command that allows you to change your cosmetic role.\nUse ``role list`` to check which ones you have unlocked.\nOr use ``role change <id>`` to change your role.")
 
-    @commands.command()
+    @role.command(name='add')
     @commands.guild_only()
     @GG.is_staff()
-    async def removeRole(self, ctx, channelId, messageId, roleId, emoji: discord.Emoji):
-        channel = await self.bot.fetch_channel(channelId)
-        message = await channel.fetch_message(messageId)
-        try:
-            reactions = message.reactions
-            for x in reactions:
-                if x.emoji == emoji:
-                    users = await x.users().flatten()
-                    for y in users:
-                        await message.remove_reaction(emoji, y)
-        except:
-            await ctx.send(
-                "Unknown Emoji, please check if this emoji is still present as a reaction on the message you supplied.")
-        else:
-            await GG.MDB['reactionroles'].delete_one({"guildId": ctx.guild.id, "messageId": messageId, "roleId": roleId, "emoji": str(emoji)})
-            GG.REACTIONROLES = await GG.reloadReactionRoles()
+    async def role_add(self, ctx, member: typing.Optional[discord.Member] = None, role: typing.Optional[discord.Role] = None):
+        if member is None or role is None:
+            return await ctx.send("Either the member id is wrong, or the role id is not a role id, please check both.")
 
-    @commands.command()
+        await GG.MDB['userroles'].insert_one({"guildId": ctx.guild.id, "userId": member.id, "roleId": role.id})
+
+    @role.command(name='list')
     @commands.guild_only()
-    @GG.is_staff()
-    async def removeAll(self, ctx, roleId):
-        guild = await self.bot.fetch_guild(ctx.guild.id)
-        Role = guild.get_role(roleId)
-        if Role is not None:
-            members = guild.members
-            await ctx.send(f"Removing {Role.name} from {len(members)} members.")
-            async with ctx.channel.typing():
-                for x in members:
-                    Member = await guild.fetch_member(x.id)
-                    await Member.remove_roles(Role)
-            await ctx.send(f"Removed {Role.name} from {len(members)} members.")
-        else:
-            await ctx.send(f"Role doesn't exist, or you used a wrong id.")
+    async def role_list(self, ctx, member: typing.Optional[discord.Member] = None, role: typing.Optional[discord.Role] = None):
+        pass
 
-    @commands.Cog.listener()
-    async def on_raw_reaction_add(self, payload):
-        if payload.message_id in GG.REACTIONROLES:
-            emoji = payload.emoji
-            server = GG.REACTIONROLES[payload.message_id]
-            roleId = None
-            for x in server:
-                dbEmoji = x[1][2:].split(":")
-                if emoji.name == dbEmoji[0] or emoji.name == x[1]:
-                    roleId = int(x[0])
-                    userId = payload.user_id
-                    guildId = payload.guild_id
-                    guild = await self.bot.fetch_guild(guildId)
-                    await guild.chunk()
-                    Role = guild.get_role(roleId)
-                    Member = await guild.fetch_member(userId)
-                    await Member.add_roles(Role)
+    @role.command(name='change')
+    @commands.guild_only()
+    async def role_change(self, ctx, role: typing.Optional[discord.Role] = None):
+        pass
 
-    @commands.Cog.listener()
-    async def on_raw_reaction_remove(self, payload):
-        if payload.message_id in GG.REACTIONROLES:
-            emoji = payload.emoji
-            server = GG.REACTIONROLES[payload.message_id]
-            roleId = None
-            for x in server:
-                dbEmoji = x[1][2:].split(":")
-                if emoji.name == dbEmoji[0] or emoji.name == x[1]:
-                    roleId = int(x[0])
-                    userId = payload.user_id
-                    guildId = payload.guild_id
-                    guild = await self.bot.fetch_guild(guildId)
-                    await guild.chunk()
-                    Role = guild.get_role(roleId)
-                    Member = await guild.fetch_member(userId)
-                    await Member.remove_roles(Role)
+
+
 
 
 def setup(bot):

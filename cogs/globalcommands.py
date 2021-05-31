@@ -1,3 +1,5 @@
+import typing
+
 import discord
 
 from disputils import BotEmbedPaginator
@@ -73,7 +75,7 @@ class GlobalCommands(commands.Cog):
     @commands.command(aliases=['gremove', 'grem'], hidden=True)
     @GG.is_staff()
     @commands.guild_only()
-    async def globalremove(self, ctx, *, trigger):
+    async def globalremove(self, ctx, trigger):
         """Removes a global command."""
         result = await GG.MDB['globalcommands'].delete_one({"Guild": ctx.message.guild.id, "Trigger": trigger.replace('\'', '\'\'')})
         if result.deleted_count > 0:
@@ -83,7 +85,7 @@ class GlobalCommands(commands.Cog):
 
     @commands.command(aliases=['g'])
     @commands.guild_only()
-    async def globalcommand(self, ctx, *, trigger):
+    async def globalcommand(self, ctx, trigger, member: typing.Optional[discord.Member] = None):
         """Returns your chosen global command."""
         trig = trigger
         user_quote = await GG.MDB['globalcommands'].find_one({"Guild": ctx.message.guild.id, "Trigger": trig})
@@ -94,11 +96,14 @@ class GlobalCommands(commands.Cog):
                     ctx.channel).manage_messages:
                 await ctx.message.delete()
 
-            await ctx.send(embed=global_embed(self, user_quote, ctx.author, ctx.message, trig))
+            if member is not None:
+                await ctx.send(content=member.mention, embed=global_embed(self, user_quote, ctx.author, ctx.message, trig))
+            else:
+                await ctx.send(embed=global_embed(self, user_quote, ctx.author, ctx.message, trig))
 
     @commands.command(aliases=['w'])
     @commands.guild_only()
-    async def whispercommand(self, ctx, *, trigger):
+    async def whispercommand(self, ctx, trigger, member: typing.Optional[discord.Member] = None):
         """Returns your chosen global command."""
         trig = trigger
         user_quote = await GG.MDB['globalcommands'].find_one({"Guild": ctx.message.guild.id, "Trigger": trig})
@@ -107,11 +112,20 @@ class GlobalCommands(commands.Cog):
         else:
             DM = await ctx.author.create_dm()
 
+        if member is not None:
+            if member.dm_channel is not None:
+                DM = member.dm_channel
+            else:
+                DM = await member.create_dm()
+
         if user_quote is None:
             try:
                 await DM.send(content=":x:" + ' **Command with that trigger does not exist.**')
             except discord.Forbidden:
-                await ctx.send(f"{ctx.author.mention} I tried DMing you, but you either blocked me, or you don't allow DM's")
+                if member is not None:
+                    await ctx.send(f"{ctx.author.mention} I tried DMing {member.mention}, they either blocked me, or they don't allow DM's")
+                else:
+                    await ctx.send(f"{ctx.author.mention} I tried DMing you, but you either blocked me, or you don't allow DM's")
         else:
             if ctx.guild and ctx.guild.me.permissions_in(
                     ctx.channel).manage_messages:
@@ -119,7 +133,10 @@ class GlobalCommands(commands.Cog):
             try:
                 await DM.send(embed=global_embed(self, user_quote, ctx.author, ctx.message, trig, ctx.guild.name, True))
             except discord.Forbidden:
-                await ctx.send(f"{ctx.author.mention} I tried DMing you, but you either blocked me, or you don't allow DM's")
+                if member is not None:
+                    await ctx.send(f"{ctx.author.mention} I tried DMing {member.mention}, they either blocked me, or they don't allow DM's")
+                else:
+                    await ctx.send(f"{ctx.author.mention} I tried DMing you, but you either blocked me, or you don't allow DM's")
 
     @commands.command(aliases=['glist'])
     @commands.guild_only()
@@ -135,7 +152,7 @@ class GlobalCommands(commands.Cog):
 
     @commands.command(aliases=['gc'])
     @commands.guild_only()
-    async def globalcode(self, ctx, *, trigger):
+    async def globalcode(self, ctx, trigger):
         """Returns your chosen global command."""
         trig = trigger
         user_quote = await GG.MDB['globalcommands'].find_one({"Guild": ctx.message.guild.id, "Trigger": trig})

@@ -68,7 +68,7 @@ class PersonalQuotes(commands.Cog):
         await ctx.send(content=":white_check_mark:" + ' **Command added.**')
 
     @commands.command(aliases=['premove', 'prem'])
-    async def personalremove(self, ctx, *, trigger):
+    async def personalremove(self, ctx, trigger):
         """Removes a personal quote."""
         result = await GG.MDB['personalcommands'].delete_one({"user": ctx.message.author.id, "trigger": trigger.replace('\'', '\'\'')})
         if result.deleted_count > 0:
@@ -77,7 +77,7 @@ class PersonalQuotes(commands.Cog):
             await ctx.send(content=":x:" + ' **Command with that trigger does not exist.**')
 
     @commands.command(aliases=['p'])
-    async def personal(self, ctx, *, trigger):
+    async def personal(self, ctx, trigger):
         """Returns your chosen personal quote."""
         trig = trigger.replace('\'', '\'\'')
         user_quote = await GG.MDB['personalcommands'].find_one({"user": ctx.message.author.id, "trigger": trig})
@@ -109,7 +109,7 @@ class PersonalQuotes(commands.Cog):
 
     @commands.command(aliases=['pc'])
     @commands.guild_only()
-    async def personalcode(self, ctx, *, trigger):
+    async def personalcode(self, ctx, trigger):
         """Returns your chosen global command."""
         trig = trigger
         user_quote = await GG.MDB['personalcommands'].find_one({"user": ctx.message.author.id, "trigger": trig})

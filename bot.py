@@ -1,5 +1,7 @@
 import asyncio
 import discord
+from discord_components import DiscordComponents
+
 import utils.globals as GG
 
 from utils import logger
@@ -9,7 +11,7 @@ from discord.ext import commands
 
 log = logger.logger
 
-version = "v2.0.2"
+version = "v2.1.0"
 SHARD_COUNT = 1
 TESTING = False
 defaultPrefix = GG.PREFIX if not TESTING else '*'
@@ -33,6 +35,7 @@ class Crawler(commands.AutoShardedBot):
         self.token = GG.TOKEN
         self.mdb = GG.MDB
         self.prefixes = GG.PREFIXES
+        self.guild = None
 
     def get_server_prefix(self, msg):
         return get_prefix(self, msg)[-1]
@@ -63,6 +66,7 @@ async def on_message(msg):
 
 @bot.event
 async def on_ready():
+    DiscordComponents(bot)
     await bot.change_presence(activity=discord.Game(f"with {len(bot.guilds)} servers | $help | {version}"), afk=True)
     print(f"Logged in as {bot.user.name} ({bot.user.id})")
 
@@ -72,6 +76,7 @@ async def on_connect():
     await fillGlobals()
     bot.owner = await bot.fetch_user(GG.OWNER)
     print(f"OWNER: {bot.owner.name}")
+
 
 
 @bot.event
@@ -124,6 +129,7 @@ if __name__ == "__main__":
         try:
             bot.load_extension(GG.COGSADMIN + "." + extension)
         except Exception as e:
+            print(e)
             log.error(f'Failed to load extension {extension}')
     for extension in [f.replace('.py', '') for f in listdir(GG.COGSEVENTS) if isfile(join(GG.COGSEVENTS, f))]:
         try:

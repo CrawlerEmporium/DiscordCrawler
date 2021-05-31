@@ -149,6 +149,17 @@ class Info(commands.Cog):
                 string = ""
         await ctx.send(string)
 
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def ten(self, ctx):
+        guild = ctx.guild
+        await guild.chunk()
+        members = sorted(guild.members, key=lambda m: m.joined_at)
+        users = ""
+        for i in range(20):
+            users += f"#{i+1} - {members[i].mention}\n"
+        await ctx.send(users)
+
     # @commands.command()
     # @commands.guild_only()
     # @GG.is_staff()

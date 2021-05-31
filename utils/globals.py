@@ -20,8 +20,11 @@ COGSADMIN = env('COGSADMIN')
 COGSEVENTS = env('COGSEVENTS')
 OWNER = int(env('OWNER'))
 MONGODB = env('MONGODB')
+KEY = env('KEY')
 
 MDB = motor.motor_asyncio.AsyncIOMotorClient(MONGODB)['discordCrawler']
+
+slashGuilds = [363680385336606740, 584842413135101990, 822493567707775057]
 
 BOT = 574554734187380756
 PM_TRUE = True

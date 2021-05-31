@@ -45,15 +45,6 @@ def make_ordinal(n):
     return str(n) + suffix
 
 
-def gen_error_message():
-    subject = random.choice(['A kobold', 'The green dragon', 'The Frost Mage', 'DiscordCrawler', 'The wizard',
-                             'An iron golem', 'Your mom', 'This bot', 'You', 'Me', 'The president',
-                             'The Queen', 'Xanathar', 'Volo', 'This world'])
-    verb = random.choice(['must be', 'should be', 'has been', 'will be', 'is being', 'was being'])
-    thing_to_do = random.choice(['stopped', 'killed', 'talked to', 'found', 'destroyed', 'fought'])
-    return f"{subject} {verb} {thing_to_do}"
-
-
 def a_or_an(string, upper=False):
     if string.startswith('^') or string.endswith('^'):
         return string.strip('^')

@@ -6,10 +6,7 @@ from utils import logger
 
 log = logger.logger
 
-categories = [
-    'ANON',
-    'DELIVERY',
-    'ANNOUNCEMENT']
+categories = ['ANON', 'DELIVERY', 'ANNOUNCEMENT', 'MODDECISION', 'BLACKLIST']
 
 
 def getRole(roleID, ctx):
