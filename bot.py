@@ -11,7 +11,7 @@ from discord.ext import commands
 
 log = logger.logger
 
-version = "v2.1.0"
+version = "v2.3.0"
 SHARD_COUNT = 1
 TESTING = False
 defaultPrefix = GG.PREFIX if not TESTING else '*'
