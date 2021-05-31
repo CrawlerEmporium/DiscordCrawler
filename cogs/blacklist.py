@@ -162,7 +162,7 @@ class Blacklist(commands.Cog):
                             channel = await self.bot.fetch_channel(channelID)
                             message = await channel.fetch_message(msgID)
                             await message.delete()
-                            embed.set_footer(text="Message was removed by member of staff.")
+                            embed.set_footer(text=f"Message was removed by {res.user.display_name}.")
                             await msg.edit(embed=embed, components=[])
                         except:
                             embed.set_footer(text="Couldn't find message, probably already deleted.")
