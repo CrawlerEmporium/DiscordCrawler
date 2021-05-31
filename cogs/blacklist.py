@@ -108,8 +108,11 @@ class Blacklist(commands.Cog):
         try:
             em = discord.Embed()
             string = ""
-            for x in TERMS:
-                string += f"{x}\n"
+            if TERMS is not None:
+                for x in TERMS:
+                    string += f"{x['term']}\n"
+            else:
+                string = "No blacklisted words on the server yet."
             em.add_field(name="Blacklisted words", value=string)
             await DM.send(embed=em)
         except discord.Forbidden:
@@ -128,12 +131,16 @@ class Blacklist(commands.Cog):
         try:
             em = discord.Embed()
             string = ""
-            for x in TERMS:
-                string += f"{x}\n"
+            if TERMS is not None:
+                for x in TERMS:
+                    string += f"{x['term']}\n"
+            else:
+                string = "No greylisted words on the server yet."
             em.add_field(name="Greylisted words", value=string)
             await DM.send(embed=em)
         except discord.Forbidden:
-            await ctx.send(f"I tried DMing you, but you either blocked me, or don't allow DM's")
+            await ctx.send(
+                f"{ctx.author.mention} I tried DMing you, but you either blocked me, or you don't allow DM's")
         await ctx.message.delete()
 
     @commands.Cog.listener()
