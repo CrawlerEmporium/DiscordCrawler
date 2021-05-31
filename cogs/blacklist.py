@@ -181,7 +181,7 @@ class Blacklist(commands.Cog):
                             delivery_channel = await GG.MDB['channelinfo'].find_one(
                                 {"guild": message.guild.id, "type": "BLACKLIST"})
                             delivery_channel = await self.bot.fetch_channel(delivery_channel['channel'])
-                            await delivery_channel.send(embed=await self.createEmbed(message, "greylisted"),
+                            await delivery_channel.send(embed=await self.createEmbed(message, "greylisted", term),
                                                         components=[Button(style=ButtonStyle.red, label="Reject")])
                             break
             if message.guild is not None and message.guild.id in GG.GUILDS:
@@ -194,7 +194,7 @@ class Blacklist(commands.Cog):
                             delivery_channel = await GG.MDB['channelinfo'].find_one(
                                 {"guild": message.guild.id, "type": "BLACKLIST"})
                             delivery_channel = await self.bot.fetch_channel(delivery_channel['channel'])
-                            await delivery_channel.send(embed=await self.createEmbed(message, "blacklisted"))
+                            await delivery_channel.send(embed=await self.createEmbed(message, "blacklisted", term))
                             await message.delete()
                             if message.author.dm_channel is not None:
                                 DM = message.author.dm_channel
@@ -209,11 +209,12 @@ class Blacklist(commands.Cog):
 
                             break
 
-    async def createEmbed(self, message, type):
+    async def createEmbed(self, message, type, term):
         embed = discord.Embed(title=f"{type.title()} word detected!",
                               description=f"```{message.content[:1020]}```")
         embed.add_field(name="Who", value=f"{message.author.display_name} ({message.author.mention})")
         embed.add_field(name="Where", value=f"[Here]({message.jump_url}) in {message.channel.mention}")
+        embed.add_field(name=f"{type.title()} term", value=f"{term}")
         if type != 'blacklisted':
             embed.add_field(name="** **", value="** **")
             embed.add_field(name="MSGID", value=f"{message.id}")
