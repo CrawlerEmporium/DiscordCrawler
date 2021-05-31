@@ -78,7 +78,7 @@ class Blacklist(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def greyblacklist(self, ctx, *, args):
         await GG.MDB['greylist'].insert_one({"guild": ctx.guild.id, "term": args})
-        GG.BLACKLIST, GG.GUILDS = await GG.fillGreyList(GG.BLACKLIST, GG.GUILDS)
+        GG.GREYLIST, GG.GREYGUILDS = await GG.fillGreyList(GG.GREYLIST, GG.GREYGUILDS)
         await ctx.send(f"{args} was added to the term greylist.")
 
     @commands.command(aliases=['wl'])
