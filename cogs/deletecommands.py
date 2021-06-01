@@ -10,7 +10,7 @@ import utils.globals as GG
 log = logger.logger
 
 
-def global_embed(self, db_response, author, message, command, server=None, whisper=False):
+def global_embed(db_response, author):
     if isinstance(author, discord.Member) and author.color != discord.Colour.default():
         embed = discord.Embed(description=db_response['Response'], color=author.color)
     else:
@@ -65,7 +65,9 @@ class GlobalCommands(commands.Cog):
             if checkIfExist is not None:
                 return await ctx.send(content=":x:" + ' **This server already has a command with that trigger.**')
             else:
-                await GG.MDB['deletecommands'].insert_one({"Guild": ctx.message.guild.id, "Trigger": trig, "Response": response, "Attachments": [attachment.url for attachment in ctx.message.attachments]})
+                await GG.MDB['deletecommands'].insert_one(
+                    {"Guild": ctx.message.guild.id, "Trigger": trig, "Response": response,
+                     "Attachments": [attachment.url for attachment in ctx.message.attachments]})
         await ctx.send(content=":white_check_mark:" + ' **Command added.**')
 
     @commands.command(aliases=['dremove', 'drem'], hidden=True)
@@ -73,7 +75,8 @@ class GlobalCommands(commands.Cog):
     @commands.guild_only()
     async def deleteremove(self, ctx, trigger):
         """Removes a global command."""
-        result = await GG.MDB['deletecommands'].delete_one({"Guild": ctx.message.guild.id, "Trigger": trigger.replace('\'', '\'\'')})
+        result = await GG.MDB['deletecommands'].delete_one(
+            {"Guild": ctx.message.guild.id, "Trigger": trigger.replace('\'', '\'\'')})
         if result.deleted_count > 0:
             await ctx.send(content=":white_check_mark:" + ' **Command deleted.**')
         else:
@@ -101,12 +104,14 @@ class GlobalCommands(commands.Cog):
                 return await message.delete()
 
             try:
-                await DM.send(embed=global_embed(self, user_quote, ctx.author, ctx.message, trig, ctx.guild.name, True))
+                await DM.send(embed=global_embed(user_quote, ctx.author))
             except discord.Forbidden:
                 if message.author is not None:
-                    await ctx.send(f"{ctx.author.mention} I tried DMing {message.author.mention}, they either blocked me, or they don't allow DM's")
+                    await ctx.send(
+                        f"{ctx.author.mention} I tried DMing {message.author.mention}, they either blocked me, or they don't allow DM's")
                 else:
-                    await ctx.send(f"{ctx.author.mention} I tried DMing you, but you either blocked me, or you don't allow DM's")
+                    await ctx.send(
+                        f"{ctx.author.mention} I tried DMing you, but you either blocked me, or you don't allow DM's")
 
     @commands.command(aliases=['dlist'])
     @GG.is_staff()
