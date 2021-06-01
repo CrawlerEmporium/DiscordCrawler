@@ -11,7 +11,7 @@ from discord.ext import commands
 
 log = logger.logger
 
-version = "v2.3.0"
+version = "v2.3.1"
 SHARD_COUNT = 1
 TESTING = False
 defaultPrefix = GG.PREFIX if not TESTING else '*'
@@ -76,7 +76,6 @@ async def on_connect():
     await fillGlobals()
     bot.owner = await bot.fetch_user(GG.OWNER)
     print(f"OWNER: {bot.owner.name}")
-
 
 
 @bot.event
