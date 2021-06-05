@@ -18,12 +18,20 @@ defaultPrefix = GG.PREFIX if not TESTING else '*'
 intents = discord.Intents().all()
 
 
-def get_prefix(b, message):
+async def get_prefix(bot, message):
     if not message.guild:
-        return commands.when_mentioned_or(defaultPrefix)(b, message)
-
-    gp = b.prefixes.get(str(message.guild.id), defaultPrefix)
-    return commands.when_mentioned_or(gp)(b, message)
+        return commands.when_mentioned_or(defaultPrefix)(bot, message)
+    guild_id = str(message.guild.id)
+    if guild_id in bot.prefixes:
+        gp = bot.prefixes.get(guild_id, defaultPrefix)
+    else:  # load from db and cache
+        gp_obj = await GG.MDB.prefixes.find_one({"guild_id": guild_id})
+        if gp_obj is None:
+            gp = defaultPrefix
+        else:
+            gp = gp_obj.get("prefix", defaultPrefix)
+        bot.prefixes[guild_id] = gp
+    return commands.when_mentioned_or(gp)(bot, message)
 
 
 class Crawler(commands.AutoShardedBot):
@@ -34,11 +42,11 @@ class Crawler(commands.AutoShardedBot):
         self.testing = TESTING
         self.token = GG.TOKEN
         self.mdb = GG.MDB
-        self.prefixes = GG.PREFIXES
+        self.prefixes = dict()
         self.guild = None
 
-    def get_server_prefix(self, msg):
-        return get_prefix(self, msg)[-1]
+    async def get_server_prefix(self, msg):
+        return (await get_prefix(self, msg))[-1]
 
     async def launch_shards(self):
         if self.shard_count is None:
@@ -85,10 +93,6 @@ async def on_resumed():
 
 async def fillGlobals():
     log.info("Filling Globals")
-    PREFIXESDB = await GG.MDB['prefixes'].find({}).to_list(length=None)
-    GG.PREFIXES = GG.loadPrefixes(PREFIXESDB)
-    bot.prefixes = GG.PREFIXES
-
     CHANNELDB = await GG.MDB['channelinfo'].find({}).to_list(length=None)
     GG.CHANNEL = GG.loadChannels(CHANNELDB)
 
