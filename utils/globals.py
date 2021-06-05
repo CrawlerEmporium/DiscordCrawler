@@ -23,6 +23,7 @@ MONGODB = env('MONGODB')
 KEY = env('KEY')
 
 MDB = motor.motor_asyncio.AsyncIOMotorClient(MONGODB)['discordCrawler']
+HELP = motor.motor_asyncio.AsyncIOMotorClient(MONGODB)['lookup']
 
 slashGuilds = [363680385336606740, 584842413135101990, 822493567707775057]
 
