@@ -163,7 +163,9 @@ class GlobalCommands(commands.Cog):
             if ctx.guild and ctx.guild.me.permissions_in(ctx.channel).manage_messages:
                 await ctx.message.delete()
 
-            await ctx.send(f"```{user_quote['Response']}```", files=user_quote['Attachments'])
+            replaceString = '\`'
+            await ctx.send(f"```{user_quote['Response'].replace('`', replaceString)}```",
+                           files=user_quote['Attachments'])
 
 
 
