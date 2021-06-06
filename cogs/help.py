@@ -38,13 +38,13 @@ class Help(commands.Cog):
                 if len(helpCommand['options']) > 1:
                     for i in range(len(helpCommand['options'])):
                         entryString = '\n'.join(helpCommand['options'][i]['entries'])
-                        embed.add_field(name=f"Option #{i + 1}",
-                                        value=f"{helpCommand['options'][i]['argument']}: {entryString.replace('{/prefix}', prefix)}",
+                        embed.add_field(name=f"Option: {helpCommand['options'][i]['argument']}",
+                                        value=f"{entryString.replace('{/prefix}', prefix)}",
                                         inline=False)
                 else:
                     entryString = '\n'.join(helpCommand['options'][0]['entries'])
-                    embed.add_field(name=f"Option",
-                                    value=f"{helpCommand['options'][0]['argument']}: {entryString.replace('{/prefix}', prefix)}",
+                    embed.add_field(name=f"Option: {helpCommand['options'][0]['argument']}",
+                                    value=f"{entryString.replace('{/prefix}', prefix)}",
                                     inline=False)
 
                 if len(helpCommand['examples']) > 1:
