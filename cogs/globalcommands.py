@@ -10,9 +10,9 @@ import utils.globals as GG
 log = logger.logger
 
 
-def global_embed(self, db_response, author, message, command, server=None, whisper=False):
-    if isinstance(author, discord.Member) and author.color != discord.Colour.default():
-        embed = discord.Embed(description=db_response['Response'], color=author.color)
+def global_embed(self, db_response, ctx, command, server=None, whisper=False):
+    if isinstance(ctx.author, discord.Member) and ctx.author.color != discord.Colour.default():
+        embed = discord.Embed(description=db_response['Response'], color=ctx.author.color)
     else:
         embed = discord.Embed(description=db_response['Response'])
     if db_response['Attachments'] != None:
@@ -26,10 +26,11 @@ def global_embed(self, db_response, author, message, command, server=None, whisp
             for attachment in attachments:
                 attachment_count += 1
                 embed.add_field(name='Attachment ' + str(attachment_count), value=attachment, inline=False)
+    prefix = await self.bot.get_server_prefix(ctx.message)
     if not whisper:
-        embed.set_footer(text=f'You too can use this command. {self.bot.get_server_prefix(message)}g {command}')
+        embed.set_footer(text=f'You too can use this command. {prefix}g {command}')
     else:
-        embed.set_footer(text=f'This command was triggered in {server}. You can trigger it there by running {self.bot.get_server_prefix(message)}g {command}')
+        embed.set_footer(text=f'This command was triggered in {server}. You can trigger it there by running {prefix}g {command}')
     return embed
 
 
@@ -97,9 +98,9 @@ class GlobalCommands(commands.Cog):
                 await ctx.message.delete()
 
             if member is not None:
-                await ctx.send(content=member.mention, embed=global_embed(self, user_quote, ctx.author, ctx.message, trig))
+                await ctx.send(content=member.mention, embed=global_embed(self, user_quote, ctx, trig))
             else:
-                await ctx.send(embed=global_embed(self, user_quote, ctx.author, ctx.message, trig))
+                await ctx.send(embed=global_embed(self, user_quote, ctx, trig))
 
     @commands.command(aliases=['w'])
     @commands.guild_only()
@@ -131,7 +132,7 @@ class GlobalCommands(commands.Cog):
                     ctx.channel).manage_messages:
                 await ctx.message.delete()
             try:
-                await DM.send(embed=global_embed(self, user_quote, ctx.author, ctx.message, trig, ctx.guild.name, True))
+                await DM.send(embed=global_embed(self, user_quote, ctx, trig, ctx.guild.name, True))
             except discord.Forbidden:
                 if member is not None:
                     await ctx.send(f"{ctx.author.mention} I tried DMing {member.mention}, they either blocked me, or they don't allow DM's")
