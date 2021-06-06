@@ -17,7 +17,7 @@ class Help(commands.Cog):
     async def help(self, ctx, *, command=None):
         if command is not None:
             helpCommand = await GG.HELP['help'].find_one({"bots": "discord", "command": command})
-            if helpCommand is not None and helpCommand.get('disabled', False):
+            if helpCommand is not None and not helpCommand.get('disabled', False):
                 prefix = await self.bot.get_server_prefix(ctx.message)
                 description = helpCommand['description'][0]
                 embed = discord.Embed(title=f"{helpCommand['command'].title()}",
