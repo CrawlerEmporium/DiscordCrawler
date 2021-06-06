@@ -17,7 +17,7 @@ class Help(commands.Cog):
     async def help(self, ctx, *, command=None):
         if command is not None:
             helpCommand = await GG.HELP['help'].find_one({"bots": "discord", "command": command})
-            if helpCommand is not None:
+            if helpCommand is not None and helpCommand.get('disabled', False):
                 prefix = await self.bot.get_server_prefix(ctx.message)
                 description = helpCommand['description'][0]
                 embed = discord.Embed(title=f"{helpCommand['command'].title()}",
@@ -66,7 +66,7 @@ class Help(commands.Cog):
             else:
                 await ctx.send("Command doesn't exist")
         else:
-            helpCommands = await GG.HELP['help'].find({"bots": "discord"}).to_list(length=None)
+            helpCommands = await GG.HELP['help'].find({"bots": "discord", "disabled": None}).to_list(length=None)
             if helpCommands is not None:
                 embeds = await self.list_embed(helpCommands, ctx)
                 paginator = BotEmbedPaginator(ctx, embeds)
