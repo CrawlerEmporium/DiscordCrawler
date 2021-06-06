@@ -10,7 +10,7 @@ import utils.globals as GG
 log = logger.logger
 
 
-def global_embed(self, db_response, ctx, command, server=None, whisper=False):
+async def global_embed(self, db_response, ctx, command, server=None, whisper=False):
     if isinstance(ctx.author, discord.Member) and ctx.author.color != discord.Colour.default():
         embed = discord.Embed(description=db_response['Response'], color=ctx.author.color)
     else:
@@ -98,9 +98,9 @@ class GlobalCommands(commands.Cog):
                 await ctx.message.delete()
 
             if member is not None:
-                await ctx.send(content=member.mention, embed=global_embed(self, user_quote, ctx, trig))
+                await ctx.send(content=member.mention, embed=await global_embed(self, user_quote, ctx, trig))
             else:
-                await ctx.send(embed=global_embed(self, user_quote, ctx, trig))
+                await ctx.send(embed=await global_embed(self, user_quote, ctx, trig))
 
     @commands.command(aliases=['w'])
     @commands.guild_only()
@@ -132,7 +132,7 @@ class GlobalCommands(commands.Cog):
                     ctx.channel).manage_messages:
                 await ctx.message.delete()
             try:
-                await DM.send(embed=global_embed(self, user_quote, ctx, trig, ctx.guild.name, True))
+                await DM.send(embed=await global_embed(self, user_quote, ctx, trig, ctx.guild.name, True))
             except discord.Forbidden:
                 if member is not None:
                     await ctx.send(f"{ctx.author.mention} I tried DMing {member.mention}, they either blocked me, or they don't allow DM's")
