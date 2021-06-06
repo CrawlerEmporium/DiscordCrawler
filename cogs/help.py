@@ -48,10 +48,10 @@ class Help(commands.Cog):
                                     inline=False)
 
                 if len(helpCommand['examples']) > 1:
-                    for i in range(len(helpCommand['examples'])):
-                        embed.add_field(name=f"Example #{i + 1}",
-                                        value=f"{helpCommand['examples'][i].replace('{/prefix}', prefix)}",
-                                        inline=False)
+                    exampleString = "\n".join(helpCommand['examples'])
+                    embed.add_field(name=f"Examples",
+                                    value=f"{exampleString.replace('{/prefix}', prefix)}",
+                                    inline=False)
                 else:
                     embed.add_field(name=f"Example", value=f"{helpCommand['examples'][0].replace('{/prefix}', prefix)}",
                                     inline=False)
@@ -80,7 +80,7 @@ class Help(commands.Cog):
         for i in range(0, len(helpCommands), 10):
             commands = helpCommands[i:i + 10]
             embed = discord.Embed(title="DiscordCrawler Commands",
-                                  description=f"A list of all the commands that the DiscordCrawler bot has to offer. Find out more by typing in {prefix}help [command]")
+                                  description=f"A list of all the commands that the DiscordCrawler bot has to offer. Find out more by typing in ``{prefix}help [command]``")
             for help in commands:
                 embed.add_field(name=f"{help['command']}",
                                 value=f"{help['description'][0].replace('{/prefix}', prefix)}",
