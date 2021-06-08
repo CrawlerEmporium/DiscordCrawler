@@ -6,6 +6,7 @@ from disputils import BotEmbedPaginator
 from discord.ext import commands
 from utils import logger
 import utils.globals as GG
+from utils.functions import try_delete
 
 log = logger.logger
 
@@ -93,9 +94,8 @@ class GlobalCommands(commands.Cog):
         if user_quote is None:
             await ctx.send(content=":x:" + ' **Command with that trigger does not exist.**')
         else:
-            if ctx.guild and ctx.guild.me.permissions_in(
-                    ctx.channel).manage_messages:
-                await ctx.message.delete()
+            if ctx.guild and ctx.guild.me.permissions_in(ctx.channel).manage_messages:
+                await try_delete(ctx.message)
 
             if member is not None:
                 await ctx.send(content=member.mention, embed=await global_embed(self, user_quote, ctx, trig))
@@ -130,7 +130,7 @@ class GlobalCommands(commands.Cog):
         else:
             if ctx.guild and ctx.guild.me.permissions_in(
                     ctx.channel).manage_messages:
-                await ctx.message.delete()
+                await try_delete(ctx.message)
             try:
                 await DM.send(embed=await global_embed(self, user_quote, ctx, trig, ctx.guild.name, True))
             except discord.Forbidden:
@@ -161,7 +161,7 @@ class GlobalCommands(commands.Cog):
             await ctx.send(content=":x:" + ' **Command with that trigger does not exist.**')
         else:
             if ctx.guild and ctx.guild.me.permissions_in(ctx.channel).manage_messages:
-                await ctx.message.delete()
+                await try_delete(ctx.message)
 
             replaceString = '\`'
             await ctx.send(f"```{user_quote['Response'].replace('`', replaceString)}```",

@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import utils.globals as GG
 from utils import logger
+from utils.functions import try_delete
 
 log = logger.logger
 
@@ -35,7 +36,7 @@ class Poll(commands.Cog):
                 await message.add_reaction('👎')
                 await message.add_reaction('🤷')
             else:
-                await ctx.message.delete()
+                await try_delete(ctx.message)
                 first = messageContent.find("{") + 1
                 second = messageContent.find("}")
                 title = messageContent[first:second]

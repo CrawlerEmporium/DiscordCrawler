@@ -5,6 +5,7 @@ from disputils import BotEmbedPaginator
 
 from utils import logger
 import utils.globals as GG
+from utils.functions import try_delete
 
 log = logger.logger
 
@@ -32,7 +33,7 @@ class LookCommands(commands.Cog):
     @commands.group(invoke_without_command=True)
     async def look(self, ctx, trigger):
         if not isinstance(ctx.message.channel, discord.DMChannel):
-            await ctx.message.delete()
+            await try_delete(ctx.message)
         trigger = trigger.lower()
         exist = await self.bot.mdb.look.find_one({"name": f"{trigger}"})
         if exist is not None:
@@ -57,12 +58,12 @@ class LookCommands(commands.Cog):
         exist = await self.bot.mdb.look.find_one({"name": f"{trigger}"})
         if exist is None:
             if not isinstance(ctx.message.channel, discord.DMChannel):
-                await ctx.message.delete()
+                await try_delete(ctx.message)
             await self.bot.mdb.look.insert_one({"name": f"{trigger}", 'text': f"{text}"})
             await ctx.send(f"A look with {trigger} was added.")
         else:
             if not isinstance(ctx.message.channel, discord.DMChannel):
-                await ctx.message.delete()
+                await try_delete(ctx.message)
             await ctx.send(f"A look for {trigger} already exists.")
 
     @look.command(name='remove', hidden=True)
@@ -73,12 +74,12 @@ class LookCommands(commands.Cog):
         exist = await self.bot.mdb.look.find_one({"name": f"{trigger}"})
         if exist is not None:
             if not isinstance(ctx.message.channel, discord.DMChannel):
-                await ctx.message.delete()
+                await try_delete(ctx.message)
             await self.bot.mdb.look.delete_one({"name": f"{trigger}"})
             await ctx.send(f"A look with {trigger} was removed.")
         else:
             if not isinstance(ctx.message.channel, discord.DMChannel):
-                await ctx.message.delete()
+                await try_delete(ctx.message)
             await ctx.send(f"A look for {trigger} was not found.")
 
     @look.command(name='list', hidden=True)
@@ -86,7 +87,7 @@ class LookCommands(commands.Cog):
     @commands.guild_only()
     async def looklist(self, ctx):
         if not isinstance(ctx.message.channel, discord.DMChannel):
-            await ctx.message.delete()
+            await try_delete(ctx.message)
         list = await self.bot.mdb.look.find({}).to_list(length=None)
         if len(list) > 0:
             embeds = list_embed(list, ctx.author)

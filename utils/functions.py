@@ -1,6 +1,9 @@
 import logging
 import random
 import re
+
+import discord
+
 import utils.globals as GG
 
 log = logging.getLogger(__name__)
@@ -27,6 +30,13 @@ async def get_next_case_num():
     reportNum['amount'] += 1
     await GG.MDB['properties'].replace_one({"key": 'caseId'}, reportNum)
     return num
+
+
+async def try_delete(message):
+    try:
+        await message.delete()
+    except discord.HTTPException:
+        pass
 
 
 def make_ordinal(n):

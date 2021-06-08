@@ -6,6 +6,7 @@ from disputils import BotEmbedPaginator
 from discord.ext import commands
 from utils import logger
 import utils.globals as GG
+from utils.functions import try_delete
 
 log = logger.logger
 
@@ -87,7 +88,7 @@ class GlobalCommands(commands.Cog):
     @commands.guild_only()
     async def deletecommand(self, ctx, trigger, message: typing.Optional[discord.Message] = None):
         """Returns your chosen global command."""
-        await ctx.message.delete()
+        await try_delete(ctx.message)
         trig = trigger
         user_quote = await GG.MDB['deletecommands'].find_one({"Guild": ctx.message.guild.id, "Trigger": trig})
         if user_quote is None:
@@ -95,13 +96,13 @@ class GlobalCommands(commands.Cog):
             await msg.delete(delay=10)
         else:
             if message.author is not None:
-                await message.delete()
+                await try_delete(ctx.message)
                 if message.author.dm_channel is not None:
                     DM = message.author.dm_channel
                 else:
                     DM = await message.author.create_dm()
             else:
-                return await message.delete()
+                await try_delete(ctx.message)
 
             try:
                 await DM.send(embed=global_embed(user_quote, ctx.author))
@@ -137,7 +138,7 @@ class GlobalCommands(commands.Cog):
             await ctx.send(content=":x:" + ' **Command with that trigger does not exist.**')
         else:
             if ctx.guild and ctx.guild.me.permissions_in(ctx.channel).manage_messages:
-                await ctx.message.delete()
+                await try_delete(ctx.message)
 
             await ctx.send(f"```{user_quote['Response']}```", files=user_quote['Attachments'])
 

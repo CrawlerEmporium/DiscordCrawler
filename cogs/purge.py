@@ -5,6 +5,7 @@ from disputils import BotConfirmation
 
 from discord.ext import commands
 from utils import logger
+from utils.functions import try_delete
 
 log = logger.logger
 
@@ -20,7 +21,7 @@ class Purge(commands.Cog):
         if GG.checkPermission(ctx, "mm"):
             try:
                 if isinstance(int(limit), int):
-                    await ctx.message.delete()
+                    await try_delete(ctx.message)
                     confirmation = BotConfirmation(ctx, 0x012345)
                     await confirmation.confirm(f"Are you sure you want to remove {limit} messages?")
                     if confirmation.confirmed:

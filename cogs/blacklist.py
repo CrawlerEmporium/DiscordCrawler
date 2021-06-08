@@ -5,6 +5,7 @@ from discord_components import Button, ButtonStyle
 
 from utils import logger
 from utils import globals as GG
+from utils.functions import try_delete
 
 log = logger.logger
 
@@ -118,7 +119,7 @@ class Blacklist(commands.Cog):
         except discord.Forbidden:
             await ctx.send(
                 f"{ctx.author.mention} I tried DMing you, but you either blocked me, or you don't allow DM's")
-        await ctx.message.delete()
+        await try_delete(ctx.message)
 
     @commands.command(aliases=['graylisted'])
     @commands.guild_only()
@@ -141,7 +142,7 @@ class Blacklist(commands.Cog):
         except discord.Forbidden:
             await ctx.send(
                 f"{ctx.author.mention} I tried DMing you, but you either blocked me, or you don't allow DM's")
-        await ctx.message.delete()
+        await try_delete(ctx.message)
 
     @commands.Cog.listener()
     async def on_button_click(self, res):

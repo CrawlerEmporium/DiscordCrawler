@@ -6,6 +6,7 @@ from discord.ext import commands
 from utils import logger
 from enum import Enum
 from utils import globals as GG
+from utils.functions import try_delete
 
 log = logger.logger
 
@@ -110,7 +111,7 @@ class Release(commands.Cog):
                 release.image_url = editedContent
 
             await self.sendReleaseEmbed(message, release)
-            await ctx.message.delete()
+            await try_delete(ctx.message)
 
 
     @commands.command()
@@ -118,7 +119,7 @@ class Release(commands.Cog):
     async def release(self, ctx):
         release = ReleaseModel()
         release.state = State.TITLE
-        await ctx.message.delete()
+        await try_delete(ctx.message)
         message = await ctx.send(f"First, give me the title of the release you want to add.")
         await self.waitReleaseMessage(ctx, message, release)
 

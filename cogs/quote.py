@@ -4,6 +4,7 @@ import discord
 from utils import globals as GG
 from discord.ext import commands
 from utils import logger
+from utils.functions import try_delete
 
 log = logger.logger
 
@@ -23,7 +24,7 @@ class Quote(commands.Cog):
             await ctx.send(content=":x:" + " **I work only with message Id's.**")
             return
 
-        await ctx.message.delete()
+        await try_delete(ctx.message)
 
         message = None
         try:

@@ -6,7 +6,7 @@ from disputils import BotEmbedPaginator
 
 from discord.ext import commands
 from utils import logger
-from utils.functions import make_ordinal
+from utils.functions import make_ordinal, try_delete
 
 log = logger.logger
 
@@ -39,7 +39,7 @@ class Points(commands.Cog):
     @commands.guild_only()
     async def points(self, ctx, member: typing.Optional[discord.Member] = None):
         '''$points [username] - Gives you the current points of [username] or yourself if no name is given.'''
-        await ctx.message.delete()
+        await try_delete(ctx.message)
         if member is None:
             await ctx.guild.chunk()
             member = ctx.guild.get_member(ctx.message.author.id)
@@ -61,7 +61,7 @@ class Points(commands.Cog):
     @commands.guild_only()
     async def user_leaderboard(self, ctx):
         '''$points leaderboard - Shows all users with points in descending order. Paged per 10.'''
-        await ctx.message.delete()
+        await try_delete(ctx.message)
         people = await GG.MDB.points.find({"server": ctx.guild.id, "user": {'$exists': True}}).to_list(length=None)
         if len(people) > 0:
             await ctx.guild.chunk()
@@ -83,7 +83,7 @@ class Points(commands.Cog):
     @commands.guild_only()
     async def role_leaderboard(self, ctx):
         '''$points leaderboard - Shows all users with points in descending order. Paged per 10.'''
-        await ctx.message.delete()
+        await try_delete(ctx.message)
         people = await GG.MDB.points.find({"server": ctx.guild.id, "role": {'$exists': True}}).to_list(length=None)
         if len(people) > 0:
             await ctx.guild.chunk()
@@ -103,7 +103,7 @@ class Points(commands.Cog):
     @commands.guild_only()
     async def add_points(self, ctx, member: typing.Optional[discord.Member], amount):
         '''$points add <username> <amount> - STAFF - Adds <amount> of points to <username>.'''
-        await ctx.message.delete()
+        await try_delete(ctx.message)
         points = 0
         try:
             amount = int(amount)
@@ -123,7 +123,7 @@ class Points(commands.Cog):
     @commands.guild_only()
     async def give_points(self, ctx, member: typing.Optional[discord.Member], amount):
         '''$points give <username> <amount> - Gives <amount> of YOUR points to <username>.'''
-        await ctx.message.delete()
+        await try_delete(ctx.message)
         points = 0
         try:
             amount = int(amount)
@@ -165,7 +165,7 @@ class Points(commands.Cog):
     @commands.guild_only()
     async def role_points(self, ctx, role: typing.Optional[discord.Role], amount):
         '''$points role <role> <amount> - STAFF - Adds <amount> of points to <role>.'''
-        await ctx.message.delete()
+        await try_delete(ctx.message)
         points = 0
         try:
             amount = int(amount)

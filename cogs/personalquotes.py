@@ -4,6 +4,7 @@ from disputils import BotEmbedPaginator
 
 import utils.globals as GG
 from utils import logger
+from utils.functions import try_delete
 
 log = logger.logger
 
@@ -86,7 +87,7 @@ class PersonalQuotes(commands.Cog):
         else:
             if ctx.guild and ctx.guild.me.permissions_in(
                     ctx.channel).manage_messages:
-                await ctx.message.delete()
+                await try_delete(ctx.message)
 
             await ctx.send(embed=personal_embed(user_quote, ctx.author))
 
@@ -117,7 +118,7 @@ class PersonalQuotes(commands.Cog):
             await ctx.send(content=":x:" + ' **Command with that trigger does not exist.**')
         else:
             if ctx.guild and ctx.guild.me.permissions_in(ctx.channel).manage_messages:
-                await ctx.message.delete()
+                await try_delete(ctx.message)
 
             await ctx.send(f"```{user_quote['response']}```", files=user_quote['attachments'])
 

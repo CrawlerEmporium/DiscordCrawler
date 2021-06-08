@@ -9,6 +9,8 @@ from discord.ext import commands
 from utils import logger
 from disputils import BotConfirmation
 
+from utils.functions import try_delete
+
 log = logger.logger
 
 
@@ -44,12 +46,12 @@ class Raffle(commands.Cog):
     async def raffle_title(self, ctx, id: int, *, title):
         """$raffle title <id> <title> - STAFF - Edits the title for <id> raffle."""
         if id == 0:
-            await ctx.message.delete()
+            await try_delete(ctx.message)
             return
         else:
             raffle = await self.bot.mdb['raffle'].find_one({'id': int(id)})
             if raffle is not None:
-                await ctx.message.delete()
+                await try_delete(ctx.message)
                 raffle['title'] = title
                 totalTickets = raffle.get('totalTickets', 0)
                 embed = self.createRaffleEmbed(raffle['title'], raffle['description'], raffle['id'], totalTickets, raffle['cost'])
@@ -61,7 +63,7 @@ class Raffle(commands.Cog):
                 await ctx.send(f"Title of raffle `{id}` was changed to: `{title}`.")
             else:
                 await ctx.send(f"Raffle with Id `{id}` not found.")
-                await ctx.message.delete()
+                await try_delete(ctx.message)
 
     @raffle.command(name='desc')
     @commands.guild_only()
@@ -69,12 +71,12 @@ class Raffle(commands.Cog):
     async def raffle_desc(self, ctx, id: int, *, description):
         """$raffle desc <id> <description> - STAFF - Edits the description for <id> raffle."""
         if id == 0:
-            await ctx.message.delete()
+            await try_delete(ctx.message)
             return
         else:
             raffle = await self.bot.mdb['raffle'].find_one({'id': int(id)})
             if raffle is not None:
-                await ctx.message.delete()
+                await try_delete(ctx.message)
                 raffle['description'] = description
                 totalTickets = raffle.get('totalTickets', 0)
                 embed = self.createRaffleEmbed(raffle['title'], raffle['description'], raffle['id'], totalTickets, raffle['cost'])
@@ -86,7 +88,7 @@ class Raffle(commands.Cog):
                 await ctx.send(f"Description of raffle `{id}` was changed to: `{description}`.")
             else:
                 await ctx.send(f"Raffle with Id `{id}` not found.")
-                await ctx.message.delete()
+                await try_delete(ctx.message)
 
     @raffle.command(name='pull')
     @commands.guild_only()
@@ -131,13 +133,13 @@ class Raffle(commands.Cog):
                     await ctx.send(f"No tickets were bought. Wait until tickets or bought, or cancel the raffle.")
         else:
             await ctx.send(f"Raffle with Id `{id}` not found.")
-            await ctx.message.delete()
+            await try_delete(ctx.message)
 
     @raffle.command(name='enter')
     @commands.guild_only()
     async def raffle_enter(self, ctx, id: int, tickets: int = 1):
         """$raffle enter <id> [tickets] - Enters a raffle, buying [tickets] amount of tickets if specified, otherwise 1."""
-        await ctx.message.delete()
+        await try_delete(ctx.message)
         raffle = await self.bot.mdb['raffle'].find_one({'id': int(id)})
         if raffle is not None:
             if raffle['ended'] == 1:
@@ -186,12 +188,12 @@ class Raffle(commands.Cog):
     async def raffle_cancel(self, ctx, id: int = 0):
         """$raffle cancel <id> - STAFF - Stops the <id> raffle, without pulling a winner, will refund all tickets."""
         if id == 0:
-            await ctx.message.delete()
+            await try_delete(ctx.message)
             return
         else:
             raffle = await self.bot.mdb['raffle'].find_one({'id': int(id)})
             if raffle is not None:
-                await ctx.message.delete()
+                await try_delete(ctx.message)
                 if raffle['ended'] == 0:
                     confirmation = BotConfirmation(ctx, 0x012345)
                     await confirmation.confirm(f"Are you sure you want to cancel the raffle with id: ({raffle['id']})?")
@@ -208,7 +210,7 @@ class Raffle(commands.Cog):
                             await self.bot.mdb['raffleEntries'].delete_many({"raffleId": id, "serverId": ctx.guild.id})
 
                         message = await ch.fetch_message(int(raffle['msgId']))
-                        await message.delete()
+                        await try_delete(message)
                         raffle['ended'] = 1
                         await self.bot.mdb['raffle'].replace_one({"id": raffle['id']}, raffle)
                         await asyncio.sleep(8)
@@ -219,7 +221,7 @@ class Raffle(commands.Cog):
                     await ctx.send("This raffle was already canceled or is already ended.")
             else:
                 await ctx.send(f"Raffle with Id `{id}` not found.")
-                await ctx.message.delete()
+                await try_delete(ctx.message)
 
     # Functions
 

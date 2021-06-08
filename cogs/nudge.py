@@ -4,6 +4,7 @@ from discord.ext import commands
 import utils.globals as GG
 from utils import logger
 from utils.checks import is_staff_trouble
+from utils.functions import try_delete
 
 log = logger.logger
 
@@ -31,7 +32,7 @@ class Nudge(commands.Cog):
             for r in ctx.author.roles:
                 if r.id not in GG.STAFF and r.id == 593720945324326914:
                     if ctx.message.channel.id not in [470673352395325455, 607182631381237771, 586998165962490023, 470680051638075423]:
-                        await ctx.message.delete()
+                        await try_delete(ctx.message)
                         await ctx.send("You are only allowed to nudge messages to the issue channels.")
                         return
 
@@ -58,7 +59,7 @@ class Nudge(commands.Cog):
                     else:
                         break
 
-        await ctx.message.delete()
+        await try_delete(ctx.message)
 
         length = len(messages)
         if length <= 0:
