@@ -8,7 +8,7 @@ from utils import globals as GG
 
 log = logger.logger
 
-CHECKS = [' ', ',', '.', '!', '?', None, '"', '\'', '(', ')', '{', '}', '[', ']', '_', '-', ':', '|', '*', '~']
+CHECKS = [' ', ',', '.', '!', '?', None, '"', '\'', '(', ')', '{', '}', '[', ']', '_', '-', ':', '|', '*', '~', '\n']
 
 
 class Blacklist(commands.Cog):
@@ -177,6 +177,13 @@ class Blacklist(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
+        await self.checkForListedTerms(message)
+
+    @commands.Cog.listener()
+    async def on_message_edit(self, before, message):
+        await self.checkForListedTerms(message)
+
+    async def checkForListedTerms(self, message):
         if message.author.id != 602774912595263490:  # if not bot
             if message.guild.id is not None and message.guild.id in GG.GREYGUILDS:
                 termsForGuild = [guild['terms'] for guild in GG.GREYLIST if guild['guild'] == message.guild.id][0]
@@ -215,6 +222,7 @@ class Blacklist(commands.Cog):
                                     f"I also tried DMing the person this, but he either has me blocked, or doesn't allow DM's")
 
                             break
+
 
     async def createEmbed(self, message, type, term):
         embed = discord.Embed(title=f"{type.title()} word detected!",
