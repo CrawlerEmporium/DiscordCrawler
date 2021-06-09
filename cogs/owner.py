@@ -100,6 +100,29 @@ class Owner(commands.Cog):
         await ctx.bot.change_presence(
             activity=discord.Game(f"with {len(ctx.bot.guilds)} servers | !help | {ctx.bot.version}"), afk=True)
 
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def commands(self, ctx):
+        nonHiddenCommands = []
+        for command in self.bot.commands:
+            if not command.hidden:
+                nonHiddenCommands.append(command.qualified_name)
+        query = {"bots": "discord", "disabled": None, "command": {"$in": nonHiddenCommands}}
+
+        missingHelpCommands = await GG.HELP['help'].find(query).to_list(length=None)
+        for command in missingHelpCommands:
+            if command['command'] in nonHiddenCommands:
+                nonHiddenCommands.remove(command['command'])
+
+        string = ""
+        for command in nonHiddenCommands:
+            string += f"{command}\n"
+            if len(string) > 1800:
+                await ctx.send(string)
+                string = ""
+        await ctx.send(string)
+
+
 
 def setup(bot):
     log.info("[Cog] Owner")

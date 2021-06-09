@@ -1,12 +1,13 @@
-import asyncio
+from os import listdir
+from os.path import isfile, join
+
 import discord
 from discord_components import DiscordComponents
 
 import utils.globals as GG
+from utils.help import Help
 
 from utils import logger
-from os import listdir
-from os.path import isfile, join
 from discord.ext import commands
 
 log = logger.logger
@@ -63,7 +64,7 @@ class Crawler(commands.AutoShardedBot):
 bot = Crawler(prefix=get_prefix, intents=intents, case_insensitive=True, status=discord.Status.idle,
               description="A bot.", shard_count=SHARD_COUNT, testing=TESTING,
               activity=discord.Game(f"$help | {version}"),
-              help_command=commands.DefaultHelpCommand(command_attrs={"name": "oldhelp"}))
+              help_command=Help())
 
 
 @bot.event
@@ -139,4 +140,8 @@ if __name__ == "__main__":
             bot.load_extension(GG.COGSEVENTS + "." + extension)
         except Exception as e:
             log.error(f'Failed to load extension {extension}')
+    # try:
+    #     bot.load_extension(GG.COGS + ".look")
+    # except Exception as e:
+    #     log.error(f'Failed to load extension {e}')
     bot.run(bot.token)
