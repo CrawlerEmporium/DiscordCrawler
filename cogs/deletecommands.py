@@ -96,13 +96,13 @@ class GlobalCommands(commands.Cog):
             await msg.delete(delay=10)
         else:
             if message.author is not None:
-                await try_delete(ctx.message)
+                await message.delete()
                 if message.author.dm_channel is not None:
                     DM = message.author.dm_channel
                 else:
                     DM = await message.author.create_dm()
             else:
-                await try_delete(ctx.message)
+                return await message.delete()
 
             try:
                 await DM.send(embed=global_embed(user_quote, ctx.author))
