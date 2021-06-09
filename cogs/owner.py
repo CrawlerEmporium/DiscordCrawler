@@ -100,18 +100,6 @@ class Owner(commands.Cog):
         await ctx.bot.change_presence(
             activity=discord.Game(f"with {len(ctx.bot.guilds)} servers | !help | {ctx.bot.version}"), afk=True)
 
-    @commands.command(hidden=True)
-    @commands.is_owner()
-    async def commands(self, ctx):
-        string = ""
-        for command in self.bot.commands:
-            if not command.hidden:
-                string += f"{command.parent} - {command.qualified_name} - {command.checks}\n"
-                if (len(string) > 900):
-                    await ctx.send(string)
-                    string = ""
-        await ctx.send(string)
-
 
 def setup(bot):
     log.info("[Cog] Owner")
