@@ -14,10 +14,10 @@ class Whois(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['whois'])
+    @commands.command(aliases=['check'])
     @commands.guild_only()
     @GG.is_staff()
-    async def check(self, ctx, member: typing.Union[discord.Member, int] = None):
+    async def whois(self, ctx, member: typing.Union[discord.Member, int] = None):
         """[STAFF ONLY]"""
         if member is None:
             return await ctx.send("Member can't be none.")
