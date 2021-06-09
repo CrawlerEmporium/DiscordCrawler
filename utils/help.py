@@ -18,15 +18,33 @@ class Help(commands.HelpCommand):
 
     # !help <command>
     async def send_command_help(self, command):
-        await self.getCommandHelp(command.name)
+        found = await self.getCommandHelp(command.name)
+        if not found:
+            output = []
+            output.append(command.description)
+            output.append(self.get_command_signature(command))
+            output.append(command.help)
+            await self.context.send('\n'.join(output))
 
     # !help <group>
     async def send_group_help(self, group):
-        await self.getCommandHelp(group.name)
+        found = await self.getCommandHelp(group.name)
+        if not found:
+            output = []
+            output.append(group.description)
+            output.append(self.get_command_signature(group))
+            output.append(group.help)
+            await self.context.send('\n'.join(output))
 
     # !help <cog>
     async def send_cog_help(self, cog):
-        await self.getCommandHelp(cog.name)
+        found = await self.getCommandHelp(cog.name)
+        if not found:
+            output = []
+            output.append(cog.description)
+            output.append(self.get_command_signature(cog))
+            output.append(cog.help)
+            await self.context.send('\n'.join(output))
 
 
     async def getCommandHelp(self, command):
@@ -77,8 +95,9 @@ class Help(commands.HelpCommand):
             permString += ", ".join(helpCommand['permissions'])
             embed.set_footer(text=permString)
             await self.context.send(embed=embed)
+            return True
         else:
-            await self.context.send("Command doesn't exist")
+            return False
 
     async def list_embed(self, helpCommands, ctx):
         prefix = await ctx.bot.get_server_prefix(ctx.message)
