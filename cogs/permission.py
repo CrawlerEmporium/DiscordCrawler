@@ -11,7 +11,7 @@ class Permission(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.is_owner()
     async def permissionCheck(self, ctx):
         mm = ctx.guild.me.guild_permissions.manage_messages
@@ -31,7 +31,7 @@ class Permission(commands.Cog):
 
         await ctx.send(embed=em)
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.is_owner()
     async def permissionCheckInChannel(self, ctx):
         mm = ctx.guild.me.permissions_in(ctx.channel).manage_messages

@@ -19,7 +19,7 @@ class Roles(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True)
+    @commands.group(invoke_without_command=True, hidden=True)
     @commands.guild_only()
     @GG.is_staff()
     async def role(self, ctx):

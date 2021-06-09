@@ -30,7 +30,7 @@ class LookCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True)
+    @commands.group(invoke_without_command=True, hidden=True)
     async def look(self, ctx, trigger):
         if not isinstance(ctx.message.channel, discord.DMChannel):
             await try_delete(ctx.message)

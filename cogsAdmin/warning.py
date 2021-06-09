@@ -73,23 +73,6 @@ class Warning(commands.Cog):
             await ctx.send(f"Message failed to send. (Not allowed to DM)")
 
 
-    @commands.command()
-    @commands.is_owner()
-    async def webhook(self, ctx):
-        await ctx.channel.create_webhook(name="Fake Player Quoting")
-
-        webhooks = await ctx.channel.webhooks()
-        before = len(webhooks)
-        for x in webhooks:
-            if(x.user == self.bot.user):
-                await x.delete()
-
-        webhooks = await ctx.channel.webhooks()
-        after = len(webhooks)
-
-        print(before, after)
-
-
 def setup(bot):
     log.info("[Admin] Warning")
     bot.add_cog(Warning(bot))

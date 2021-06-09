@@ -51,13 +51,13 @@ class Mute(commands.Cog):
     async def unmute(self, ctx, member: typing.Optional[discord.Member]):
         await unmuteMember(ctx, member)
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.guild_only()
     @commands.is_owner()
     async def checkMuteChannels(self, ctx):
         await addMutedToChannels(ctx)
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.guild_only()
     @commands.is_owner()
     async def checkMute(self, ctx):

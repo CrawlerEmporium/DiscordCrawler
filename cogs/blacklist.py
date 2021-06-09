@@ -16,7 +16,7 @@ class Blacklist(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def refillLists(self, ctx):
