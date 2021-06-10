@@ -75,7 +75,7 @@ class Errors(commands.Cog):
         if isinstance(error,
                       (commands.MissingRequiredArgument, commands.BadArgument, commands.NoPrivateMessage, ValueError)):
             return await ctx.send("Error: " + str(
-                error) + f"\nUse `{ctx.prefix}oldhelp " + ctx.command.qualified_name + "` for help.")
+                error) + f"\nUse `{ctx.prefix}help " + ctx.command.qualified_name + "` for help.")
         elif isinstance(error, commands.CheckFailure):
             return await ctx.send("Error: You are not allowed to run this command.")
         elif isinstance(error, commands.CommandOnCooldown):
@@ -122,7 +122,7 @@ class Errors(commands.Cog):
 
         await ctx.send(
             f"Error: {str(error)}\nUh oh, that wasn't supposed to happen! "
-            f"Please join the Support Discord ($support) and tell the developer that: **{error_msg}!**")
+            f"Please join the Support Discord ({ctx.prefix}support) and tell the developer that: **{error_msg}!**")
         try:
             await owner.send(
                 f"**{error_msg}**\n" \

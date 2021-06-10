@@ -109,7 +109,6 @@ class PersonalQuotes(commands.Cog):
         await ctx.send(content=":white_check_mark:" + ' **Cleared all your personal quotes.**')
 
     @commands.command(aliases=['pc'])
-    @commands.guild_only()
     async def personalcode(self, ctx, trigger):
         """Returns your chosen global command."""
         trig = trigger
