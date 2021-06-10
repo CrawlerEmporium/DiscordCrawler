@@ -119,7 +119,8 @@ class PersonalQuotes(commands.Cog):
             if ctx.guild and ctx.guild.me.permissions_in(ctx.channel).manage_messages:
                 await try_delete(ctx.message)
 
-            await ctx.send(f"```{user_quote['response']}```", files=user_quote['attachments'])
+            replaceString = '\`'
+            await ctx.send(f"```{user_quote['response'].replace('`', replaceString)}```", files=user_quote['attachments'])
 
 
 def setup(bot):
