@@ -186,7 +186,7 @@ class Blacklist(commands.Cog):
 
     async def checkForListedTerms(self, message):
         if message.author.id != 602774912595263490:  # if not bot
-            if message.guild.id is not None and message.guild.id in GG.GREYGUILDS:
+            if message.guild is not None and message.guild.id in GG.GREYGUILDS:
                 termsForGuild = [guild['terms'] for guild in GG.GREYLIST if guild['guild'] == message.guild.id][0]
                 for term in termsForGuild:
                     if message.content.lower().find(term.lower()) != -1:

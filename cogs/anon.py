@@ -16,13 +16,15 @@ class Anon(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-
         channel = message.channel
         if message.author.id != GG.BOT:
             if channel.id in GG.CHANNEL:
-                TYPE = GG.CHANNEL[channel.id]
+                channelTypes = await GG.MDB['channelinfo'].find({"guild": message.guild.id, "channel": channel.id}).to_list(length=None)
+                channels = []
+                for x in channelTypes:
+                    channels.append(x['type'])
 
-                if TYPE == "ANON":
+                if "ANON" in channels:
                     delivery_channel = await GG.MDB['channelinfo'].find_one({"guild": message.guild.id, "type": "DELIVERY"})
                     if delivery_channel is None:
                         await self.noDeliveryChannel(message)
@@ -48,7 +50,7 @@ class Anon(commands.Cog):
                         encrypt = f.encrypt(hashAuthor)
                         await GG.MDB['reports'].insert_one({"user": encrypt, "message": report.id})
 
-                if TYPE == "DELIVERY":
+                if "DELIVERY" in channels:
                     content = message.content
                     try:
                         command, msg_id, reply = content.split(" ", 2)
@@ -67,6 +69,7 @@ class Anon(commands.Cog):
                                     em = discord.Embed(title=f"{author} has a reaction to your report.", description=reply)
                                     em.set_footer(text=f"This message is from the {message.guild} server.")
                                     try:
+                                        print(f"trying to send message to reporter for report_id: {msg_id}")
                                         await dm_channel.send(embed=em)
                                         msg = await channel.fetch_message(msg_id)
                                         await msg.add_reaction("✅")
