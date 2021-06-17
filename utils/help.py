@@ -18,7 +18,7 @@ class Help(commands.HelpCommand):
 
     # !help <command>
     async def send_command_help(self, command):
-        found = await self.getCommandHelp(command.name)
+        found = await self.getCommandHelp(str(command))
         if not found:
             output = []
             output.append(command.description)
@@ -28,7 +28,7 @@ class Help(commands.HelpCommand):
 
     # !help <group>
     async def send_group_help(self, group):
-        found = await self.getCommandHelp(group.name)
+        found = await self.getCommandHelp(str(group))
         if not found:
             output = []
             output.append(group.description)
@@ -38,14 +38,13 @@ class Help(commands.HelpCommand):
 
     # !help <cog>
     async def send_cog_help(self, cog):
-        found = await self.getCommandHelp(cog.name)
+        found = await self.getCommandHelp(str(cog))
         if not found:
             output = []
             output.append(cog.description)
             output.append(self.get_command_signature(cog))
             output.append(cog.help)
             await self.context.send('\n'.join(output))
-
 
     async def getCommandHelp(self, command):
         helpCommand = await GG.HELP['help'].find_one({"bots": "discord", "command": command})
