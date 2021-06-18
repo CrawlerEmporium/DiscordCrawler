@@ -1,4 +1,8 @@
+import io
+from urllib.request import urlopen
+
 import discord
+import requests
 from discord.ext import commands
 from disputils import BotEmbedPaginator
 
@@ -15,19 +19,8 @@ def personal_embed(db_response, author):
     else:
         embed = discord.Embed(description=db_response['response'])
     embed.set_author(name=str(author), icon_url=author.avatar_url)
-    if db_response['attachments'] != None:
-        attachments = db_response['attachments']
-        if len(attachments) == 1 and (
-                attachments[0].lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.gifv', '.webp', '.bmp')) or
-                attachments[0].lower().startswith('https://chart.googleapis.com/chart?')):
-            embed.set_image(url=attachments[0])
-        else:
-            attachment_count = 0
-            for attachment in attachments:
-                attachment_count += 1
-                embed.add_field(name='Attachment ' + str(attachment_count), value=attachment, inline=False)
     embed.set_footer(text='Personal Quote')
-    return embed
+    return embed, db_response['attachments']
 
 
 def list_embed(list_personals, author):
@@ -64,14 +57,17 @@ class PersonalQuotes(commands.Cog):
             if checkIfExist is not None:
                 return await ctx.send(content=":x:" + ' **You already have a command with that trigger.**')
             else:
-                await GG.MDB['personalcommands'].insert_one({"user": ctx.message.author.id, "trigger": trig, "response": response, "attachments": [attachment.url for attachment in ctx.message.attachments]})
+                await GG.MDB['personalcommands'].insert_one(
+                    {"user": ctx.message.author.id, "trigger": trig, "response": response,
+                     "attachments": [attachment.url for attachment in ctx.message.attachments]})
 
         await ctx.send(content=":white_check_mark:" + ' **Command added.**')
 
     @commands.command(aliases=['premove', 'prem'])
     async def personalremove(self, ctx, trigger):
         """Removes a personal quote."""
-        result = await GG.MDB['personalcommands'].delete_one({"user": ctx.message.author.id, "trigger": trigger.replace('\'', '\'\'')})
+        result = await GG.MDB['personalcommands'].delete_one(
+            {"user": ctx.message.author.id, "trigger": trigger.replace('\'', '\'\'')})
         if result.deleted_count > 0:
             await ctx.send(content=":white_check_mark:" + ' **Command deleted.**')
         else:
@@ -88,8 +84,24 @@ class PersonalQuotes(commands.Cog):
             if ctx.guild and ctx.guild.me.permissions_in(
                     ctx.channel).manage_messages:
                 await try_delete(ctx.message)
+            embed, attachments = personal_embed(user_quote, ctx.author)
+            files = []
+            if attachments != None:
+                if len(attachments) == 1 and (
+                        attachments[0].lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.gifv', '.webp', '.bmp')) or
+                        attachments[0].lower().startswith('https://chart.googleapis.com/chart?')):
+                    embed.set_image(url=attachments[0])
+                else:
+                    for attachment in attachments:
+                        url = attachment
+                        file = requests.get(url)
+                        bitties = io.BytesIO(file.content)
+                        bitties.seek(0)
+                        dFile = discord.File(bitties, filename=url.rsplit('/', 1)[-1])
+                        files.append(dFile)
+            await ctx.send(embed=embed, files=files)
 
-            await ctx.send(embed=personal_embed(user_quote, ctx.author))
+
 
     @commands.command(aliases=['plist'])
     async def personallist(self, ctx):
@@ -120,7 +132,8 @@ class PersonalQuotes(commands.Cog):
                 await try_delete(ctx.message)
 
             replaceString = '\`'
-            await ctx.send(f"```{user_quote['response'].replace('`', replaceString)}```", files=user_quote['attachments'])
+            await ctx.send(f"```{user_quote['response'].replace('`', replaceString)}```",
+                           files=user_quote['attachments'])
 
 
 def setup(bot):
