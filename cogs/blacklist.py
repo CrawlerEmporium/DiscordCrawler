@@ -195,10 +195,12 @@ class Blacklist(commands.Cog):
                         if previousBool and nextBool:
                             delivery_channel = await GG.MDB['channelinfo'].find_one(
                                 {"guild": message.guild.id, "type": "BLACKLIST"})
-                            delivery_channel = await self.bot.fetch_channel(delivery_channel['channel'])
-                            await delivery_channel.send(embed=await self.createEmbed(message, "greylisted", term),
-                                                        components=[Button(style=ButtonStyle.red, label="Reject")])
-                            break
+                            if delivery_channel is not None:
+                                delivery_channel = await self.bot.fetch_channel(delivery_channel['channel'])
+                                return await delivery_channel.send(embed=await self.createEmbed(message, "greylisted", term),
+                                                            components=[Button(style=ButtonStyle.red, label="Reject")])
+                            else:
+                                break
             if message.guild is not None and message.guild.id in GG.GUILDS:
                 termsForGuild = [guild['terms'] for guild in GG.BLACKLIST if guild['guild'] == message.guild.id][0]
                 for term in termsForGuild:
@@ -208,8 +210,11 @@ class Blacklist(commands.Cog):
                         if previousBool and nextBool:
                             delivery_channel = await GG.MDB['channelinfo'].find_one(
                                 {"guild": message.guild.id, "type": "BLACKLIST"})
-                            delivery_channel = await self.bot.fetch_channel(delivery_channel['channel'])
-                            await delivery_channel.send(embed=await self.createEmbed(message, "blacklisted", term))
+                            if delivery_channel is not None:
+                                delivery_channel = await self.bot.fetch_channel(delivery_channel['channel'])
+                                await delivery_channel.send(embed=await self.createEmbed(message, "blacklisted", term))
+                            else:
+                                break
                             await message.delete()
                             if message.author.dm_channel is not None:
                                 DM = message.author.dm_channel
