@@ -12,7 +12,7 @@ from discord.ext import commands
 
 log = logger.logger
 
-version = "v2.3.1"
+version = "v2.4.0"
 SHARD_COUNT = 1
 TESTING = False
 defaultPrefix = GG.PREFIX if not TESTING else '*'
@@ -141,7 +141,8 @@ if __name__ == "__main__":
         except Exception as e:
             log.error(f'Failed to load extension {extension}')
     # try:
-    #     bot.load_extension(GG.COGS + ".look")
+    #     bot.load_extension(GG.COGS + ".reminder")
+    #     bot.load_extension(GG.COGSEVENTS + ".cycler")
     # except Exception as e:
     #     log.error(f'Failed to load extension {e}')
     bot.run(bot.token)
