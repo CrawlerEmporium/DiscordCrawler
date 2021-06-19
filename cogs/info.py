@@ -11,6 +11,7 @@ from discord import VoiceRegion as VR
 from math import floor
 
 from discord.ext.commands import BucketType
+from discord_components import Button, ButtonStyle
 
 import utils.globals as GG
 from discord.ext import commands
@@ -114,10 +115,18 @@ class Info(commands.Cog):
     async def support(self, ctx):
         em = GG.EmbedWithAuthor(ctx)
         em.title = 'Support Server'
-        em.description = "So you want support for DiscordCrawler? You can easily join my discord [here](https://discord.gg/HEY6BWj).\n" \
-                         "This server allows you to ask questions about the bot. Do feature requests, and talk with other bot users!\n\n" \
-                         "If you want to somehow support my developer, you can buy me a cup of coffee (or 2) [here](https://ko-fi.com/5ecrawler)"
-        await ctx.send(embed=em)
+        em.description = "For technical support for DiscordCrawler, join the Crawler Emporium discord [here](https://discord.gg/HEY6BWj)!\n" \
+                         "There you can ask questions about the bot, make feature requests, report issues and/or bugs (please include any error messages), learn about my other Crawler bots, and share with other crawler bot users!\n\n" \
+                         "[Check the Website](https://crawleremporium.com) for even more information.\n\n" \
+                         "To add premium features to the bot, [<:Patreon:855754853153505280> Join the Patreon](https://www.patreon.com/LordDusk), or if you'd rather show just appreciation [tip the Developer a <:Kofi:855758703772958751> here](https://ko-fi.com/5ecrawler)."
+        serverEmoji = self.bot.get_emoji(int("<:5e:603932658820448267>".split(":")[2].replace(">", "")))
+        patreonEmoji = self.bot.get_emoji(int("<:Patreon:855754853153505280>".split(":")[2].replace(">", "")))
+        kofiEmoji = self.bot.get_emoji(int("<:Kofi:855758703772958751>".split(":")[2].replace(">", "")))
+        components = [[Button(label="Discord", style=ButtonStyle.URL, emoji=serverEmoji, url="https://discord.gg/HEY6BWj"),
+                       Button(label="Website", style=ButtonStyle.URL, url="https://www.crawleremporium.com"),
+                       Button(label="Patreon", style=ButtonStyle.URL, emoji=patreonEmoji, url="https://www.patreon.com/LordDusk"),
+                       Button(label="Buy me a coffee", style=ButtonStyle.URL, emoji=kofiEmoji, url="https://ko-fi.com/5ecrawler")]]
+        await ctx.send(embed=em, components=components)
 
     @commands.command()
     async def invite(self, ctx):
