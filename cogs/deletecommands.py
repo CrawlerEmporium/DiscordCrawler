@@ -96,6 +96,8 @@ class GlobalCommands(commands.Cog):
             await msg.delete(delay=10)
         else:
             if message.author is not None:
+                if message.author.guild_permissions.administrator:
+                    return await ctx.send("You are not allowed to delete messages from admins this way.")
                 await message.delete()
                 if message.author.dm_channel is not None:
                     DM = message.author.dm_channel
