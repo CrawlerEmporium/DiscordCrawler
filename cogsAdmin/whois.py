@@ -36,7 +36,7 @@ class Whois(commands.Cog):
             if type(member) is int:
                 cases = await GG.MDB.members.find_one({"server": ctx.message.guild.id, "user": member})
                 if cases is None:
-                    return await ctx.send("Member is longer on this server, and has no notes attached to it.")
+                    return await ctx.send("Member no is longer on this server, and has no notes attached to it.")
 
             if cases is not None:
                 for x in cases['caseIds']:
@@ -113,7 +113,7 @@ class Whois(commands.Cog):
                     em.add_field(name='Warnings', value=warningString, inline=False)
                 if adminString != "":
                     em.add_field(name='Administration', value=adminString, inline=False)
-                await ctx.send(content="Member is longer on this server, but has prior notes attached to it.", embed=em)
+                await ctx.send(content="Member no is longer on this server, but has prior notes attached to it.", embed=em)
 
 
 def setup(bot):
