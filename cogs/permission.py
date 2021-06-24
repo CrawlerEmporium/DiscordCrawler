@@ -1,8 +1,6 @@
-import typing
-import discord
 from discord.ext import commands
 import utils.globals as GG
-from utils import logger
+from crawler_utilities.utils import logger
 
 log = logger.logger
 

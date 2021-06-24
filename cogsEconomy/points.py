@@ -2,11 +2,11 @@ import typing
 
 import discord
 import utils.globals as GG
-from disputils import BotEmbedPaginator
+from crawler_utilities.utils.pagination import BotEmbedPaginator
 
 from discord.ext import commands
-from utils import logger
-from utils.functions import make_ordinal, try_delete
+from crawler_utilities.utils import logger
+from crawler_utilities.utils.functions import make_ordinal, try_delete
 
 log = logger.logger
 

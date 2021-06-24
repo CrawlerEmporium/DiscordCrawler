@@ -2,9 +2,9 @@ import discord
 from discord.ext import commands
 
 import utils.globals as GG
-from utils import logger
+from crawler_utilities.utils import logger
 from utils.checks import is_staff_trouble
-from utils.functions import try_delete
+from crawler_utilities.utils.functions import try_delete
 
 log = logger.logger
 

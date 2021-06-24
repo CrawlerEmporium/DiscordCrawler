@@ -1,12 +1,10 @@
 import asyncio
-import typing
 import discord
-from discord import Embed
 from discord.ext import commands
-from utils import logger
+from crawler_utilities.utils import logger
 from enum import Enum
 from utils import globals as GG
-from utils.functions import try_delete
+from crawler_utilities.utils.functions import try_delete
 
 log = logger.logger
 

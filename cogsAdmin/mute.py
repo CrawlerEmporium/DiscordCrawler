@@ -11,7 +11,7 @@ from discord.colour import Colour
 from cogsAdmin.models.case import Case, getCaseEmbed, getCaseTargetEmbed, getModDecisionEmbed
 from cogsAdmin.models.caseStatus import CaseStatus
 from cogsAdmin.models.caseType import CaseType
-from utils import logger
+from crawler_utilities.utils import logger
 from utils.functions import get_next_case_num
 
 log = logger.logger

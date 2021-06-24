@@ -3,6 +3,7 @@ from discord.ext import commands
 
 import utils.globals as GG
 
+
 def is_staff_trouble():
     async def predicate(ctx):
         global allowed

@@ -1,10 +1,9 @@
-import asyncio
 import discord
 from discord.ext import commands
-from disputils import BotEmbedPaginator
+from crawler_utilities.utils.pagination import BotEmbedPaginator
 
 from utils import globals as GG
-from utils import logger
+from crawler_utilities.utils import logger
 
 log = logger.logger
 

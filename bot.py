@@ -5,11 +5,10 @@ import discord
 from discord_components import DiscordComponents
 
 import utils.globals as GG
-from utils.help import Help
-
-from utils import logger
 from discord.ext import commands
 
+from crawler_utilities.handlers import Help
+from crawler_utilities.utils import logger
 log = logger.logger
 
 version = "v2.4.0"
@@ -64,7 +63,7 @@ class Crawler(commands.AutoShardedBot):
 bot = Crawler(prefix=get_prefix, intents=intents, case_insensitive=True, status=discord.Status.idle,
               description="A bot.", shard_count=SHARD_COUNT, testing=TESTING,
               activity=discord.Game(f"$help | {version}"),
-              help_command=Help())
+              help_command=Help("discord"))
 
 
 @bot.event
@@ -140,9 +139,9 @@ if __name__ == "__main__":
             bot.load_extension(GG.COGSEVENTS + "." + extension)
         except Exception as e:
             log.error(f'Failed to load extension {extension}')
-    # try:
-    #     bot.load_extension(GG.COGS + ".reminder")
-    #     bot.load_extension(GG.COGSEVENTS + ".cycler")
-    # except Exception as e:
-    #     log.error(f'Failed to load extension {e}')
+    try:
+        bot.load_extension("crawler_utilities.events.cmdLog", package=".crawler_utilities.events")
+    except Exception as e:
+        log.error(f'Failed to load extension cmdLog')
+        print(e)
     bot.run(bot.token)

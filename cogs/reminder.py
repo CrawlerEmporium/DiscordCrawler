@@ -3,7 +3,7 @@ import discord
 import utils.globals as GG
 
 from discord.ext import commands
-from utils import logger
+from crawler_utilities.utils import logger
 from utils.reminder.reminder import Reminder
 from utils.reminder.utils import find_reminder_time, get_datetime_string
 

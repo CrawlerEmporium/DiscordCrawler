@@ -4,7 +4,7 @@ from io import BytesIO
 from discord import File as reportFile
 from discord.ext import commands
 from utils import globals as GG
-from utils import logger
+from crawler_utilities.utils import logger
 from cryptography.fernet import Fernet
 
 log = logger.logger
