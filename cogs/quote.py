@@ -2,7 +2,7 @@ import datetime
 import re
 import discord
 from discord.ext import commands
-from crawler_utilities.utils import logger
+from crawler_utilities.handlers import logger
 from crawler_utilities.utils.functions import try_delete
 
 log = logger.logger

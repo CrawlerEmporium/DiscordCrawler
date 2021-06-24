@@ -1,4 +1,4 @@
-from crawler_utilities.utils import logger
+from crawler_utilities.handlers import logger
 from utils.reminder.utils import *
 
 log = logger.logger

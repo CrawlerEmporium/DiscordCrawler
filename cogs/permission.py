@@ -1,6 +1,6 @@
 from discord.ext import commands
 import utils.globals as GG
-from crawler_utilities.utils import logger
+from crawler_utilities.handlers import logger
 
 log = logger.logger
 

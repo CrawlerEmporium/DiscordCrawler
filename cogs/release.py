@@ -1,7 +1,7 @@
 import asyncio
 import discord
 from discord.ext import commands
-from crawler_utilities.utils import logger
+from crawler_utilities.handlers import logger
 from enum import Enum
 from utils import globals as GG
 from crawler_utilities.utils.functions import try_delete

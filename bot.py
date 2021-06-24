@@ -7,8 +7,8 @@ from discord_components import DiscordComponents
 import utils.globals as GG
 from discord.ext import commands
 
-from crawler_utilities.handlers import Help
-from crawler_utilities.utils import logger
+from crawler_utilities.handlers import Help, logger
+
 log = logger.logger
 
 version = "v2.4.0"

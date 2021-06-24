@@ -3,7 +3,7 @@ import asyncio
 import discord
 from discord import Colour
 from discord.ext import commands
-from crawler_utilities.utils import logger
+from crawler_utilities.handlers import logger
 
 log = logger.logger
 

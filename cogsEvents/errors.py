@@ -9,7 +9,7 @@ from discord.ext import commands
 from discord.ext.commands import CommandInvokeError
 from crawler_utilities.handlers.errors import CrawlerException, InvalidArgument, EvaluationError
 import utils.globals as GG
-from crawler_utilities.utils import logger
+from crawler_utilities.handlers import logger
 from crawler_utilities.utils.functions import discord_trim
 
 log = logger.logger

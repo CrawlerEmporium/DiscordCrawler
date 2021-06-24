@@ -4,7 +4,7 @@ import random
 import utils.globals as GG
 
 from datetime import datetime
-from crawler_utilities.utils import logger
+from crawler_utilities.handlers import logger
 from utils.reminder.reminder import Reminder
 
 log = logger.logger

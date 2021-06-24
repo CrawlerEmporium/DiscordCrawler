@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 from discord_components import Button, ButtonStyle
 
-from crawler_utilities.utils import logger
+from crawler_utilities.handlers import logger
 from utils import globals as GG
 from crawler_utilities.utils.functions import try_delete
 
