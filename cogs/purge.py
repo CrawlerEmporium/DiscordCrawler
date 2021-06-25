@@ -8,6 +8,7 @@ from crawler_utilities.utils.confirmation import BotConfirmation
 
 log = logger.logger
 
+
 class Purge(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -48,6 +49,7 @@ class Purge(commands.Cog):
                 await msg.delete()
         else:
             await ctx.send("I don't have the Manage_Messages permission. It's a mandatory permission, I have noted my owner about this. Please give me this permission, I will end up leaving the server if it happens again.")
+
 
 def setup(bot):
     log.info("[Cog] Purge")

@@ -66,6 +66,7 @@ def loadReactionRoles(REACTIONROLESDB):
         reactionRole[key].append((i['roleId'], i['emoji']))
     return reactionRole
 
+
 async def fillBlackList(BLACKLIST, GUILDS):
     BLACKLIST = "["
     TERMDB = await MDB['blacklist'].find({}).to_list(length=None)
@@ -116,6 +117,7 @@ async def fillGreyList(GREYLIST, GREYGUILDS):
     for x in GREYLIST:
         GREYGUILDS.append(x['guild'])
     return GREYLIST, GREYGUILDS
+
 
 CLEANER = [496672117384019969, 280892074247716864]
 

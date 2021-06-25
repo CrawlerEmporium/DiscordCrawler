@@ -62,7 +62,7 @@ class Crawler(commands.AutoShardedBot):
 
 bot = Crawler(prefix=get_prefix, intents=intents, case_insensitive=True, status=discord.Status.idle,
               description="A bot.", shard_count=SHARD_COUNT, testing=TESTING,
-              activity=discord.Game(f"$help | {version}"),
+              activity=discord.Game(f"$help | Initializing..."),
               help_command=Help("discord"))
 
 
@@ -116,32 +116,58 @@ async def fillGlobals():
     log.info("Finished Filling Globals")
 
 
-if __name__ == "__main__":
-    bot.state = "run"
+def loadCogs():
+    i = 0
+    log.info("Loading Cogs...")
     for extension in [f.replace('.py', '') for f in listdir(GG.COGS) if isfile(join(GG.COGS, f))]:
         try:
             bot.load_extension(GG.COGS + "." + extension)
         except Exception as e:
             log.error(f'Failed to load extension {extension}')
+            i += 1
+    log.info("-------------------")
+    log.info("Loading Economy Cogs...")
     for extension in [f.replace('.py', '') for f in listdir(GG.COGSECONOMY) if isfile(join(GG.COGSECONOMY, f))]:
         try:
             bot.load_extension(GG.COGSECONOMY + "." + extension)
         except Exception as e:
             log.error(f'Failed to load extension {extension}')
+            i += 1
+    log.info("-------------------")
+    log.info("Loading Admin Cogs...")
     for extension in [f.replace('.py', '') for f in listdir(GG.COGSADMIN) if isfile(join(GG.COGSADMIN, f))]:
         try:
             bot.load_extension(GG.COGSADMIN + "." + extension)
         except Exception as e:
             print(e)
             log.error(f'Failed to load extension {extension}')
+            i += 1
+    log.info("-------------------")
+    log.info("Loading Event Cogs...")
     for extension in [f.replace('.py', '') for f in listdir(GG.COGSEVENTS) if isfile(join(GG.COGSEVENTS, f))]:
         try:
             bot.load_extension(GG.COGSEVENTS + "." + extension)
         except Exception as e:
             log.error(f'Failed to load extension {extension}')
+            i += 1
     try:
         bot.load_extension("crawler_utilities.events.cmdLog", package=".crawler_utilities.events")
     except Exception as e:
         log.error(f'Failed to load extension cmdLog')
-        print(e)
+        i += 1
+    try:
+        bot.load_extension("crawler_utilities.events.errors", package=".crawler_utilities.events")
+    except Exception as e:
+        log.error(f'Failed to load extension errors')
+        i += 1
+    log.info("-------------------")
+    if i == 0:
+        log.info("Finished Loading All Cogs...")
+    else:
+        log.info(f"Finished Loading Cogs with {i} errors...")
+
+
+if __name__ == "__main__":
+    bot.state = "run"
+    loadCogs()
     bot.run(bot.token)
