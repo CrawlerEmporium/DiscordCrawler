@@ -6,7 +6,7 @@ import utils.globals as GG
 
 from discord.ext import commands
 from crawler_utilities.handlers import logger
-from disputils import BotConfirmation
+from crawler_utilities.utils.confirmation import BotConfirmation
 
 from crawler_utilities.utils.functions import try_delete
 
