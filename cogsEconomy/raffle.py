@@ -8,7 +8,7 @@ from discord.ext import commands
 from crawler_utilities.handlers import logger
 from crawler_utilities.utils.confirmation import BotConfirmation
 
-from crawler_utilities.utils.functions import try_delete
+from crawler_utilities.utils.functions import try_delete, get_next_num
 
 log = logger.logger
 
@@ -28,7 +28,7 @@ class Raffle(commands.Cog):
     @GG.is_staff()
     async def raffle_create(self, ctx, cost: int = 10, totalTickets: int = 0):
         """$raffle create <cost> [totalTickets] - STAFF - Creates a new raffle, that sells tickets for <amount> of points.\nIf [totalTickets] is filled, raffle will have a finite amount of buyable tickets."""
-        id = await self.get_next_schedule_num()
+        id = await get_next_num(self.bot.mdb['properties'], 'raffleId')
         title = "New Raffle!"
         description = ""
         embed = self.createRaffleEmbed(title, description, id, totalTickets, cost)
@@ -223,14 +223,6 @@ class Raffle(commands.Cog):
                 await try_delete(ctx.message)
 
     # Functions
-
-    async def get_next_schedule_num(self):
-        reportNum = await self.bot.mdb['properties'].find_one({'key': 'raffleId'})
-        num = reportNum['amount'] + 1
-        reportNum['amount'] += 1
-        await self.bot.mdb['properties'].replace_one({"key": 'raffleId'}, reportNum)
-        return f"{num}"
-
     def createRaffleEmbed(self, title, description, id, totalTickets, cost):
         embed = discord.Embed()
         embed.title = title

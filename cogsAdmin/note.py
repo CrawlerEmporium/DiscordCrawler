@@ -8,7 +8,8 @@ from cogsAdmin.models.case import Case, getCaseEmbed
 from cogsAdmin.models.caseStatus import CaseStatus
 from cogsAdmin.models.caseType import CaseType
 from crawler_utilities.handlers import logger
-from utils.functions import get_next_case_num
+
+from crawler_utilities.utils.functions import get_next_num
 
 log = logger.logger
 
@@ -36,7 +37,7 @@ class Note(commands.Cog):
             await ctx.send(
                 "Member wasn't found on the server. Inserting note as a general snowflake.\n\nPlease check if this is actually a member, it might be a channel/message id.")
         memberDB = await GG.MDB.members.find_one({"server": ctx.guild.id, "user": member})
-        caseId = await get_next_case_num()
+        caseId = await get_next_num(self.bot.mdb['properties'], 'caseId')
         if memberDB is None:
             memberDB = {"server": ctx.guild.id, "user": member, "caseIds": [caseId]}
         else:

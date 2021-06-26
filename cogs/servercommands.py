@@ -78,7 +78,6 @@ class ServerCommands(commands.Cog):
             return await ctx.send(f"My current prefix is: `{self.bot.get_server_prefix(ctx.message)}`")
         await GG.MDB['prefixes'].update_one({"guild": guild_id}, {"$set": {"prefix": str(prefix)}}, upsert=True)
         self.bot.prefixes[guild_id] = prefix
-        GG.PREFIXES[guild_id] = prefix
         await ctx.send("Prefix set to `{}` for this server.".format(prefix))
 
     @commands.command()

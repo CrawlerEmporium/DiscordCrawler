@@ -11,7 +11,8 @@ from cogsAdmin.models.case import Case, getCaseEmbed, getCaseTargetEmbed, getMod
 from cogsAdmin.models.caseStatus import CaseStatus
 from cogsAdmin.models.caseType import CaseType
 from crawler_utilities.handlers import logger
-from utils.functions import get_next_case_num
+
+from crawler_utilities.utils.functions import get_next_num
 
 log = logger.logger
 
@@ -57,7 +58,7 @@ class Ban(commands.Cog):
                 "Member wasn't found.\n\nCheck the ID, it might not be a member.\nAlso you can't temp-ban someone who isn't on the server.")
 
         memberDB = await GG.MDB.members.find_one({"server": ctx.guild.id, "user": member.id})
-        caseId = await get_next_case_num()
+        caseId = await get_next_num(self.bot.mdb['properties'], 'caseId')
 
         if memberDB is None:
             memberDB = {"server": ctx.guild.id, "user": member.id, "caseIds": [caseId]}
@@ -74,7 +75,7 @@ class Ban(commands.Cog):
                 "Member wasn't found.\n\nCheck the ID, it might not be a member.\nAlso you can't ban someone who isn't on the server.")
 
         memberDB = await GG.MDB.members.find_one({"server": ctx.guild.id, "user": member.id})
-        caseId = await get_next_case_num()
+        caseId = await get_next_num(self.bot.mdb['properties'], 'caseId')
 
         if memberDB is None:
             memberDB = {"server": ctx.guild.id, "user": member.id, "caseIds": [caseId]}

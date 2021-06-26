@@ -44,6 +44,9 @@ class Crawler(commands.AutoShardedBot):
         self.mdb = GG.MDB
         self.prefixes = dict()
         self.guild = None
+        self.tracking = 737222675293929584
+        self.error = 858336420418813963
+        self.defaultPrefix = GG.PREFIX
 
     async def get_server_prefix(self, msg):
         return (await get_prefix(self, msg))[-1]
@@ -159,6 +162,11 @@ def loadCogs():
         bot.load_extension("crawler_utilities.events.errors", package=".crawler_utilities.events")
     except Exception as e:
         log.error(f'Failed to load extension errors')
+        i += 1
+    try:
+        bot.load_extension("crawler_utilities.events.joinLeave", package=".crawler_utilities.events")
+    except Exception as e:
+        log.error(f'Failed to load extension joinLeave')
         i += 1
     log.info("-------------------")
     if i == 0:
