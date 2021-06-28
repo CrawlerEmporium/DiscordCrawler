@@ -13,6 +13,7 @@ from discord_components import Button, ButtonStyle
 import utils.globals as GG
 from discord.ext import commands
 from crawler_utilities.handlers import logger
+from crawler_utilities.utils.embeds import EmbedWithAuthor
 
 log = logger.logger
 
@@ -110,7 +111,7 @@ class Info(commands.Cog):
 
     @commands.command()
     async def support(self, ctx):
-        em = GG.EmbedWithAuthor(ctx)
+        em = EmbedWithAuthor(ctx)
         em.title = 'Support Server'
         em.description = "For technical support for DiscordCrawler, join the Crawler Emporium discord [here](https://discord.gg/HEY6BWj)!\n" \
                          "There you can ask questions about the bot, make feature requests, report issues and/or bugs (please include any error messages), learn about my other Crawler bots, and share with other crawler bot users!\n\n" \
@@ -127,7 +128,7 @@ class Info(commands.Cog):
 
     @commands.command()
     async def invite(self, ctx):
-        em = GG.EmbedWithAuthor(ctx)
+        em = EmbedWithAuthor(ctx)
         em.title = 'Invite Me!'
         em.description = "Hi, you can easily invite me to your own server by following [this link](" \
                          "https://discordapp.com/oauth2/authorize?client_id=602774912595263490&scope=bot&permissions" \

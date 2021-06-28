@@ -3,6 +3,7 @@ from discord.ext import commands
 
 import utils.globals as GG
 from crawler_utilities.handlers import logger
+from crawler_utilities.utils.embeds import EmbedWithAuthor
 
 log = logger.logger
 
@@ -43,7 +44,7 @@ class Dictionary(commands.Cog):
 
                     phonetic = phonetic[:-2]
 
-                    embed = GG.EmbedWithAuthor(ctx)
+                    embed = EmbedWithAuthor(ctx)
                     embed.title = word.capitalize()
                     embed.description = phonetic
 

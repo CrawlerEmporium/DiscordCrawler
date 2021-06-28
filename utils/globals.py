@@ -289,12 +289,3 @@ def checkDays(date):
 async def reloadReactionRoles():
     REACTIONROLESDB = await MDB['reactionroles'].find({}).to_list(length=None)
     return loadReactionRoles(REACTIONROLESDB)
-
-
-class EmbedWithAuthor(discord.Embed):
-    """An embed with author image and nickname set."""
-
-    def __init__(self, ctx, **kwargs):
-        super(EmbedWithAuthor, self).__init__(**kwargs)
-        self.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
-        self.colour = random.randint(0, 0xffffff)

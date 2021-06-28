@@ -2,6 +2,7 @@ import typing
 
 import discord
 import utils.globals as GG
+from crawler_utilities.utils.embeds import EmbedWithAuthor
 from crawler_utilities.utils.pagination import BotEmbedPaginator
 
 from discord.ext import commands
@@ -44,7 +45,7 @@ class Points(commands.Cog):
             await ctx.guild.chunk()
             member = ctx.guild.get_member(ctx.message.author.id)
         point = await GG.MDB.points.find_one({"user": member.id, "server": ctx.guild.id})
-        embed = GG.EmbedWithAuthor(ctx)
+        embed = EmbedWithAuthor(ctx)
         embed.title = "Points"
         if point is not None:
             embed.description = str(point['points'])

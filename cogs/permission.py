@@ -1,6 +1,7 @@
 from discord.ext import commands
 import utils.globals as GG
 from crawler_utilities.handlers import logger
+from crawler_utilities.utils.embeds import EmbedWithAuthor
 
 log = logger.logger
 
@@ -17,7 +18,7 @@ class Permission(commands.Cog):
         af = ctx.guild.me.guild_permissions.attach_files
         ar = ctx.guild.me.guild_permissions.add_reactions
 
-        em = GG.EmbedWithAuthor(ctx)
+        em = EmbedWithAuthor(ctx)
         em.title = "Permissions"
         if mm:
             em.add_field(name="Manage_Message", value=f"{mm}")
@@ -37,7 +38,7 @@ class Permission(commands.Cog):
         af = ctx.guild.me.permissions_in(ctx.channel).attach_files
         ar = ctx.guild.me.permissions_in(ctx.channel).add_reactions
 
-        em = GG.EmbedWithAuthor(ctx)
+        em = EmbedWithAuthor(ctx)
         em.title = "Permissions"
         if mm:
             em.add_field(name="Manage_Message", value=f"{mm}")
