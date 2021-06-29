@@ -4,6 +4,7 @@ import utils.globals as GG
 from discord.ext import commands
 from crawler_utilities.handlers import logger
 from crawler_utilities.utils.functions import try_delete
+from utils import checks
 
 log = logger.logger
 
@@ -68,13 +69,12 @@ class ServerCommands(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    @GG.is_staff()
-    @commands.guild_only()
+    @checks.admin_or_permissions(manage_guild=True)
     async def prefix(self, ctx, prefix: str = None):
         """Sets the bot's prefix for this server.
         Forgot the prefix? Reset it with "@DiscordCrawler#6716 prefix $".
         """
-        await try_delete(ctx)
+        await try_delete(ctx.message)
         guild_id = str(ctx.guild.id)
         if prefix is None:
             current_prefix = await self.bot.get_server_prefix(ctx.message)
