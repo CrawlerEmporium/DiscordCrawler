@@ -3,6 +3,7 @@ import utils.globals as GG
 
 from discord.ext import commands
 from crawler_utilities.handlers import logger
+from crawler_utilities.utils.functions import try_delete
 
 log = logger.logger
 
@@ -71,13 +72,22 @@ class ServerCommands(commands.Cog):
     @commands.guild_only()
     async def prefix(self, ctx, prefix: str = None):
         """Sets the bot's prefix for this server.
-        Forgot the prefix? Reset it with "@DiscordCrawler#6716 prefix !".
+        Forgot the prefix? Reset it with "@DiscordCrawler#6716 prefix $".
         """
+        await try_delete(ctx)
         guild_id = str(ctx.guild.id)
         if prefix is None:
-            return await ctx.send(f"My current prefix is: `{self.bot.get_server_prefix(ctx.message)}`")
-        await GG.MDB['prefixes'].update_one({"guild": guild_id}, {"$set": {"prefix": str(prefix)}}, upsert=True)
+            current_prefix = await self.bot.get_server_prefix(ctx.message)
+            return await ctx.send(f"My current prefix is: `{current_prefix}`")
+
         self.bot.prefixes[guild_id] = prefix
+
+        await self.bot.mdb.prefixes.update_one(
+            {"guild_id": guild_id},
+            {"$set": {"prefix": prefix}},
+            upsert=True
+        )
+
         await ctx.send("Prefix set to `{}` for this server.".format(prefix))
 
     @commands.command()

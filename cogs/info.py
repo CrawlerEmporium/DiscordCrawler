@@ -188,42 +188,6 @@ class Info(commands.Cog):
             await self.bot.process_commands(ctx.message)
             await asyncio.sleep(1)
 
-    # @commands.command()
-    # @commands.guild_only()
-    # @GG.is_staff()
-    # async def history(self, ctx, member = None):
-    #     """[STAFF ONLY] Get the post history of an user."""
-    #     if member is None:
-    #         await ctx.send("Member can't be none. Proper command to use ``![history] [member]``")
-    #     else:
-    #         async with ctx.channel.typing():
-    #             try:
-    #                 user = await ctx.guild.fetch_member(member)
-    #             except:
-    #                 user = member
-    #             guild = ctx.message.guild
-    #             string = '{ "channels": ['
-    #             for textChannel in guild.text_channels:
-    #                 if ctx.guild.me.permissions_in(textChannel).read_messages:
-    #                     string += '{ "' + str(textChannel) + '": ['
-    #                     async for message in textChannel.history(limit=100, oldest_first=True):
-    #                         if isinstance(user, str):
-    #                             if message.author.id == user:
-    #                                 string += '"' + str(message.content.replace('"', '\\"').replace('\n', '\\n')) + '",'
-    #                         else:
-    #                             if message.author == user:
-    #                                 string += '"' + str(message.content.replace('"', '\\"').replace('\n', '\\n')) + '",'
-    #                     if string[-1:] != '[':
-    #                         string = string[:-1]
-    #                     string += ']},'
-    #             string = string[:-1]
-    #             string += ']}'
-    #             string = json.dumps(string)
-    #             f = io.BytesIO(str.encode(string))
-    #             file = discord.File(f, f"{user} - chatlog.json")
-    #             await ctx.send(content=f"Messages (per channel, capped at 100) from ``{user}``\n*Note that it isn't a complete history, as Discord has some issues with their history api, so stuff may be missing.*" , file=file)
-
-
 def setup(bot):
     log.info("[Cog] Info")
     bot.add_cog(Info(bot))
