@@ -58,7 +58,7 @@ class Points(commands.Cog):
     async def leaderboard(self, ctx):
         pass
 
-    @leaderboard.command(name='user')
+    @leaderboard.command(name='user', aliases=['users'])
     @commands.guild_only()
     async def user_leaderboard(self, ctx):
         '''$points leaderboard - Shows all users with points in descending order. Paged per 10.'''
@@ -133,6 +133,9 @@ class Points(commands.Cog):
 
         if ctx.message.author.id == member.id:
             return await ctx.send(f"You can't give points to yourself.")
+
+        if amount < 0:
+            return await ctx.reply(f"https://tenor.com/view/swiper-gif-9377550")
 
         pointGiver = await GG.MDB.points.find_one({"user": ctx.message.author.id, "server": ctx.guild.id})
         pointGiverUser = await ctx.guild.fetch_member(ctx.message.author.id)
