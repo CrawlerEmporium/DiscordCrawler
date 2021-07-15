@@ -137,7 +137,7 @@ class Points(commands.Cog):
         if amount < 0:
             embed = EmbedWithAuthor(ctx)
             embed.title = "You thought you could steal points huh?"
-            embed.set_image(url="https://media.tenor.com/images/344ebd36c7cd90bd21b63aa948d24847/tenor.gif")
+            embed.set_image(url="https://media1.tenor.com/images/0239cebc541822c0ece39f44a2243224/tenor.gif?itemid=9377550")
             return await ctx.send(embed=embed)
 
         pointGiver = await GG.MDB.points.find_one({"user": ctx.message.author.id, "server": ctx.guild.id})
