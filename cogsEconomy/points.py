@@ -135,7 +135,10 @@ class Points(commands.Cog):
             return await ctx.send(f"You can't give points to yourself.")
 
         if amount < 0:
-            return await ctx.reply(f"https://tenor.com/view/swiper-gif-9377550")
+            embed = EmbedWithAuthor(ctx)
+            embed.title = "You thought you could steal points huh?"
+            embed.set_image(url="https://media.tenor.com/images/344ebd36c7cd90bd21b63aa948d24847/tenor.gif")
+            return await ctx.send(embed=embed)
 
         pointGiver = await GG.MDB.points.find_one({"user": ctx.message.author.id, "server": ctx.guild.id})
         pointGiverUser = await ctx.guild.fetch_member(ctx.message.author.id)
