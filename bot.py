@@ -11,11 +11,12 @@ from crawler_utilities.handlers import Help, logger
 
 log = logger.logger
 
-version = "v2.4.0"
+version = "v2.4.1"
 SHARD_COUNT = 1
 TESTING = False
 defaultPrefix = GG.PREFIX if not TESTING else '*'
-intents = discord.Intents().all()
+intents = discord.Intents().default()
+intents.members = True
 
 
 async def get_prefix(bot, message):
@@ -40,7 +41,10 @@ class Crawler(commands.AutoShardedBot):
         self.version = version
         self.owner = None
         self.testing = TESTING
-        self.token = GG.TOKEN
+        if self.testing:
+            self.token = GG.TESTTOKEN
+        else:
+            self.token = GG.TOKEN
         self.mdb = GG.MDB
         self.prefixes = dict()
         self.guild = None

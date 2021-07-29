@@ -14,6 +14,7 @@ env.read_env()
 
 PREFIX = env('PREFIX')
 TOKEN = env('TOKEN')
+TESTTOKEN = env('TESTTOKEN')
 COGS = env('COGS')
 COGSECONOMY = env('COGSECONOMY')
 COGSADMIN = env('COGSADMIN')
