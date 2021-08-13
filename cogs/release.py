@@ -43,7 +43,7 @@ class Release(commands.Cog):
         try:
             msg_arg = int(msg_arg)
         except ValueError:
-            perms = ctx.guild.me.permissions_in(ctx.channel)
+            perms = ctx.channel.permissions_for(ctx.guild.me)
             if perms.read_messages and perms.read_message_history:
                 async for msg in ctx.channel.history(limit=100, before=ctx.message):
                     if msg_arg.lower() in msg.content.lower():

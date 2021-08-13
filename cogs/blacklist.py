@@ -1,9 +1,11 @@
 import json
 import discord
+from discord import Interaction
 from discord.ext import commands
 from discord_components import Button, ButtonStyle
 
 from crawler_utilities.handlers import logger
+from models.buttons.greylist import Greylist
 from utils import globals as GG
 from crawler_utilities.utils.functions import try_delete
 
@@ -145,38 +147,6 @@ class Blacklist(commands.Cog):
         await try_delete(ctx.message)
 
     @commands.Cog.listener()
-    async def on_button_click(self, res):
-        if res.guild.id in GG.GREYGUILDS or res.guild.id in GG.GUILDS:
-            if res.channel.id in GG.CHANNEL:
-                if res.component.label == "Reject":
-                    msg = res.message
-                    embed = msg.embeds[0]
-                    msgID = 0
-                    channelID = 0
-                    i = 0
-                    for field in embed.fields:
-                        if field.name == "MSGID":
-                            msgID = field.value
-                            embed.remove_field(i)
-                        i += 1
-                    i = 0
-                    for field in embed.fields:
-                        if field.name == "CHANNELID":
-                            channelID = field.value
-                            embed.remove_field(i)
-                        i += 1
-                    if channelID != 0 and msgID != 0:
-                        try:
-                            channel = await self.bot.fetch_channel(channelID)
-                            message = await channel.fetch_message(msgID)
-                            await message.delete()
-                            embed.set_footer(text=f"Message was removed by {res.user.display_name}.")
-                            await msg.edit(embed=embed, components=[])
-                        except:
-                            embed.set_footer(text="Couldn't find message, probably already deleted.")
-                            await msg.edit(embed=embed, components=[])
-
-    @commands.Cog.listener()
     async def on_message(self, message):
         await self.checkForListedTerms(message)
 
@@ -193,12 +163,11 @@ class Blacklist(commands.Cog):
                         nextBool, previousBool = await self.checkMessage(message, term)
 
                         if previousBool and nextBool:
-                            delivery_channel = await GG.MDB['channelinfo'].find_one(
-                                {"guild": message.guild.id, "type": "BLACKLIST"})
+                            delivery_channel = await GG.MDB['channelinfo'].find_one({"guild": message.guild.id, "type": "BLACKLIST"})
                             if delivery_channel is not None:
                                 delivery_channel = await self.bot.fetch_channel(delivery_channel['channel'])
                                 return await delivery_channel.send(embed=await self.createEmbed(message, "greylisted", term),
-                                                            components=[Button(style=ButtonStyle.red, label="Reject")])
+                                                                   view=Greylist(self.bot))
                             else:
                                 break
             if message.guild is not None and message.guild.id in GG.GUILDS:
@@ -206,27 +175,22 @@ class Blacklist(commands.Cog):
                 for term in termsForGuild:
                     if message.content.lower().find(term.lower()) != -1:
                         nextBool, previousBool = await self.checkMessage(message, term)
-
                         if previousBool and nextBool:
-                            delivery_channel = await GG.MDB['channelinfo'].find_one(
-                                {"guild": message.guild.id, "type": "BLACKLIST"})
+                            delivery_channel = await GG.MDB['channelinfo'].find_one({"guild": message.guild.id, "type": "BLACKLIST"})
                             if delivery_channel is not None:
                                 delivery_channel = await self.bot.fetch_channel(delivery_channel['channel'])
                                 await delivery_channel.send(embed=await self.createEmbed(message, "blacklisted", term))
                             else:
-                                break
+                                pass
                             await message.delete()
                             if message.author.dm_channel is not None:
                                 DM = message.author.dm_channel
                             else:
                                 DM = await message.author.create_dm()
                             try:
-                                await DM.send(
-                                    f"Hey, your post was [redacted], because you used a blacklisted term: ``{term}``, watch your language. If you think this is an error and/or the term should be whitelisted, please contact a member of staff.\nYour message for the sake of completion: ```{message.content}```")
+                                await DM.send(f"Hey, your post was [redacted], because you used a blacklisted term: ``{term}``, watch your language. If you think this is an error and/or the term should be whitelisted, please contact a member of staff.\nYour message for the sake of completion: ```{message.content}```")
                             except discord.Forbidden:
-                                await delivery_channel.send(
-                                    f"I also tried DMing the person this, but he either has me blocked, or doesn't allow DM's")
-
+                                await delivery_channel.send(f"I also tried DMing the person this, but he either has me blocked, or doesn't allow DM's")
                             break
 
 

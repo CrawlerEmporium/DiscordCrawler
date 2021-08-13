@@ -76,7 +76,7 @@ class Whois(commands.Cog):
 
             if type(member) is discord.Member:
                 await guild.chunk()
-                avi = user.avatar_url
+                avi = user.avatar.url
                 roles = sorted(user.roles, key=lambda r: r.position)
                 rolenames = ', '.join([r.name for r in roles if r != '@everyone']) or 'None'
                 time = ctx.message.created_at

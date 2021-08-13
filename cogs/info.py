@@ -17,8 +17,7 @@ from crawler_utilities.utils.embeds import EmbedWithAuthor
 
 log = logger.logger
 
-VERIFLEVELS = {VL.none: "None", VL.low: "Low", VL.medium: "Medium", VL.high: "(╯°□°）╯︵  ┻━┻",
-               VL.extreme: "┻━┻ミヽ(ಠ益ಠ)ノ彡┻━┻"}
+VERIFLEVELS = {VL.none: "None", VL.low: "Low", VL.medium: "Medium", VL.high: "(╯°□°）╯︵  ┻━┻"}
 REGION = {VR.brazil: ":flag_br: Brazil",
           VR.eu_central: ":flag_eu: Central Europe",
           VR.singapore: ":flag_sg: Singapore",
@@ -84,7 +83,7 @@ class Info(commands.Cog):
         em = discord.Embed(color=discord.Color.green(),
                            description="DiscordCrawler, a bot for moderation and other helpful things.")
         em.title = 'Bot Info'
-        em.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+        em.set_author(name=ctx.author.name, icon_url=ctx.author.avatar.url)
         em.add_field(name="Servers", value=str(len(ctx.bot.guilds)))
         total_members = sum(len(s.members) for s in self.bot.guilds)
         unique_members = set(self.bot.get_all_members())

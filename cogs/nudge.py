@@ -26,7 +26,7 @@ class Nudge(commands.Cog):
         msgs = []
         msgAuthors = []
         channel = self.bot.get_channel(ctx.message.channel.id)
-        perms = ctx.guild.me.permissions_in(ctx.channel)
+        perms = ctx.channel.permissions_for(ctx.guild.me)
 
         if ctx.author.roles is not None:
             for r in ctx.author.roles:
@@ -76,7 +76,7 @@ class Nudge(commands.Cog):
                 await ctx.send(content=message)
                 for msg in msgs:
                     await webhook.send(content=msg.content.replace('@everyone', '@еveryone').replace('@here', '@hеre'),
-                                       username=msg.author.display_name, avatar_url=msg.author.avatar_url)
+                                       username=msg.author.display_name, avatar_url=msg.author.avatar.url)
                 await webhook.delete()
             else:
                 embed = discord.Embed()

@@ -7,4 +7,6 @@ discord-components
 pytz
 dateparser
 parsedatetime
-git+https://github.com/CrawlerEmporium/CrawlerUtilities.git
+d20
+git+https://github.com/Rapptz/discord.py.git
+git+https://github.com/CrawlerEmporium/CrawlerUtilities.git@threads

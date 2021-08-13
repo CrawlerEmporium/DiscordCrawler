@@ -2,22 +2,20 @@ from os import listdir
 from os.path import isfile, join
 
 import discord
-from discord_components import DiscordComponents
 
 import utils.globals as GG
 from discord.ext import commands
 
 from crawler_utilities.handlers import Help, logger
+from models.buttons.greylist import Greylist
 
 log = logger.logger
 
 version = "v2.4.1"
 SHARD_COUNT = 1
-TESTING = False
+TESTING = True
 defaultPrefix = GG.PREFIX if not TESTING else '*'
-intents = discord.Intents().default()
-intents.members = True
-
+intents = discord.Intents().all()
 
 async def get_prefix(bot, message):
     if not message.guild:
@@ -43,8 +41,10 @@ class Crawler(commands.AutoShardedBot):
         self.testing = TESTING
         if self.testing:
             self.token = GG.TESTTOKEN
+            self.error = 873235477245882440
         else:
             self.token = GG.TOKEN
+            self.error = 858336420418813963
         self.mdb = GG.MDB
         self.prefixes = dict()
         self.guild = None
@@ -82,8 +82,8 @@ async def on_message(msg):
 
 @bot.event
 async def on_ready():
-    DiscordComponents(bot)
-    await bot.change_presence(activity=discord.Game(f"with {len(bot.guilds)} servers | $help | {version}"), afk=True)
+    loadButtons(bot)
+    await bot.change_presence(activity=discord.Game(f"with {len(bot.guilds)} servers | $help | {version}"))
     print(f"Logged in as {bot.user.name} ({bot.user.id})")
 
 
@@ -132,6 +132,7 @@ def loadCogs():
             bot.load_extension(GG.COGS + "." + extension)
         except Exception as e:
             log.error(f'Failed to load extension {extension}')
+            print(e)
             i += 1
     log.info("-------------------")
     log.info("Loading Economy Cogs...")
@@ -160,9 +161,9 @@ def loadCogs():
             i += 1
     log.info("-------------------")
     if i == 0:
-        log.info("Finished Loading All Cogs...")
+        log.info("Finished Loading All Cogs...\n\n\n")
     else:
-        log.info(f"Finished Loading Cogs with {i} errors...")
+        log.info(f"Finished Loading Cogs with {i} errors...\n\n\n")
 
 
 def loadCrawlerUtilitiesCogs():
@@ -186,12 +187,17 @@ def loadCrawlerUtilitiesCogs():
             bot.load_extension(f"{cu_event_folder}.{extension}")
         except Exception as e:
             log.error(f'Failed to load extension {extension}')
+            print(e)
             i += 1
     log.info("-------------------")
     if i == 0:
         log.info("Finished Loading All Utility Cogs...")
     else:
         log.info(f"Finished Loading Utility Cogs with {i} errors...")
+
+
+def loadButtons(bot):
+    bot.add_view(Greylist(bot))
 
 
 if __name__ == "__main__":

@@ -108,7 +108,7 @@ class Case(commands.Cog):
         user = member
         guild = ctx.message.guild
         await guild.chunk()
-        avi = user.avatar_url
+        avi = user.avatar.url
 
         cases = await GG.MDB.members.find_one({"server": guild.id, "user": user.id})
         notes = []
