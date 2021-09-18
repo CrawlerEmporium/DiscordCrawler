@@ -28,7 +28,7 @@ class Quote(commands.Cog):
         message = None
         try:
             msgId = int(msgId)
-            perms = ctx.guild.me.permissions_in(ctx.channel)
+            perms = ctx.channel.permissions_for(ctx.guild.me)
         except ValueError:
             if perms.read_messages and perms.read_message_history:
                 async for msg in ctx.channel.history(limit=100, before=ctx.message):
@@ -40,7 +40,19 @@ class Quote(commands.Cog):
                 message = await ctx.channel.fetch_message(msgId)
             except:
                 for channel in ctx.guild.text_channels:
-                    perms = ctx.guild.me.permissions_in(channel)
+                    perms = ctx.channel.permissions_for(ctx.guild.me)
+                    if channel == ctx.channel or not perms.read_messages or not perms.read_message_history:
+                        continue
+
+                    try:
+                        message = await channel.fetch_message(msgId)
+                    except:
+                        continue
+                    else:
+                        break
+
+                for channel in ctx.guild.threads:
+                    perms = ctx.channel.permissions_for(ctx.guild.me)
                     if channel == ctx.channel or not perms.read_messages or not perms.read_message_history:
                         continue
 
@@ -61,15 +73,17 @@ class Quote(commands.Cog):
 
             if reply:
                 if perms.manage_webhooks:
-                    webhook = await ctx.channel.create_webhook(name="Quoting")
-                    await webhook.send(content=reply.replace('@everyone', '@еveryone').replace('@here', '@hеre'),
-                                       username=ctx.author.display_name, avatar_url=ctx.author.avatar_url)
-                    await webhook.delete()
+                    if isinstance(ctx.channel, discord.threads.Thread):
+                        webhook = await ctx.channel.parent.create_webhook(name="Quoting")
+                        await webhook.send(content=reply.replace('@everyone', '@еveryone').replace('@here', '@hеre'), username=ctx.author.display_name, avatar_url=ctx.author.avatar.url, thread=ctx.channel)
+                        await webhook.delete()
+                    else:
+                        webhook = await ctx.channel.create_webhook(name="Quoting")
+                        await webhook.send(content=reply.replace('@everyone', '@еveryone').replace('@here', '@hеre'),
+                                           username=ctx.author.display_name, avatar_url=ctx.author.avatar.url)
+                        await webhook.delete()
                 else:
-                    await ctx.send(
-                        content='**' + ctx.author.display_name + '\'s reply:**\n' + reply.replace('@everyone',
-                                                                                                  '@еveryone').replace(
-                            '@here', '@hеre'))
+                    await ctx.send(content='**' + ctx.author.display_name + '\'s reply:**\n' + reply.replace('@everyone','@еveryone').replace('@here', '@hеre'))
         else:
             await ctx.send(content=":x:" + ' **Could not find the specified message.**')
 
@@ -108,7 +122,7 @@ def quote_embed(context_channel, message, user):
                     embed.add_field(name='Attachment', value='[' + attachment.filename + '](' + attachment.url + ')',
                                     inline=False)
 
-        embed.set_author(name=str(message.author), icon_url=message.author.avatar_url)
+        embed.set_author(name=str(message.author), icon_url=message.author.avatar.url)
 
     return embed
 

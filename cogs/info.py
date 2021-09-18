@@ -4,11 +4,11 @@ import datetime
 import discord
 import time
 
-from discord import VerificationLevel as VL
+from discord import VerificationLevel as VL, ButtonStyle
 from discord import VoiceRegion as VR
 
 from discord.ext.commands import BucketType
-from discord_components import Button, ButtonStyle
+from discord.ui import Button
 
 import utils.globals as GG
 from discord.ext import commands
@@ -120,11 +120,12 @@ class Info(commands.Cog):
         serverEmoji = self.bot.get_emoji(int("<:5e:603932658820448267>".split(":")[2].replace(">", "")))
         patreonEmoji = self.bot.get_emoji(int("<:Patreon:855754853153505280>".split(":")[2].replace(">", "")))
         kofiEmoji = self.bot.get_emoji(int("<:Kofi:855758703772958751>".split(":")[2].replace(">", "")))
-        components = [[Button(label="Discord", style=ButtonStyle.URL, emoji=serverEmoji, url="https://discord.gg/HEY6BWj"),
-                       Button(label="Website", style=ButtonStyle.URL, url="https://www.crawleremporium.com"),
-                       Button(label="Patreon", style=ButtonStyle.URL, emoji=patreonEmoji, url="https://www.patreon.com/LordDusk"),
-                       Button(label="Buy me a coffee", style=ButtonStyle.URL, emoji=kofiEmoji, url="https://ko-fi.com/5ecrawler")]]
-        await ctx.send(embed=em, components=components)
+        view = discord.ui.View()
+        view.add_item(Button(label="Discord", style=ButtonStyle.url, emoji=serverEmoji, url="https://discord.gg/HEY6BWj"))
+        view.add_item(Button(label="Website", style=ButtonStyle.url, url="https://www.crawleremporium.com"))
+        view.add_item(Button(label="Patreon", style=ButtonStyle.url, emoji=patreonEmoji, url="https://www.patreon.com/LordDusk"))
+        view.add_item(Button(label="Buy me a coffee", style=ButtonStyle.url, emoji=kofiEmoji, url="https://ko-fi.com/5ecrawler"))
+        await ctx.send(embed=em, view=view)
 
     @commands.command()
     async def invite(self, ctx):

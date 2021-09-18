@@ -42,8 +42,7 @@ class Points(commands.Cog):
         '''$points [username] - Gives you the current points of [username] or yourself if no name is given.'''
         await try_delete(ctx.message)
         if member is None:
-            await ctx.guild.chunk()
-            member = ctx.guild.get_member(ctx.message.author.id)
+            member = await ctx.guild.fetch_member(ctx.message.author.id)
         point = await GG.MDB.points.find_one({"user": member.id, "server": ctx.guild.id})
         embed = EmbedWithAuthor(ctx)
         embed.title = "Points"
@@ -111,6 +110,8 @@ class Points(commands.Cog):
         except ValueError:
             await ctx.send("Please give me a number.")
             return
+        if member is None:
+            member = await ctx.guild.fetch_member(ctx.message.author.id)
         point = await GG.MDB.points.find_one({"user": member.id, "server": ctx.guild.id})
         if point is not None:
             points = (amount + point['points'])

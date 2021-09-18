@@ -3,11 +3,13 @@ import io
 import discord
 import requests
 from discord.ext import commands
-from crawler_utilities.utils.pagination import BotEmbedPaginator
 
 import utils.globals as GG
 from crawler_utilities.handlers import logger
 from crawler_utilities.utils.functions import try_delete
+
+# noinspection PyUnresolvedReferences
+from crawler_utilities.utils.pagination import get_selection
 
 log = logger.logger
 
@@ -17,30 +19,45 @@ def personal_embed(db_response, author):
         embed = discord.Embed(description=db_response['response'], color=author.color)
     else:
         embed = discord.Embed(description=db_response['response'])
-    embed.set_author(name=str(author), icon_url=author.avatar_url)
+    embed.set_author(name=str(author), icon_url=author.avatar.url)
     embed.set_footer(text='Personal Quote')
     return embed, db_response['attachments']
-
-
-def list_embed(list_personals, author):
-    embedList = []
-    for i in range(0, len(list_personals), 10):
-        lst = list_personals[i:i + 10]
-        desc = ""
-        for item in lst:
-            desc += '• `' + str(item['trigger']) + '`\n'
-        if isinstance(author, discord.Member) and author.color != discord.Colour.default():
-            embed = discord.Embed(description=desc, color=author.color)
-        else:
-            embed = discord.Embed(description=desc)
-        embed.set_author(name='Personal Quotes', icon_url=author.avatar_url)
-        embedList.append(embed)
-    return embedList
 
 
 class PersonalQuotes(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.command(aliases=['p'])
+    async def personal(self, ctx, trigger):
+        """Returns your chosen personal quote."""
+        trig = trigger.replace('\'', '\'\'')
+        user_quote = await GG.MDB['personalcommands'].find_one({"user": ctx.message.author.id, "trigger": trig})
+        if user_quote is None:
+            await ctx.send(content=":x:" + ' **Command with that trigger does not exist.**')
+        else:
+            await self.sendPersonalChoice(ctx, user_quote)
+
+    @commands.command(aliases=['pclear'])
+    async def personalclear(self, ctx):
+        """Deletes **ALL** your personal quotes."""
+        await GG.MDB['personalcommands'].delete_many({"user": ctx.message.author.id})
+        await ctx.send(content=":white_check_mark:" + ' **Cleared all your personal quotes.**')
+
+    @commands.command(aliases=['pc'])
+    async def personalcode(self, ctx, trigger):
+        """Returns your chosen global command."""
+        trig = trigger
+        user_quote = await GG.MDB['personalcommands'].find_one({"user": ctx.message.author.id, "trigger": trig})
+        if user_quote is None:
+            await ctx.send(content=":x:" + ' **Command with that trigger does not exist.**')
+        else:
+            if ctx.channel.permissions_for(ctx.guild.me).manage_messages:
+                await try_delete(ctx.message)
+
+            replaceString = '\`'
+            await ctx.send(f"```{user_quote['response'].replace('`', replaceString)}```",
+                           files=user_quote['attachments'])
 
     @commands.command(aliases=['padd'])
     async def personaladd(self, ctx, trigger, *, response=None):
@@ -72,16 +89,20 @@ class PersonalQuotes(commands.Cog):
         else:
             await ctx.send(content=":x:" + ' **Command with that trigger does not exist.**')
 
-    @commands.command(aliases=['p'])
-    async def personal(self, ctx, trigger):
-        """Returns your chosen personal quote."""
-        trig = trigger.replace('\'', '\'\'')
-        user_quote = await GG.MDB['personalcommands'].find_one({"user": ctx.message.author.id, "trigger": trig})
-        if user_quote is None:
-            await ctx.send(content=":x:" + ' **Command with that trigger does not exist.**')
+    @commands.command(aliases=['plist'])
+    async def personallist(self, ctx):
+        """Returns all your personal quotes."""
+        user_quotes = await GG.MDB['personalcommands'].find({"user": ctx.message.author.id}).to_list(length=None)
+        if len(user_quotes) == 0:
+            await ctx.send(content=":x:" + ' **You have no personal commands**')
         else:
-            if ctx.guild and ctx.guild.me.permissions_in(
-                    ctx.channel).manage_messages:
+            choices = [(r['trigger'], r) for r in user_quotes]
+            choice = await get_selection(ctx, choices, title=f"Personal Quotes for {ctx.author}", author=True)
+            await self.sendPersonalChoice(ctx, choice)
+
+    async def sendPersonalChoice(self, ctx, user_quote):
+        if user_quote is not None:  # Check for the personalList action, as it can return the stop button
+            if ctx.channel.permissions_for(ctx.guild.me).manage_messages:
                 await try_delete(ctx.message)
             embed, attachments = personal_embed(user_quote, ctx.author)
             files = []
@@ -99,40 +120,6 @@ class PersonalQuotes(commands.Cog):
                         dFile = discord.File(bitties, filename=url.rsplit('/', 1)[-1])
                         files.append(dFile)
             await ctx.send(embed=embed, files=files)
-
-
-
-    @commands.command(aliases=['plist'])
-    async def personallist(self, ctx):
-        """Returns all your personal quotes."""
-        user_quotes = await GG.MDB['personalcommands'].find({"user": ctx.message.author.id}).to_list(length=None)
-        if len(user_quotes) == 0:
-            await ctx.send(content=":x:" + ' **You have no personal commands**')
-        else:
-            embeds = list_embed(user_quotes, ctx.author)
-            paginator = BotEmbedPaginator(ctx, embeds)
-            await paginator.run()
-
-    @commands.command(aliases=['pclear'])
-    async def personalclear(self, ctx):
-        """Deletes **ALL** your personal quotes."""
-        await GG.MDB['personalcommands'].delete_many({"user": ctx.message.author.id})
-        await ctx.send(content=":white_check_mark:" + ' **Cleared all your personal quotes.**')
-
-    @commands.command(aliases=['pc'])
-    async def personalcode(self, ctx, trigger):
-        """Returns your chosen global command."""
-        trig = trigger
-        user_quote = await GG.MDB['personalcommands'].find_one({"user": ctx.message.author.id, "trigger": trig})
-        if user_quote is None:
-            await ctx.send(content=":x:" + ' **Command with that trigger does not exist.**')
-        else:
-            if ctx.guild and ctx.guild.me.permissions_in(ctx.channel).manage_messages:
-                await try_delete(ctx.message)
-
-            replaceString = '\`'
-            await ctx.send(f"```{user_quote['response'].replace('`', replaceString)}```",
-                           files=user_quote['attachments'])
 
 
 def setup(bot):

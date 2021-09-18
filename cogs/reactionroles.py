@@ -1,5 +1,4 @@
 import discord
-from discord_components import Select, SelectOption
 
 import utils.globals as GG
 

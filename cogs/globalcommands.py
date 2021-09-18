@@ -2,7 +2,8 @@ import typing
 
 import discord
 
-from crawler_utilities.utils.pagination import BotEmbedPaginator
+# noinspection PyUnresolvedReferences
+from crawler_utilities.utils.pagination import get_selection
 from discord.ext import commands
 from crawler_utilities.handlers import logger
 import utils.globals as GG
@@ -33,22 +34,6 @@ async def global_embed(self, db_response, ctx, command, server=None, whisper=Fal
     else:
         embed.set_footer(text=f'This command was triggered in {server}. You can trigger it there by running {prefix}g {command}')
     return embed
-
-
-def list_embed(list_personals, author):
-    embedList = []
-    for i in range(0, len(list_personals), 10):
-        lst = list_personals[i:i + 10]
-        desc = ""
-        for item in lst:
-            desc += '• `' + str(item["Trigger"]) + '`\n'
-        if isinstance(author, discord.Member) and author.color != discord.Colour.default():
-            embed = discord.Embed(description=desc, color=author.color)
-        else:
-            embed = discord.Embed(description=desc)
-        embed.set_author(name='Server Commands', icon_url=author.avatar_url)
-        embedList.append(embed)
-    return embedList
 
 
 class GlobalCommands(commands.Cog):
@@ -94,7 +79,7 @@ class GlobalCommands(commands.Cog):
         if user_quote is None:
             await ctx.send(content=":x:" + ' **Command with that trigger does not exist.**')
         else:
-            if ctx.guild and ctx.guild.me.permissions_in(ctx.channel).manage_messages:
+            if ctx.channel.permissions_for(ctx.guild.me).manage_messages:
                 await try_delete(ctx.message)
 
             if member is not None:
@@ -147,9 +132,9 @@ class GlobalCommands(commands.Cog):
         if len(user_quotes) == 0:
             await ctx.send(content=":x:" + ' **You have no global quotes**')
         else:
-            embeds = list_embed(user_quotes, ctx.author)
-            paginator = BotEmbedPaginator(ctx, embeds)
-            await paginator.run()
+            choices = [(r['Trigger'], r) for r in user_quotes]
+            choice = await get_selection(ctx, choices, title=f"Server Commands for {ctx.guild}", author=True)
+            await ctx.send(embed=await global_embed(self, choice, ctx, choice['Trigger']))
 
     @commands.command(aliases=['gc'])
     @commands.guild_only()
@@ -160,13 +145,12 @@ class GlobalCommands(commands.Cog):
         if user_quote is None:
             await ctx.send(content=":x:" + ' **Command with that trigger does not exist.**')
         else:
-            if ctx.guild and ctx.guild.me.permissions_in(ctx.channel).manage_messages:
+            if ctx.channel.permissions_for(ctx.guild.me).manage_messages:
                 await try_delete(ctx.message)
 
             replaceString = '\`'
             await ctx.send(f"```{user_quote['Response'].replace('`', replaceString)}```",
                            files=user_quote['Attachments'])
-
 
 
 def setup(bot):

@@ -2,12 +2,12 @@ from os import listdir
 from os.path import isfile, join
 
 import discord
-from discord_components import DiscordComponents
 
 import utils.globals as GG
 from discord.ext import commands
 
 from crawler_utilities.handlers import Help, logger
+from models.buttons.greylist import Greylist
 
 log = logger.logger
 
@@ -82,9 +82,14 @@ async def on_message(msg):
 
 @bot.event
 async def on_ready():
-    DiscordComponents(bot)
-    await bot.change_presence(activity=discord.Game(f"with {len(bot.guilds)} servers | $help | {version}"), afk=True)
+    loadButtons(bot)
+    await bot.change_presence(activity=discord.Game(f"with {len(bot.guilds)} servers | $help | {version}"))
     print(f"Logged in as {bot.user.name} ({bot.user.id})")
+
+
+@bot.event
+async def on_thread_join(thread):
+    await thread.join()
 
 
 @bot.event
@@ -193,6 +198,8 @@ def loadCrawlerUtilitiesCogs():
     else:
         log.info(f"Finished Loading Utility Cogs with {i} errors...")
 
+def loadButtons(bot):
+    bot.add_view(Greylist(bot))
 
 if __name__ == "__main__":
     bot.state = "run"
