@@ -17,8 +17,7 @@ from crawler_utilities.utils.embeds import EmbedWithAuthor
 
 log = logger.logger
 
-VERIFLEVELS = {VL.none: "None", VL.low: "Low", VL.medium: "Medium", VL.high: "(╯°□°）╯︵  ┻━┻",
-               VL.extreme: "┻━┻ミヽ(ಠ益ಠ)ノ彡┻━┻"}
+VERIFLEVELS = {VL.none: "None", VL.low: "Low", VL.medium: "Medium", VL.high: "(╯°□°）╯︵  ┻━┻"}
 REGION = {VR.brazil: ":flag_br: Brazil",
           VR.eu_central: ":flag_eu: Central Europe",
           VR.singapore: ":flag_sg: Singapore",
