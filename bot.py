@@ -206,3 +206,25 @@ if __name__ == "__main__":
     loadCogs()
     loadCrawlerUtilitiesCogs()
     bot.run(bot.token)
+
+
+# temp storage for user commands until they are supported in cogs
+@bot.user_command(name="Staff: User Check")
+async def user_whois(self, ctx, member: discord.Member):
+    if not GG.is_staff_bool(ctx.author):
+        return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
+
+    guild = ctx.guild
+    cases = await GG.MDB.members.find_one({"server": guild.id, "user": member.id})
+
+    notes = []
+    warnings = []
+    mutes = []
+    tempbans = []
+    bans = []
+
+    adminString, noteString, warningString = await self.getCaseStrings(bans, cases, mutes, notes, tempbans, warnings)
+
+    em = await self.getMemberEmbed(adminString, guild, noteString, member, warningString)
+
+    return await ctx.respond(embed=em, ephemeral=True)
