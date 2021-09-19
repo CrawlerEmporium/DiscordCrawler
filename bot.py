@@ -8,6 +8,7 @@ from discord.ext import commands
 
 from crawler_utilities.handlers import Help, logger
 from models.buttons.greylist import Greylist
+from tempFiles.whois import getCaseStrings, getMemberEmbed
 
 log = logger.logger
 
@@ -210,7 +211,7 @@ if __name__ == "__main__":
 
 # temp storage for user commands until they are supported in cogs
 @bot.user_command(name="Staff: User Check")
-async def user_whois(self, ctx, member: discord.Member):
+async def user_whois(ctx, member: discord.Member):
     if not GG.is_staff_bool(ctx.author):
         return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
 
@@ -223,8 +224,8 @@ async def user_whois(self, ctx, member: discord.Member):
     tempbans = []
     bans = []
 
-    adminString, noteString, warningString = await self.getCaseStrings(bans, cases, mutes, notes, tempbans, warnings)
+    adminString, noteString, warningString = await getCaseStrings(bans, cases, mutes, notes, tempbans, warnings)
 
-    em = await self.getMemberEmbed(adminString, guild, noteString, member, warningString)
+    em = await getMemberEmbed(adminString, guild, noteString, member, warningString)
 
     return await ctx.respond(embed=em, ephemeral=True)
