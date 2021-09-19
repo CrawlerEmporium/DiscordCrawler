@@ -208,7 +208,7 @@ def loadButtons(bot):
 # temp storage for user commands until they are supported in cogs
 @bot.user_command(name="Staff: User Check")
 async def user_whois(ctx, member: discord.Member):
-    if not GG.is_staff_bool(ctx.author):
+    if not GG.is_staff_bool(ctx):
         return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
 
     guild = ctx.guild
