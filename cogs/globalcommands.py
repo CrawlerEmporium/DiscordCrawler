@@ -113,8 +113,7 @@ class GlobalCommands(commands.Cog):
                 else:
                     await ctx.send(f"{ctx.author.mention} I tried DMing you, but you either blocked me, or you don't allow DM's")
         else:
-            if ctx.guild and ctx.guild.me.permissions_in(
-                    ctx.channel).manage_messages:
+            if ctx.channel.permissions_for(ctx.guild.me).manage_messages:
                 await try_delete(ctx.message)
             try:
                 await DM.send(embed=await global_embed(self, user_quote, ctx, trig, ctx.guild.name, True))
