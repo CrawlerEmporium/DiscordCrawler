@@ -95,6 +95,7 @@ async def on_thread_join(thread):
 
 @bot.event
 async def on_connect():
+    await discord.ApplicationCommandMixin.register_commands(bot)
     await fillGlobals()
     bot.owner = await bot.fetch_user(GG.OWNER)
     print(f"OWNER: {bot.owner.name}")
@@ -199,14 +200,9 @@ def loadCrawlerUtilitiesCogs():
     else:
         log.info(f"Finished Loading Utility Cogs with {i} errors...")
 
+
 def loadButtons(bot):
     bot.add_view(Greylist(bot))
-
-if __name__ == "__main__":
-    bot.state = "run"
-    loadCogs()
-    loadCrawlerUtilitiesCogs()
-    bot.run(bot.token)
 
 
 # temp storage for user commands until they are supported in cogs
@@ -229,3 +225,10 @@ async def user_whois(ctx, member: discord.Member):
     em = await getMemberEmbed(adminString, guild, noteString, member, warningString)
 
     return await ctx.respond(embed=em, ephemeral=True)
+
+
+if __name__ == "__main__":
+    bot.state = "run"
+    loadCogs()
+    loadCrawlerUtilitiesCogs()
+    bot.run(bot.token)
