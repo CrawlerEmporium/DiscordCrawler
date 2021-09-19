@@ -99,7 +99,7 @@ class Info(commands.Cog):
         em.add_field(name='Text Channels', value=f"{totalText}")
         em.add_field(name='Voice Channels', value=f"{totalVoice}")
         em.add_field(name="Invite",
-                     value="[Click Here](https://discordapp.com/oauth2/authorize?client_id=602774912595263490&scope=bot&permissions=805412928)")
+                     value="[Click Here](https://discord.com/api/oauth2/authorize?client_id=602774912595263490&permissions=805412928&scope=bot%20applications.commands)")
         em.add_field(name='Source', value="[Click Here](https://github.com/CrawlerEmporium/DiscordCrawler)")
         em.add_field(name='Issue Tracker',
                      value="[Click Here](https://github.com/CrawlerEmporium/DiscordCrawler/issues)")
@@ -131,7 +131,7 @@ class Info(commands.Cog):
         em = EmbedWithAuthor(ctx)
         em.title = 'Invite Me!'
         em.description = "Hi, you can easily invite me to your own server by following [this link](" \
-                         "https://discordapp.com/oauth2/authorize?client_id=602774912595263490&scope=bot&permissions" \
+                         "https://discord.com/api/oauth2/authorize?client_id=602774912595263490&permissions=805412928&scope=bot%20applications.commands" \
                          "=805412928)!\n\nOf the 5 permissions asked, 4 are optional and 1 mandatory for optimal " \
                          "usage of the capabilities of the bot.\n\n**Mandatory:**\n__Manage Messages__ - this allows the " \
                          "bot to remove messages from other users.\n\n**Optional:**\n__Manage Webhooks__ - There are 2 " \
@@ -145,7 +145,10 @@ class Info(commands.Cog):
                          "__Read History__ - For some things to work (edit message, add reactions) the bot requires " \
                          "to be able to read the history of the channel. If it lacks this permission, but does have. " \
                          "Add Reactions, it will pelt you with 'Permission not found.'"
-        await ctx.send(embed=em)
+        view = discord.ui.View()
+        serverEmoji = self.bot.get_emoji(int("<:DiscordCrawler:855754497321074709>".split(":")[2].replace(">", "")))
+        view.add_item(Button(label="Invite me!", style=ButtonStyle.url, emoji=serverEmoji, url="https://discord.com/api/oauth2/authorize?client_id=602774912595263490&permissions=805412928&scope=bot%20applications.commands"))
+        await ctx.send(embed=em, view=view)
 
     @commands.command(hidden=True)
     @commands.guild_only()
