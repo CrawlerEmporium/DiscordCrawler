@@ -133,7 +133,8 @@ class GlobalCommands(commands.Cog):
         else:
             choices = [(r['Trigger'], r) for r in user_quotes]
             choice = await get_selection(ctx, choices, title=f"Server Commands for {ctx.guild}", author=True)
-            await ctx.send(embed=await global_embed(self, choice, ctx, choice['Trigger']))
+            if choice is not None:
+                await ctx.send(embed=await global_embed(self, choice, ctx, choice['Trigger']))
 
     @commands.command(aliases=['gc'])
     @commands.guild_only()
