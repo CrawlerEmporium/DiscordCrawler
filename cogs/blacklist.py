@@ -24,43 +24,42 @@ class Blacklist(commands.Cog):
 
     async def checkForListedTerms(self, message):
         if message.author.id != 602774912595263490:  # if not bot
-            if isinstance(message.channel, discord.threads.Thread):
-                if message.guild is not None and message.guild.id in GG.GREYGUILDS:
-                    termsForGuild = [guild['terms'] for guild in GG.GREYLIST if guild['guild'] == message.guild.id][0]
-                    for term in termsForGuild:
-                        if message.content.lower().find(term.lower()) != -1:
-                            nextBool, previousBool = await self.checkMessage(message, term)
+            if message.guild is not None and message.guild.id in GG.GREYGUILDS:
+                termsForGuild = [guild['terms'] for guild in GG.GREYLIST if guild['guild'] == message.guild.id][0]
+                for term in termsForGuild:
+                    if message.content.lower().find(term.lower()) != -1:
+                        nextBool, previousBool = await self.checkMessage(message, term)
 
-                            if previousBool and nextBool:
-                                delivery_channel = await GG.MDB['channelinfo'].find_one({"guild": message.guild.id, "type": "BLACKLIST"})
-                                if delivery_channel is not None:
-                                    delivery_channel = await self.bot.fetch_channel(delivery_channel['channel'])
-                                    return await delivery_channel.send(embed=await self.createEmbed(message, "greylisted", term),
-                                                                       view=Greylist(self.bot))
-                                else:
-                                    break
-                if message.guild is not None and message.guild.id in GG.GUILDS:
-                    termsForGuild = [guild['terms'] for guild in GG.BLACKLIST if guild['guild'] == message.guild.id][0]
-                    for term in termsForGuild:
-                        if message.content.lower().find(term.lower()) != -1:
-                            nextBool, previousBool = await self.checkMessage(message, term)
-                            if previousBool and nextBool:
-                                delivery_channel = await GG.MDB['channelinfo'].find_one({"guild": message.guild.id, "type": "BLACKLIST"})
-                                if delivery_channel is not None:
-                                    delivery_channel = await self.bot.fetch_channel(delivery_channel['channel'])
-                                    await delivery_channel.send(embed=await self.createEmbed(message, "blacklisted", term))
-                                else:
-                                    pass
-                                await message.delete()
-                                if message.author.dm_channel is not None:
-                                    DM = message.author.dm_channel
-                                else:
-                                    DM = await message.author.create_dm()
-                                try:
-                                    await DM.send(f"Hey, your post was [redacted], because you used a blacklisted term: ``{term}``, watch your language. If you think this is an error and/or the term should be whitelisted, please contact a member of staff.\nYour message for the sake of completion: ```{message.content}```")
-                                except discord.Forbidden:
-                                    await delivery_channel.send(f"I also tried DMing the person this, but he either has me blocked, or doesn't allow DM's")
+                        if previousBool and nextBool:
+                            delivery_channel = await GG.MDB['channelinfo'].find_one({"guild": message.guild.id, "type": "BLACKLIST"})
+                            if delivery_channel is not None:
+                                delivery_channel = await self.bot.fetch_channel(delivery_channel['channel'])
+                                return await delivery_channel.send(embed=await self.createEmbed(message, "greylisted", term),
+                                                                   view=Greylist(self.bot))
+                            else:
                                 break
+            if message.guild is not None and message.guild.id in GG.GUILDS:
+                termsForGuild = [guild['terms'] for guild in GG.BLACKLIST if guild['guild'] == message.guild.id][0]
+                for term in termsForGuild:
+                    if message.content.lower().find(term.lower()) != -1:
+                        nextBool, previousBool = await self.checkMessage(message, term)
+                        if previousBool and nextBool:
+                            delivery_channel = await GG.MDB['channelinfo'].find_one({"guild": message.guild.id, "type": "BLACKLIST"})
+                            if delivery_channel is not None:
+                                delivery_channel = await self.bot.fetch_channel(delivery_channel['channel'])
+                                await delivery_channel.send(embed=await self.createEmbed(message, "blacklisted", term))
+                            else:
+                                pass
+                            await message.delete()
+                            if message.author.dm_channel is not None:
+                                DM = message.author.dm_channel
+                            else:
+                                DM = await message.author.create_dm()
+                            try:
+                                await DM.send(f"Hey, your post was [redacted], because you used a blacklisted term: ``{term}``, watch your language. If you think this is an error and/or the term should be whitelisted, please contact a member of staff.\nYour message for the sake of completion: ```{message.content}```")
+                            except discord.Forbidden:
+                                await delivery_channel.send(f"I also tried DMing the person this, but he either has me blocked, or doesn't allow DM's")
+                            break
 
 
     async def createEmbed(self, message, type, term):
