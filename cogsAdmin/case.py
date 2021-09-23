@@ -108,7 +108,7 @@ class Case(commands.Cog):
         user = member
         guild = ctx.message.guild
         await guild.chunk()
-        avi = user.avatar_url
+        avi = user.avatar.url if user.avatar is not None else None
 
         cases = await GG.MDB.members.find_one({"server": guild.id, "user": user.id})
         notes = []

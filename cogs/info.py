@@ -63,7 +63,7 @@ class Info(commands.Cog):
                 HUMANS.remove(h)
 
         embed = discord.Embed(color=discord.Color.green())
-        embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
+        embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon.url)
         embed.add_field(name="Name", value=ctx.guild.name)
         embed.add_field(name="ID", value=ctx.guild.id)
         embed.add_field(name="Owner", value=f"{ctx.guild.owner.name}#{ctx.guild.owner.discriminator}")
@@ -74,7 +74,7 @@ class Info(commands.Cog):
         embed.add_field(name="Text Channels", value=str(text))
         embed.add_field(name="Voice Channels", value=str(voice))
         embed.add_field(name="Creation Date", value=f"{ctx.guild.created_at}\n{checkDays(ctx.guild.created_at)}")
-        embed.set_thumbnail(url=ctx.guild.icon_url)
+        embed.set_thumbnail(url=ctx.guild.icon.url)
         await ctx.send(embed=embed)
 
     @commands.command(aliases=['stats', 'info'])
@@ -83,7 +83,7 @@ class Info(commands.Cog):
         em = discord.Embed(color=discord.Color.green(),
                            description="DiscordCrawler, a bot for moderation and other helpful things.")
         em.title = 'Bot Info'
-        em.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+        em.set_author(name=ctx.author.name, icon_url=ctx.author.avatar.url)
         em.add_field(name="Servers", value=str(len(ctx.bot.guilds)))
         total_members = sum(len(s.members) for s in self.bot.guilds)
         unique_members = set(self.bot.get_all_members())
