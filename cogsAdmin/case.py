@@ -158,7 +158,8 @@ class Case(commands.Cog):
                 noteString += f"{note['message']}\n(Id: ``{note['caseId']}`` - {note['date'].__format__('%B %d, %Y')})\n\n"
             em.add_field(name='Notes', value=noteString, inline=False)
 
-        em.set_thumbnail(url=avi or None)
+        if avi is not None:
+            em.set_thumbnail(url=avi)
         await ctx.send(embed=em)
 
     async def caseCommand(self, ctx, caseId):

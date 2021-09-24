@@ -7,7 +7,6 @@ import utils.globals as GG
 
 async def getMemberEmbed(adminString, guild, noteString, user, warningString):
     await guild.chunk()
-    avi = user.avatar.url if user.avatar is not None else None
     roles = sorted(user.roles, key=lambda r: r.position)
     rolenames = ', '.join([r.name for r in roles if r != '@everyone']) or 'None'
     desc = f'{user.name} is currently in {user.status} mode.'
@@ -28,7 +27,8 @@ async def getMemberEmbed(adminString, guild, noteString, user, warningString):
         em.add_field(name='Warnings', value=warningString, inline=False)
     if adminString != "":
         em.add_field(name='Administration', value=adminString, inline=False)
-    em.set_thumbnail(url=avi or None)
+    if user.avatar is not None:
+        em.set_thumbnail(url=user.avatar.avatar or None)
     return em
 
 
