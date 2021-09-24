@@ -26,9 +26,9 @@ def list_embed(list_personals, author, user=True):
         else:
             embed = discord.Embed(description=desc)
         if user:
-            embed.set_author(name='Points User Leaderboard', icon_url=author.avatar.url)
+            embed.set_author(name='Points User Leaderboard', icon_url=author.display_avatar.url)
         else:
-            embed.set_author(name='Points Role Leaderboard', icon_url=author.avatar.url)
+            embed.set_author(name='Points Role Leaderboard', icon_url=author.display_avatar.url)
         embedList.append(embed)
     return embedList
 

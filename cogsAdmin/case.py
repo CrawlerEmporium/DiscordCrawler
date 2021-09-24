@@ -108,7 +108,7 @@ class Case(commands.Cog):
         user = member
         guild = ctx.message.guild
         await guild.chunk()
-        avi = user.avatar.url if user.avatar is not None else None
+        avi = user.display_avatar.url
 
         cases = await GG.MDB.members.find_one({"server": guild.id, "user": user.id})
         notes = []
@@ -158,8 +158,7 @@ class Case(commands.Cog):
                 noteString += f"{note['message']}\n(Id: ``{note['caseId']}`` - {note['date'].__format__('%B %d, %Y')})\n\n"
             em.add_field(name='Notes', value=noteString, inline=False)
 
-        if avi is not None:
-            em.set_thumbnail(url=avi)
+        em.set_thumbnail(url=avi)
         await ctx.send(embed=em)
 
     async def caseCommand(self, ctx, caseId):

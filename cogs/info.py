@@ -83,7 +83,7 @@ class Info(commands.Cog):
         em = discord.Embed(color=discord.Color.green(),
                            description="DiscordCrawler, a bot for moderation and other helpful things.")
         em.title = 'Bot Info'
-        em.set_author(name=ctx.author.name, icon_url=ctx.author.avatar.url)
+        em.set_author(name=ctx.author.name, icon_url=ctx.author.display_avatar.url)
         em.add_field(name="Servers", value=str(len(ctx.bot.guilds)))
         total_members = sum(len(s.members) for s in self.bot.guilds)
         unique_members = set(self.bot.get_all_members())

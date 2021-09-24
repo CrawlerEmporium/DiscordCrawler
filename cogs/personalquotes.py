@@ -19,7 +19,7 @@ def personal_embed(db_response, author):
         embed = discord.Embed(description=db_response['response'], color=author.color)
     else:
         embed = discord.Embed(description=db_response['response'])
-    embed.set_author(name=str(author), icon_url=author.avatar.url)
+    embed.set_author(name=str(author), icon_url=author.display_avatar.url)
     embed.set_footer(text='Personal Quote')
     return embed, db_response['attachments']
 

@@ -88,7 +88,7 @@ class Nudge(commands.Cog):
                     await ctx.channel.send(content=message)
                     for msg in msgs:
                         await webhook.send(content=msg.content.replace('@everyone', '@еveryone').replace('@here', '@hеre'),
-                                           username=msg.author.display_name, avatar_url=msg.author.avatar.url, thread=ctx.channel)
+                                           username=msg.author.display_name, avatar_url=msg.author.display_avatar.url, thread=ctx.channel)
                     await webhook.delete()
                 else:
                     message = f"{authors[:-2]} Your recent {singleOrMulti(length)[0]} should have been posted in this channel. (see the channel description below).\n" \
@@ -98,7 +98,7 @@ class Nudge(commands.Cog):
                     await ctx.channel.send(content=message)
                     for msg in msgs:
                         await webhook.send(content=msg.content.replace('@everyone', '@еveryone').replace('@here', '@hеre'),
-                                           username=msg.author.display_name, avatar_url=msg.author.avatar.url)
+                                           username=msg.author.display_name, avatar_url=msg.author.display_avatar.url)
                     await webhook.delete()
             else:
                 embed = discord.Embed()

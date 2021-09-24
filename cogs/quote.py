@@ -75,12 +75,12 @@ class Quote(commands.Cog):
                 if perms.manage_webhooks:
                     if isinstance(ctx.channel, discord.threads.Thread):
                         webhook = await ctx.channel.parent.create_webhook(name="Quoting")
-                        await webhook.send(content=reply.replace('@everyone', '@еveryone').replace('@here', '@hеre'), username=ctx.author.display_name, avatar_url=ctx.author.avatar.url, thread=ctx.channel)
+                        await webhook.send(content=reply.replace('@everyone', '@еveryone').replace('@here', '@hеre'), username=ctx.author.display_name, avatar_url=ctx.author.display_avatar.url, thread=ctx.channel)
                         await webhook.delete()
                     else:
                         webhook = await ctx.channel.create_webhook(name="Quoting")
                         await webhook.send(content=reply.replace('@everyone', '@еveryone').replace('@here', '@hеre'),
-                                           username=ctx.author.display_name, avatar_url=ctx.author.avatar.url)
+                                           username=ctx.author.display_name, avatar_url=ctx.author.display_avatar.url)
                         await webhook.delete()
                 else:
                     await ctx.send(content='**' + ctx.author.display_name + '\'s reply:**\n' + reply.replace('@everyone','@еveryone').replace('@here', '@hеre'))
@@ -122,7 +122,7 @@ def quote_embed(context_channel, message, user):
                     embed.add_field(name='Attachment', value='[' + attachment.filename + '](' + attachment.url + ')',
                                     inline=False)
 
-        embed.set_author(name=str(message.author), icon_url=message.author.avatar.url)
+        embed.set_author(name=str(message.author), icon_url=message.author.display_avatar.url)
 
     return embed
 
