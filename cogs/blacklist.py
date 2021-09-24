@@ -1,7 +1,10 @@
+import json
+
 import discord
 from discord.ext import commands
 
 from crawler_utilities.handlers import logger
+from crawler_utilities.utils.functions import try_delete
 from models.buttons.greylist import Greylist
 from utils import globals as GG
 
@@ -21,6 +24,166 @@ class Blacklist(commands.Cog):
     @commands.Cog.listener()
     async def on_message_edit(self, before, message):
         await self.checkForListedTerms(message)
+
+    @commands.command(hidden=True)
+    @commands.guild_only()
+    @commands.has_permissions(administrator=True)
+    async def refillLists(self, ctx):
+        GG.BLACKLIST = "["
+        TERMDB = await GG.MDB['blacklist'].find({}).to_list(length=None)
+        guildList = []
+        for x in TERMDB:
+            if x['guild'] not in guildList:
+                guildList.append(x['guild'])
+        for y in guildList:
+            guildTermList = []
+            for x in TERMDB:
+                if y == x['guild']:
+                    guildTermList.append(x['term'])
+            termList = ""
+            for x in guildTermList:
+                termList += f'"{x}",'
+            termList = termList[:-1]
+            guildTerms = '{"guild":' + str(y) + ',"terms":[' + termList + ']},'
+            GG.BLACKLIST += guildTerms
+        GG.BLACKLIST = GG.BLACKLIST[:-1]
+        GG.BLACKLIST += "]"
+        GG.BLACKLIST = json.loads(GG.BLACKLIST)
+        for x in GG.BLACKLIST:
+            GG.GUILDS.append(x['guild'])
+
+        GG.GREYLIST = "["
+        TERMDB = await GG.MDB['greylist'].find({}).to_list(length=None)
+        guildList = []
+        for x in TERMDB:
+            if x['guild'] not in guildList:
+                guildList.append(x['guild'])
+        for y in guildList:
+            guildTermList = []
+            for x in TERMDB:
+                if y == x['guild']:
+                    guildTermList.append(x['term'])
+            termList = ""
+            for x in guildTermList:
+                termList += f'"{x}",'
+            termList = termList[:-1]
+            guildTerms = '{"guild":' + str(y) + ',"terms":[' + termList + ']},'
+            GG.GREYLIST += guildTerms
+        GG.GREYLIST = GG.GREYLIST[:-1]
+        GG.GREYLIST += "]"
+        GG.GREYLIST = json.loads(GG.GREYLIST)
+        for x in GG.GREYLIST:
+            GG.GREYGUILDS.append(x['guild'])
+
+    @commands.command(aliases=['bl'])
+    @commands.guild_only()
+    @commands.has_permissions(administrator=True)
+    async def blacklist(self, ctx, *, args):
+        await GG.MDB['blacklist'].insert_one({"guild": ctx.guild.id, "term": args})
+        GG.BLACKLIST, GG.GUILDS = await GG.fillBlackList(GG.BLACKLIST, GG.GUILDS)
+        await ctx.send(f"{args} was added to the term blacklist.")
+
+    @commands.command(aliases=['greylist', 'graylist', 'grayblacklist', 'gbl', 'gl'])
+    @commands.guild_only()
+    @commands.has_permissions(administrator=True)
+    async def greyblacklist(self, ctx, *, args):
+        await GG.MDB['greylist'].insert_one({"guild": ctx.guild.id, "term": args})
+        GG.GREYLIST, GG.GREYGUILDS = await GG.fillGreyList(GG.GREYLIST, GG.GREYGUILDS)
+        await ctx.send(f"{args} was added to the term greylist.")
+
+    @commands.command(aliases=['wl'])
+    @commands.guild_only()
+    @commands.has_permissions(administrator=True)
+    async def whitelist(self, ctx, *, args):
+        await GG.MDB['blacklist'].delete_one({"guild": ctx.guild.id, "term": args})
+        GG.BLACKLIST, GG.GUILDS = await GG.fillBlackList(GG.BLACKLIST, GG.GUILDS)
+        await ctx.send(f"{args} was deleted from the term blacklist.")
+
+    @commands.command(aliases=['graywhitelist', 'gwl'])
+    @commands.guild_only()
+    @commands.has_permissions(administrator=True)
+    async def greywhitelist(self, ctx, *, args):
+        await GG.MDB['greylist'].delete_one({"guild": ctx.guild.id, "term": args})
+        GG.GREYLIST, GG.GREYGUILDS = await GG.fillGreyList(GG.GREYLIST, GG.GREYGUILDS)
+        await ctx.send(f"{args} was deleted from the term greylist.")
+
+    @commands.command()
+    @commands.guild_only()
+    async def blacklisted(self, ctx):
+        TERMS = await GG.MDB.blacklist.find({"guild": ctx.guild.id}).to_list(length=None)
+        if ctx.author.dm_channel is not None:
+            DM = ctx.author.dm_channel
+        else:
+            DM = await ctx.author.create_dm()
+        try:
+            em = discord.Embed()
+            string = ""
+            if TERMS is not None:
+                for x in TERMS:
+                    string += f"{x['term']}\n"
+            else:
+                string = "No blacklisted words on the server yet."
+            em.add_field(name="Blacklisted words", value=string)
+            await DM.send(embed=em)
+        except discord.Forbidden:
+            await ctx.send(
+                f"{ctx.author.mention} I tried DMing you, but you either blocked me, or you don't allow DM's")
+        await try_delete(ctx.message)
+
+    @commands.command(aliases=['graylisted'])
+    @commands.guild_only()
+    async def greylisted(self, ctx):
+        TERMS = await GG.MDB.greylist.find({"guild": ctx.guild.id}).to_list(length=None)
+        if ctx.author.dm_channel is not None:
+            DM = ctx.author.dm_channel
+        else:
+            DM = await ctx.author.create_dm()
+        try:
+            em = discord.Embed()
+            string = ""
+            if TERMS is not None:
+                for x in TERMS:
+                    string += f"{x['term']}\n"
+            else:
+                string = "No greylisted words on the server yet."
+            em.add_field(name="Greylisted words", value=string)
+            await DM.send(embed=em)
+        except discord.Forbidden:
+            await ctx.send(
+                f"{ctx.author.mention} I tried DMing you, but you either blocked me, or you don't allow DM's")
+        await try_delete(ctx.message)
+
+    @commands.Cog.listener()
+    async def on_interaction(self, res):
+        if res.guild.id in GG.GREYGUILDS or res.guild.id in GG.GUILDS:
+            if res.channel.id in GG.CHANNEL:
+                if res.component.label == "Reject":
+                    msg = res.message
+                    embed = msg.embeds[0]
+                    msgID = 0
+                    channelID = 0
+                    i = 0
+                    for field in embed.fields:
+                        if field.name == "MSGID":
+                            msgID = field.value
+                            embed.remove_field(i)
+                        i += 1
+                    i = 0
+                    for field in embed.fields:
+                        if field.name == "CHANNELID":
+                            channelID = field.value
+                            embed.remove_field(i)
+                        i += 1
+                    if channelID != 0 and msgID != 0:
+                        try:
+                            channel = await self.bot.fetch_channel(channelID)
+                            message = await channel.fetch_message(msgID)
+                            await message.delete()
+                            embed.set_footer(text=f"Message was removed by {res.user.display_name}.")
+                            await msg.edit(embed=embed, components=[])
+                        except:
+                            embed.set_footer(text="Couldn't find message, probably already deleted.")
+                            await msg.edit(embed=embed, components=[])
 
     async def checkForListedTerms(self, message):
         if message.author.id != 602774912595263490:  # if not bot
