@@ -27,7 +27,8 @@ async def getMemberEmbed(adminString, guild, noteString, user, warningString):
         em.add_field(name='Warnings', value=warningString, inline=False)
     if adminString != "":
         em.add_field(name='Administration', value=adminString, inline=False)
-    em.set_thumbnail(url=user.display_avatar.url)
+    if user.display_avatar.url is not None:
+        em.set_thumbnail(url=user.display_avatar.url)
     return em
 
 
