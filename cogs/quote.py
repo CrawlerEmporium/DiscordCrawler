@@ -39,31 +39,20 @@ class Quote(commands.Cog):
             try:
                 message = await ctx.channel.fetch_message(msgId)
             except:
-                for channel in ctx.guild.text_channels:
-                    perms = ctx.channel.permissions_for(ctx.guild.me)
+                channelList = ctx.guild.text_channels + ctx.guild.threads
+                for channel in channelList:
+                    perms = channel.permissions_for(ctx.guild.me)
                     if channel == ctx.channel or not perms.read_messages or not perms.read_message_history:
                         continue
 
                     try:
                         message = await channel.fetch_message(msgId)
-                    except:
+                    except :
                         continue
                     else:
                         break
 
-                for channel in ctx.guild.threads:
-                    perms = ctx.channel.permissions_for(ctx.guild.me)
-                    if channel == ctx.channel or not perms.read_messages or not perms.read_message_history:
-                        continue
-
-                    try:
-                        message = await channel.fetch_message(msgId)
-                    except:
-                        continue
-                    else:
-                        break
-
-        if message:
+        if message is not None:
             if not message.content and message.embeds and message.author.bot:
                 await ctx.send(
                     content='Raw embed from `' + str(message.author).strip('`') + '` in ' + message.channel.mention,
@@ -85,7 +74,7 @@ class Quote(commands.Cog):
                 else:
                     await ctx.send(content='**' + ctx.author.display_name + '\'s reply:**\n' + reply.replace('@everyone','@еveryone').replace('@here', '@hеre'))
         else:
-            await ctx.send(content=":x:" + ' **Could not find the specified message.**')
+            await ctx.send(content=":x:" + ' **Could not find the specified message.**', delete_after=5)
 
 
 def parse_time(timestamp):

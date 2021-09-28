@@ -42,21 +42,8 @@ class Nudge(commands.Cog):
                 msgs.append(msg)
                 await msg.delete()
             except:
-                for channel in ctx.guild.text_channels:
-                    perms = channel.permissions_for(ctx.guild.me)
-                    if channel == ctx.channel or not perms.read_messages or not perms.read_message_history:
-                        continue
-                    try:
-                        msg = await channel.fetch_message(message)
-                        if msg.author not in msgAuthors:
-                            msgAuthors.append(msg.author)
-                        msgs.append(msg)
-                        await msg.delete()
-                    except:
-                        continue
-                    else:
-                        break
-                for channel in ctx.guild.threads:
+                channelList = ctx.guild.text_channels + ctx.guild.threads
+                for channel in channelList:
                     perms = channel.permissions_for(ctx.guild.me)
                     if channel == ctx.channel or not perms.read_messages or not perms.read_message_history:
                         continue
