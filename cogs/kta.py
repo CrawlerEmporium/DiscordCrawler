@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timedelta
 
 from discord import Thread
@@ -5,6 +6,7 @@ from discord.ext import commands, tasks
 from crawler_utilities.handlers import logger
 
 import utils.globals as GG
+from crawler_utilities.utils.confirmation import BotConfirmation
 from crawler_utilities.utils.functions import try_delete
 
 log = logger.logger
@@ -46,28 +48,46 @@ class KeepThreadsActive(commands.Cog):
 
             thread = await GG.MDB['threads'].find_one({"threadId": ctx.channel.id})
             if thread is not None:
-                await GG.MDB['threads'].delete_one({"threadId": ctx.channel.id})
-                return await ctx.send(f"Thank you for using the K.T.A. (Keep Thread Active) feature.\nThis feature is now disabled for this thread ``{ctx.channel.name}``.", delete_after=5)
+                confirmation = BotConfirmation(ctx, 0x012345)
+                await confirmation.confirm(f"K.T.A. (Keep Thread Active) is currently enabled for this thread.\nWould you like to disable it?")
+                if confirmation.confirmed:
+                    await confirmation.update(f"Confirmed, disabling K.T.A. ...", color=0x55ff55)
+                    await GG.MDB['threads'].delete_one({"threadId": ctx.channel.id})
+                    await asyncio.sleep(5)
+                    await confirmation.quit()
+                    return await ctx.send(f"Thank you for using the K.T.A. (Keep Thread Active) feature.\nThis feature is now disabled for this thread ``{ctx.channel.name}``.", delete_after=5)
+                else:
+                    await confirmation.quit()
 
-            type = None
             if ctx.channel.auto_archive_duration == 60:
                 return await ctx.send("The K.T.A. (Keep Thread Active) feature can only be enabled in threads that have an auto archiving duration of 1 day or higher.", delete_after=5)
-            if ctx.channel.auto_archive_duration == 1440:
-                type = 2
-            if ctx.channel.auto_archive_duration == 4320:
-                type = 3
-            if ctx.channel.auto_archive_duration == 10080:
-                type = 4
 
-            thread = {
-                "threadId": ctx.channel.id,
-                "guildId": ctx.guild.id,
-                "type": type
-            }
-            await GG.MDB['threads'].insert_one(thread)
-            await ctx.send(f"Thank you for using the K.T.A. (Keep Threads Active) feature.\n"
-                           f"This thread ``{ctx.channel.name}`` will now be watched and prevented from being automatically archived.\n\n"
-                           f"You can disable this by running the same command again.")
+            confirmation = BotConfirmation(ctx, 0x012345)
+            await confirmation.confirm(f"K.T.A. (Keep Thread Active) is currently not enabled for this thread.\nWould you like to enable it?")
+            if confirmation.confirmed:
+                await confirmation.update(f"Confirmed, enabling K.T.A. ...", color=0x55ff55)
+                type = None
+                if ctx.channel.auto_archive_duration == 1440:
+                    type = 2
+                if ctx.channel.auto_archive_duration == 4320:
+                    type = 3
+                if ctx.channel.auto_archive_duration == 10080:
+                    type = 4
+
+                thread = {
+                    "threadId": ctx.channel.id,
+                    "guildId": ctx.guild.id,
+                    "type": type
+                }
+                await GG.MDB['threads'].insert_one(thread)
+                await asyncio.sleep(5)
+                await confirmation.quit()
+                await ctx.send(f"Thank you for using the K.T.A. (Keep Threads Active) feature.\n"
+                               f"This thread ``{ctx.channel.name}`` will now be watched and prevented from being automatically archived.\n\n"
+                               f"You can disable this by running the same command again.")
+            else:
+                await confirmation.quit()
+
         else:
             await ctx.send("This is not a thread, you can only enable the K.T.A. (Keep Threads Active) feature in threads.", delete_after=5)
 
