@@ -1,4 +1,7 @@
 import asyncio
+
+import discord
+
 import utils.globals as GG
 
 from discord.ext import commands
@@ -7,6 +10,13 @@ from crawler_utilities.utils.functions import try_delete
 from crawler_utilities.utils.confirmation import BotConfirmation
 
 log = logger.logger
+
+
+def pinned(message: discord.Message):
+    if message.pinned:
+        return False
+    else:
+        return True
 
 
 class Purge(commands.Cog):
@@ -33,7 +43,7 @@ class Purge(commands.Cog):
                         deleted = 0
                         while limit >= 1:
                             cap = min(limit, 100)
-                            deleted += len(await ctx.channel.purge(limit=cap, before=ctx.message))
+                            deleted += len(await ctx.channel.purge(check=pinned, limit=cap, before=ctx.message))
                             limit -= cap
                         await asyncio.sleep(8)
                         await confirmation.quit()
