@@ -14,6 +14,7 @@ import utils.globals as GG
 from discord.ext import commands
 from crawler_utilities.handlers import logger
 from crawler_utilities.utils.embeds import EmbedWithAuthor
+from crawler_utilities.utils.functions import fakeField, countChannels
 
 log = logger.logger
 
@@ -55,26 +56,29 @@ class Info(commands.Cog):
     @commands.guild_only()
     async def serverinfo(self, ctx):
         """Shows info about server"""
+        await ctx.guild.chunk()
         HUMANS = ctx.guild.members
         BOTS = []
         for h in HUMANS:
             if h.bot is True:
                 BOTS.append(h)
                 HUMANS.remove(h)
-
         embed = discord.Embed(color=discord.Color.green())
         embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon.url)
         embed.add_field(name="Name", value=ctx.guild.name)
-        embed.add_field(name="ID", value=ctx.guild.id)
-        embed.add_field(name="Owner", value=f"{ctx.guild.owner.name}#{ctx.guild.owner.discriminator}")
-        embed.add_field(name="Region", value=REGION[ctx.guild.region])
-        embed.add_field(name="Total | Humans | Bots", value=f"{len(ctx.guild.members)} | {len(HUMANS)} | {len(BOTS)}")
+        embed.add_field(name="Owner", value=ctx.guild.owner)
+        fakeField(embed)
         embed.add_field(name="Verification Level", value=VERIFLEVELS[ctx.guild.verification_level])
-        text, voice = GG.countChannels(ctx.guild.channels)
+        embed.add_field(name="Total | Humans | Bots", value=f"{len(ctx.guild.members)} | {len(HUMANS)} | {len(BOTS)}")
+        text, voice = countChannels(ctx.guild.channels)
+        fakeField(embed)
         embed.add_field(name="Text Channels", value=str(text))
         embed.add_field(name="Voice Channels", value=str(voice))
-        embed.add_field(name="Creation Date", value=f"{ctx.guild.created_at}\n{checkDays(ctx.guild.created_at)}")
+        fakeField(embed)
+        time = str(ctx.guild.created_at.timestamp()).split(".")
+        embed.add_field(name="Creation Date", value=f"{ctx.guild.created_at}\n<t:{time[0]}:R>", inline=False)
         embed.set_thumbnail(url=ctx.guild.icon.url)
+        embed.set_footer(text=f"Guild ID: {ctx.guild.id}")
         await ctx.send(embed=embed)
 
     @commands.command(aliases=['stats', 'info'])
