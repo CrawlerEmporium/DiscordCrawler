@@ -49,7 +49,7 @@ async def getCaseEmbed(ctx, case: Case):
 
     elif case.caseType == CaseType.MUTE:
         embed.colour = Colour.dark_gray()
-        embed.title = f"Mute"
+        embed.title = f"Time-out"
 
     elif case.caseType == CaseType.TEMPBAN:
         embed.colour = Colour.dark_orange()
@@ -80,8 +80,8 @@ async def getCaseTargetEmbed(ctx, case: Case):
 
     elif case.caseType == CaseType.MUTE:
         embed.colour = Colour.dark_gray()
-        embed.title = f"{pretitle} Muted on"
-        embed.description += "You have been muted. This means you can still read chat, but not participate with it. The next time you break a rule will get you muted for even longer, temp-banned or even flat-out banned."
+        embed.title = f"{pretitle} Timed-out on"
+        embed.description += "You have been Timed-out. This means you can still read chat, but not participate with it. The next time you break a rule will get you Timed-out for even longer, temp-banned or even flat-out banned."
 
     elif case.caseType == CaseType.TEMPBAN:
         embed.colour = Colour.dark_orange()
@@ -113,8 +113,8 @@ async def getModDecisionEmbed(ctx, case: Case):
 
     elif case.caseType == CaseType.MUTE:
         embed.colour = Colour.dark_gray()
-        embed.title = f"{pretitle} Muted on"
-        embed.description = "People who are muted are multiple rule breakers (either multiple rules at once, or the same rule more than once).\nThey will still be able to read chat, but can't interact with it."
+        embed.title = f"{pretitle} Timed-out on"
+        embed.description = "People who are Timed-out are rowdy and/or multiple rule breakers (either multiple rules at once, or the same rule more than once).\nThey will still be able to read chat, but can't interact with it."
 
     elif case.caseType == CaseType.TEMPBAN:
         embed.colour = Colour.dark_orange()

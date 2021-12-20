@@ -25,7 +25,7 @@ class KeepThreadsActive(commands.Cog):
 
     async def checkLastMessage(self, thread):
         guild = await self.bot.fetch_guild(int(thread['guildId']))
-        channel = await guild.fetch_channel(int(thread['channelId']))
+        channel = await guild.fetch_channel(int(thread['threadId']))
         time = datetime.utcnow()
         if int(thread['type']) == 2:  # 1 day
             time -= timedelta(hours=23)

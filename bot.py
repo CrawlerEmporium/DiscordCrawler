@@ -6,13 +6,13 @@ import discord
 import utils.globals as GG
 from discord.ext import commands
 
+from cogsAdmin.whois import getCaseStrings, getMemberEmbed
 from crawler_utilities.handlers import Help, logger
 from models.buttons.greylist import Greylist
-from tempFiles.whois import getCaseStrings, getMemberEmbed
 
 log = logger.logger
 
-version = "v2.4.1"
+version = "v2.5.0"
 SHARD_COUNT = 1
 TESTING = False
 defaultPrefix = GG.PREFIX if not TESTING else '*'
@@ -37,8 +37,8 @@ async def get_prefix(bot, message):
 
 
 class Crawler(commands.AutoShardedBot):
-    def __init__(self, prefix, help_command=None, description=None, **options):
-        super(Crawler, self).__init__(prefix, help_command, description, **options)
+    def __init__(self, prefix, help_command=None, **options):
+        super(Crawler, self).__init__(prefix, help_command, **options)
         self.version = version
         self.owner = None
         self.testing = TESTING
@@ -70,7 +70,7 @@ class Crawler(commands.AutoShardedBot):
 
 
 bot = Crawler(prefix=get_prefix, intents=intents, case_insensitive=True, status=discord.Status.idle,
-              description="A bot.", shard_count=SHARD_COUNT, testing=TESTING,
+              shard_count=SHARD_COUNT, testing=TESTING,
               activity=discord.Game(f"$help | Initializing..."),
               help_command=Help("discord"))
 
