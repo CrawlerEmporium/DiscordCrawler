@@ -118,8 +118,7 @@ class Points(commands.Cog):
         else:
             points += amount
         await GG.MDB.points.update_one({"user": member.id, "server": ctx.guild.id}, {"$set": {"points": points}}, upsert=True)
-        await ctx.send(f"You have given {member.mention} `{amount}` points.\n"
-                       f"Bringing their total to `{points}`")
+        await ctx.send(f"{member.mention} has been given `{amount}` points.\nBringing their total to `{points}`", delete_after=5)
 
     @points.command(name='give', hidden=True)
     @commands.guild_only()
@@ -154,19 +153,19 @@ class Points(commands.Cog):
                 pointsGiver = (pointGiver['points'] - amount)
                 if (pointGiver['points'] - amount) < 0:
                     await ctx.send(f"{pointGiverUser.mention} you don't have enough points to give `{amount}` points.\n"
-                                   f"Your total is `{pointsGiver}`.")
+                                   f"Your total is `{pointsGiver}`.", delete_after=5)
                 else:
                     await GG.MDB.points.update_one({"user": member.id, "server": ctx.guild.id}, {"$set": {"points": points}}, upsert=True)
                     await GG.MDB.points.update_one({"user": ctx.message.author.id, "server": ctx.guild.id}, {"$set": {"points": pointsGiver}}, upsert=True)
 
                     await ctx.send(f"{pointGiverUser.mention} you have given {member.mention} `{amount}` points.\n"
-                                   f"Bringing their total to `{points}`, and your total is now `{pointsGiver}`")
+                                   f"Bringing their total to `{points}`, and your total is now `{pointsGiver}`", delete_after=5)
             else:
                 await ctx.send(f"{pointGiverUser.mention} you don't have enough points to give `{amount}` points.\n"
-                               f"You have `0` points.")
+                               f"You have `0` points.", delete_after=5)
         else:
             await ctx.send(f"{pointGiverUser.mention} you don't have enough points to give `{amount}` points.\n"
-                           f"You have `0` points.")
+                           f"You have `0` points.", delete_after=5)
 
     @points.command(name='role', hidden=True)
     @GG.is_staff()
@@ -187,7 +186,7 @@ class Points(commands.Cog):
             points += amount
         await GG.MDB.points.update_one({"role": role.id, "server": ctx.guild.id}, {"$set": {"points": points}}, upsert=True)
         await ctx.send(f"You have given {role.mention} `{amount}` points.\n"
-                       f"Bringing their total to `{points}`")
+                       f"Bringing their total to `{points}`", delete_after=5)
 
 
 def setup(bot):
