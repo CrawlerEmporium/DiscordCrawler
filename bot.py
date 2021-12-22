@@ -6,7 +6,6 @@ import discord
 import utils.globals as GG
 from discord.ext import commands
 
-from cogsAdmin.whois import getCaseStrings, getMemberEmbed
 from crawler_utilities.handlers import Help, logger
 from models.buttons.greylist import Greylist
 
@@ -203,29 +202,6 @@ def loadCrawlerUtilitiesCogs():
 
 def loadButtons(bot):
     bot.add_view(Greylist(bot))
-
-
-# temp storage for user commands until they are supported in cogs
-@bot.user_command(name="Staff: User Check")
-async def user_whois(ctx, member: discord.Member):
-    if not GG.is_staff_bool(ctx):
-        return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
-
-    guild = ctx.guild
-    cases = await GG.MDB.members.find_one({"server": guild.id, "user": member.id})
-
-    notes = []
-    warnings = []
-    mutes = []
-    tempbans = []
-    bans = []
-
-    adminString, noteString, warningString = await getCaseStrings(bans, cases, mutes, notes, tempbans, warnings)
-
-    em = await getMemberEmbed(adminString, guild, noteString, member, warningString)
-
-    return await ctx.respond(embed=em, ephemeral=True)
-
 
 if __name__ == "__main__":
     bot.state = "run"

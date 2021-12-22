@@ -57,6 +57,26 @@ class Whois(commands.Cog):
                     em.add_field(name='Administration', value=adminString, inline=False)
                 await ctx.send(content="Member no is longer on this server, but has prior notes attached to it.", embed=em)
 
+    @commands.user_command(name="Staff: User Check")
+    async def user_whois(self, ctx, member: discord.Member):
+        if not GG.is_staff_bool(ctx):
+            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
+
+        guild = ctx.guild
+        cases = await GG.MDB.members.find_one({"server": guild.id, "user": member.id})
+
+        notes = []
+        warnings = []
+        mutes = []
+        tempbans = []
+        bans = []
+
+        adminString, noteString, warningString = await getCaseStrings(bans, cases, mutes, notes, tempbans, warnings)
+
+        em = await getMemberEmbed(adminString, guild, noteString, member, warningString)
+
+        return await ctx.respond(embed=em, ephemeral=True)
+
 
 async def getMemberEmbed(adminString, guild, noteString, user, warningString):
     await guild.chunk()

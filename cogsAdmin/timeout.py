@@ -6,7 +6,6 @@ import discord
 import utils.globals as GG
 
 from discord.ext import commands
-from discord.colour import Colour
 
 from cogsAdmin.models.case import Case, getCaseEmbed, getCaseTargetEmbed, getModDecisionEmbed
 from cogsAdmin.models.caseStatus import CaseStatus
@@ -16,6 +15,7 @@ from crawler_utilities.handlers import logger
 from crawler_utilities.utils.functions import get_next_num
 
 log = logger.logger
+
 
 class TimeOut(discord.ui.Select):
     def __init__(self, cmember, cmessage, cauthor, caseId, memberDB, bot, ctx):
@@ -112,10 +112,10 @@ class TimeOutView(discord.ui.View):
 
         self.add_item(TimeOut(member, message, author, caseId, memberDB, bot, ctx))
 
+
 class Mute(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
 
     @commands.command()
     @commands.guild_only()
