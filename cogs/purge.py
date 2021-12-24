@@ -46,7 +46,7 @@ class Purge(commands.Cog):
                 limit -= cap
             await asyncio.sleep(8)
             await confirmation.quit()
-            await ctx.respond(f"Succesfully purged {limit} messages", ephemeral=True)
+            await ctx.respond(f"Succesfully purged {deleted} messages", ephemeral=True)
         else:
             await confirmation.quit()
             await ctx.respond("Purge canceled", ephemeral=True  )
