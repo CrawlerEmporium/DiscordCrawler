@@ -40,14 +40,14 @@ class Purge(commands.Cog):
             deleted = 0
             while limit >= 1:
                 cap = min(limit, 100)
-                deleted += len(await ctx.channel.purge(check=pinned, limit=cap, before=ctx.message))
+                deleted += len(await channel.purge(check=pinned, limit=cap, before=ctx.message))
                 limit -= cap
             await asyncio.sleep(8)
-            await ctx.defer()
             await confirmation.quit()
+            await ctx.respond(f"Succesfully purged {limit} messages")
         else:
-            await ctx.defer()
             await confirmation.quit()
+            await ctx.respond("Purge canceled")
 
 
 def setup(bot):
