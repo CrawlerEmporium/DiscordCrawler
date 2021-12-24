@@ -30,7 +30,7 @@ class Purge(commands.Cog):
         """Purges messages from a channel, skips pinned messages"""
         confirmation = BotConfirmation(ctx, 0x012345)
         channel = await self.bot.fetch_channel(ctx.interaction.channel_id)
-        message = await channel.history(limit=1).flatten()[0]
+        messages = await channel.history(limit=1).flatten()
         await confirmation.confirm(f"Are you sure you want to remove {limit} messages?", channel=channel)
         if confirmation.confirmed:
             await confirmation.update(f"Confirmed, **:put_litter_in_its_place:** deleting {limit} messages...", color=0x55ff55)
@@ -41,7 +41,7 @@ class Purge(commands.Cog):
             deleted = 0
             while limit >= 1:
                 cap = min(limit, 100)
-                deleted += len(await channel.purge(check=pinned, limit=cap, before=message))
+                deleted += len(await channel.purge(check=pinned, limit=cap, before=messages[0]))
                 limit -= cap
             await asyncio.sleep(8)
             await confirmation.quit()
