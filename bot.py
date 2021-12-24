@@ -1,3 +1,4 @@
+import asyncio
 from os import listdir
 from os.path import isfile, join
 
@@ -11,7 +12,7 @@ from models.buttons.greylist import Greylist
 
 log = logger.logger
 
-version = "v2.5.0"
+version = "v2.5.1"
 SHARD_COUNT = 1
 TESTING = False
 defaultPrefix = GG.PREFIX if not TESTING else '*'
@@ -153,18 +154,19 @@ def loadCogs():
         try:
             bot.load_extension(GG.COGSADMIN + "." + extension)
         except Exception as e:
-            print(e)
             log.error(f'Failed to load extension {extension}')
             i += 1
     log.info("-------------------")
-    log.info("Loading Event Cogs...")
-    for extension in [f.replace('.py', '') for f in listdir(GG.COGSEVENTS) if isfile(join(GG.COGSEVENTS, f))]:
+
+    log.info("Loading ToBeDetermined Cogs...")
+    for extension in [f.replace('.py', '') for f in listdir("cogsToBeDetermined") if isfile(join("cogsToBeDetermined", f))]:
         try:
-            bot.load_extension(GG.COGSEVENTS + "." + extension)
+            bot.load_extension("cogsToBeDetermined" + "." + extension)
         except Exception as e:
             log.error(f'Failed to load extension {extension}')
             i += 1
     log.info("-------------------")
+
     if i == 0:
         log.info("Finished Loading All Cogs...")
     else:
@@ -202,6 +204,7 @@ def loadCrawlerUtilitiesCogs():
 
 def loadButtons(bot):
     bot.add_view(Greylist(bot))
+
 
 if __name__ == "__main__":
     bot.state = "run"

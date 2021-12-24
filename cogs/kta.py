@@ -1,7 +1,8 @@
 import asyncio
 from datetime import datetime, timedelta
 
-from discord import Thread
+import discord
+from discord import Thread, slash_command, permissions, Option
 from discord.ext import commands, tasks
 from crawler_utilities.handlers import logger
 
@@ -39,31 +40,30 @@ class KeepThreadsActive(commands.Cog):
                                "But a member of staff enabled the K.T.A. (Keep Threads Active) feature for this thread.\n\n"
                                "A member of staff can disable this by re-running the ``kta`` command.")
 
-    @commands.command()
-    @commands.guild_only()
-    @GG.is_staff()
-    async def kta(self, ctx):
-        await try_delete(ctx.message)
-        if isinstance(ctx.channel, Thread):
-
-            thread = await GG.MDB['threads'].find_one({"threadId": ctx.channel.id})
+    @slash_command(name="keepthreadalive")
+    @permissions.has_role("Bot Manager")
+    async def kta(self, ctx, channel: Option(discord.TextChannel, "Which thread do you want to keep alive?")):
+        """Adds a watcher on a thread, so that it won't automatically archive after its time"""
+        if isinstance(channel, Thread):
+            thread = await GG.MDB['threads'].find_one({"threadId": channel.id})
             if thread is not None:
                 confirmation = BotConfirmation(ctx, 0x012345)
-                await confirmation.confirm(f"K.T.A. (Keep Thread Active) is currently enabled for this thread.\nWould you like to disable it?")
+                await confirmation.confirm(f"K.T.A. (Keep Thread Active) is currently enabled for this thread.\nWould you like to disable it?", channel=channel)
                 if confirmation.confirmed:
                     await confirmation.update(f"Confirmed, disabling K.T.A. ...", color=0x55ff55)
-                    await GG.MDB['threads'].delete_one({"threadId": ctx.channel.id})
+                    await GG.MDB['threads'].delete_one({"threadId": channel.id})
                     await asyncio.sleep(5)
                     await confirmation.quit()
-                    return await ctx.send(f"Thank you for using the K.T.A. (Keep Thread Active) feature.\nThis feature is now disabled for this thread ``{ctx.channel.name}``.", delete_after=5)
+                    return await ctx.respond(f"Thank you for using the K.T.A. (Keep Thread Active) feature.\nThis feature is now disabled for this thread ``{ctx.channel.name}``.", delete_after=5)
                 else:
+                    await ctx.defer()
                     await confirmation.quit()
 
             if ctx.channel.auto_archive_duration == 60:
-                return await ctx.send("The K.T.A. (Keep Thread Active) feature can only be enabled in threads that have an auto archiving duration of 1 day or higher.", delete_after=5)
+                return await ctx.respond("The K.T.A. (Keep Thread Active) feature can only be enabled in threads that have an auto archiving duration of 1 day or higher.", delete_after=5)
 
             confirmation = BotConfirmation(ctx, 0x012345)
-            await confirmation.confirm(f"K.T.A. (Keep Thread Active) is currently not enabled for this thread.\nWould you like to enable it?")
+            await confirmation.confirm(f"K.T.A. (Keep Thread Active) is currently not enabled for this thread.\nWould you like to enable it?", channel=channel)
             if confirmation.confirmed:
                 await confirmation.update(f"Confirmed, enabling K.T.A. ...", color=0x55ff55)
                 type = None
@@ -82,14 +82,15 @@ class KeepThreadsActive(commands.Cog):
                 await GG.MDB['threads'].insert_one(thread)
                 await asyncio.sleep(5)
                 await confirmation.quit()
-                await ctx.send(f"Thank you for using the K.T.A. (Keep Threads Active) feature.\n"
-                               f"This thread ``{ctx.channel.name}`` will now be watched and prevented from being automatically archived.\n\n"
-                               f"You can disable this by running the same command again.")
+                await ctx.defer()
+                await channel.send(f"Thank you for using the K.T.A. (Keep Threads Active) feature.\n"
+                                   f"This thread ``{ctx.channel.name}`` will now be watched and prevented from being automatically archived.\n\n"
+                                   f"You can disable this by running the same command again.")
             else:
+                await ctx.defer()
                 await confirmation.quit()
-
         else:
-            await ctx.send("This is not a thread, you can only enable the K.T.A. (Keep Threads Active) feature in threads.", delete_after=5)
+            await ctx.respond("This is not a thread, you can only enable the K.T.A. (Keep Threads Active) feature in threads.", ephemeral=True)
 
 
 def setup(bot):

@@ -86,7 +86,7 @@ class Poll(commands.Cog):
                 except KeyError:
                     return "Please make sure you are using the format '!poll {title} [Option1] [Option2] [etc.]'"
         else:
-            ctx.send("I don't have the add_reactions permission, while it is optional, I need it for this command.")
+            await ctx.send("I don't have the add_reactions permission, while it is optional, I need it for this command.")
 
 
 def setup(bot):

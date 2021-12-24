@@ -1,6 +1,7 @@
 import json
 
 import discord
+from discord import slash_command, permissions, Option
 from discord.ext import commands
 
 from crawler_utilities.handlers import logger
@@ -11,7 +12,6 @@ from utils import globals as GG
 log = logger.logger
 
 CHECKS = [' ', ',', '.', '!', '?', None, '"', '\'', '(', ')', '{', '}', '[', ']', '_', '-', ':', '|', '*', '~', '\n']
-
 
 class Blacklist(commands.Cog):
     def __init__(self, bot):
@@ -25,10 +25,10 @@ class Blacklist(commands.Cog):
     async def on_message_edit(self, before, message):
         await self.checkForListedTerms(message)
 
-    @commands.command(hidden=True)
-    @commands.guild_only()
-    @commands.has_permissions(administrator=True)
+    @slash_command(name="reloadblackllist")
+    @permissions.is_owner()
     async def refillLists(self, ctx):
+        """Reloads all blacklists and greylists"""
         GG.BLACKLIST = "["
         TERMDB = await GG.MDB['blacklist'].find({}).to_list(length=None)
         guildList = []
@@ -74,42 +74,37 @@ class Blacklist(commands.Cog):
         GG.GREYLIST = json.loads(GG.GREYLIST)
         for x in GG.GREYLIST:
             GG.GREYGUILDS.append(x['guild'])
+        await ctx.respond("Blacklist and greylists reloaded", ephemeral=True)
 
-    @commands.command(aliases=['bl'])
-    @commands.guild_only()
-    @commands.has_permissions(administrator=True)
-    async def blacklist(self, ctx, *, args):
-        await GG.MDB['blacklist'].insert_one({"guild": ctx.guild.id, "term": args})
+    @slash_command(name="blacklist")
+    @permissions.has_role("Bot Manager")
+    async def blacklist(self, ctx, term: Option(str, "What word do you want to blacklist?")):
+        """Adds a word to the blacklist"""
+        await GG.MDB['blacklist'].insert_one({"guild": ctx.guild.id, "term": term})
         GG.BLACKLIST, GG.GUILDS = await GG.fillBlackList(GG.BLACKLIST, GG.GUILDS)
-        await ctx.send(f"{args} was added to the term blacklist.")
+        await ctx.respond(f"{term} was added to the blacklist.", ephemeral=True)
 
-    @commands.command(aliases=['greylist', 'graylist', 'grayblacklist', 'gbl', 'gl'])
-    @commands.guild_only()
-    @commands.has_permissions(administrator=True)
-    async def greyblacklist(self, ctx, *, args):
-        await GG.MDB['greylist'].insert_one({"guild": ctx.guild.id, "term": args})
+    @slash_command(name="greylist")
+    @permissions.has_role("Bot Manager")
+    async def greyblacklist(self, ctx, term: Option(str, "What word do you want to greylist?")):
+        """Adds a word to the greylist"""
+        await GG.MDB['greylist'].insert_one({"guild": ctx.guild.id, "term": term})
         GG.GREYLIST, GG.GREYGUILDS = await GG.fillGreyList(GG.GREYLIST, GG.GREYGUILDS)
-        await ctx.send(f"{args} was added to the term greylist.")
+        await ctx.respond(f"{term} was added to the greylist.", ephemeral=True)
 
-    @commands.command(aliases=['wl'])
-    @commands.guild_only()
-    @commands.has_permissions(administrator=True)
-    async def whitelist(self, ctx, *, args):
-        await GG.MDB['blacklist'].delete_one({"guild": ctx.guild.id, "term": args})
+    @slash_command(name="whitelist")
+    @permissions.has_role("Bot Manager")
+    async def whitelist(self, ctx, term: Option(str, "What word do you want to remove from the blacklist and greylist?")):
+        """Removes a word from the blacklist and/or greylist"""
+        await GG.MDB['blacklist'].delete_one({"guild": ctx.guild.id, "term": term})
         GG.BLACKLIST, GG.GUILDS = await GG.fillBlackList(GG.BLACKLIST, GG.GUILDS)
-        await ctx.send(f"{args} was deleted from the term blacklist.")
-
-    @commands.command(aliases=['graywhitelist', 'gwl'])
-    @commands.guild_only()
-    @commands.has_permissions(administrator=True)
-    async def greywhitelist(self, ctx, *, args):
-        await GG.MDB['greylist'].delete_one({"guild": ctx.guild.id, "term": args})
+        await GG.MDB['greylist'].delete_one({"guild": ctx.guild.id, "term": term})
         GG.GREYLIST, GG.GREYGUILDS = await GG.fillGreyList(GG.GREYLIST, GG.GREYGUILDS)
-        await ctx.send(f"{args} was deleted from the term greylist.")
+        await ctx.respond(f"{term} was removed from the blacklist and greylist.", ephemeral=True)
 
-    @commands.command()
-    @commands.guild_only()
+    @slash_command(name="blacklisted")
     async def blacklisted(self, ctx):
+        """Returns a list of all blacklisted words in this server"""
         TERMS = await GG.MDB.blacklist.find({"guild": ctx.guild.id}).to_list(length=None)
         if ctx.author.dm_channel is not None:
             DM = ctx.author.dm_channel
@@ -122,17 +117,15 @@ class Blacklist(commands.Cog):
                 for x in TERMS:
                     string += f"{x['term']}\n"
             else:
-                string = "No blacklisted words on the server yet."
+                string = f"No blacklisted words on the ``{ctx.guild}`` server yet."
             em.add_field(name="Blacklisted words", value=string)
             await DM.send(embed=em)
         except discord.Forbidden:
-            await ctx.send(
-                f"{ctx.author.mention} I tried DMing you, but you either blocked me, or you don't allow DM's")
-        await try_delete(ctx.message)
+            await ctx.respond(f"{ctx.author.mention} I tried DMing you, but you either blocked me, or you don't allow DM's", ephemeral=True)
 
-    @commands.command(aliases=['graylisted'])
-    @commands.guild_only()
+    @slash_command(name="greylisted")
     async def greylisted(self, ctx):
+        """Returns a list of all greylisted words in this server"""
         TERMS = await GG.MDB.greylist.find({"guild": ctx.guild.id}).to_list(length=None)
         if ctx.author.dm_channel is not None:
             DM = ctx.author.dm_channel
@@ -145,13 +138,11 @@ class Blacklist(commands.Cog):
                 for x in TERMS:
                     string += f"{x['term']}\n"
             else:
-                string = "No greylisted words on the server yet."
+                string = f"No greylisted words on the ``{ctx.guild}`` server yet."
             em.add_field(name="Greylisted words", value=string)
             await DM.send(embed=em)
         except discord.Forbidden:
-            await ctx.send(
-                f"{ctx.author.mention} I tried DMing you, but you either blocked me, or you don't allow DM's")
-        await try_delete(ctx.message)
+            await ctx.respond(f"{ctx.author.mention} I tried DMing you, but you either blocked me, or you don't allow DM's", ephemeral=True)
 
     @commands.Cog.listener()
     async def on_interaction(self, res):
@@ -223,7 +214,6 @@ class Blacklist(commands.Cog):
                             except discord.Forbidden:
                                 await delivery_channel.send(f"I also tried DMing the person this, but he either has me blocked, or doesn't allow DM's")
                             break
-
 
     async def createEmbed(self, message, type, term):
         embed = discord.Embed(title=f"{type.title()} word detected!",

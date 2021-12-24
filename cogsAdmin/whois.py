@@ -3,6 +3,8 @@ from datetime import datetime
 import discord
 import typing
 
+from discord.commands import permissions
+
 import utils.globals as GG
 from discord.ext import commands
 from cogsAdmin.models.caseType import CaseType
@@ -58,7 +60,7 @@ class Whois(commands.Cog):
                 await ctx.send(content="Member no is longer on this server, but has prior notes attached to it.", embed=em)
 
     @commands.user_command(name="Staff: User Check")
-    async def user_whois(self, ctx, member: discord.Member):
+    async def user_whois_test(self, ctx, member: discord.Member):
         if not GG.is_staff_bool(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
 

@@ -1,6 +1,7 @@
 import asyncio
 
 import discord
+from discord import slash_command, permissions, Option
 
 import utils.globals as GG
 
@@ -23,42 +24,30 @@ class Purge(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['prune'])
-    @GG.is_staff()
-    @commands.guild_only()
-    @commands.bot_has_permissions(manage_messages=True)
-    async def purge(self, ctx, limit):
-        if GG.checkPermission(ctx, "mm"):
+    @slash_command(name="purge")
+    @permissions.has_role("Bot Manager")
+    async def purge(self, ctx, limit: Option(int, "How many messages do you want to delete?")):
+        """Purges messages from a channel, skips pinned messages"""
+        confirmation = BotConfirmation(ctx, 0x012345)
+        channel = await self.bot.fetch_channel(ctx.interaction.channel_id)
+        await confirmation.confirm(f"Are you sure you want to remove {limit} messages?", channel=channel)
+        if confirmation.confirmed:
+            await confirmation.update(f"Confirmed, **:put_litter_in_its_place:** deleting {limit} messages...", color=0x55ff55)
             try:
-                if isinstance(int(limit), int):
-                    await try_delete(ctx.message)
-                    confirmation = BotConfirmation(ctx, 0x012345)
-                    await confirmation.confirm(f"Are you sure you want to remove {limit} messages?")
-                    if confirmation.confirmed:
-                        await confirmation.update(f"Confirmed, **:put_litter_in_its_place:** deleting {limit} messages...", color=0x55ff55)
-                        try:
-                            limit = int(limit)
-                        except IndexError:
-                            limit = 1
-                        deleted = 0
-                        while limit >= 1:
-                            cap = min(limit, 100)
-                            deleted += len(await ctx.channel.purge(check=pinned, limit=cap, before=ctx.message))
-                            limit -= cap
-                        await asyncio.sleep(8)
-                        await confirmation.quit()
-                    else:
-                        await confirmation.quit()
-                else:
-                    msg = await ctx.send("I need a number for how many messages I need to purge...")
-                    await asyncio.sleep(4)
-                    await msg.delete()
-            except ValueError:
-                msg = await ctx.send("I need a number for how many messages I need to purge...")
-                await asyncio.sleep(4)
-                await msg.delete()
+                limit = int(limit)
+            except IndexError:
+                limit = 1
+            deleted = 0
+            while limit >= 1:
+                cap = min(limit, 100)
+                deleted += len(await ctx.channel.purge(check=pinned, limit=cap, before=ctx.message))
+                limit -= cap
+            await asyncio.sleep(8)
+            await ctx.defer()
+            await confirmation.quit()
         else:
-            await ctx.send("I don't have the Manage_Messages permission. It's a mandatory permission, I have noted my owner about this. Please give me this permission, I will end up leaving the server if it happens again.")
+            await ctx.defer()
+            await confirmation.quit()
 
 
 def setup(bot):
