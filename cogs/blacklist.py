@@ -77,25 +77,28 @@ class Blacklist(commands.Cog):
         await ctx.respond("Blacklist and greylists reloaded", ephemeral=True)
 
     @slash_command(name="blacklist")
-    @permissions.has_role("Bot Manager")
     async def blacklist(self, ctx, term: Option(str, "What word do you want to blacklist?")):
-        """Adds a word to the blacklist"""
+        """[STAFF] Adds a word to the blacklist"""
+        if not GG.is_staff_bool(ctx):
+            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await GG.MDB['blacklist'].insert_one({"guild": ctx.guild.id, "term": term})
         GG.BLACKLIST, GG.GUILDS = await GG.fillBlackList(GG.BLACKLIST, GG.GUILDS)
         await ctx.respond(f"{term} was added to the blacklist.", ephemeral=True)
 
     @slash_command(name="greylist")
-    @permissions.has_role("Bot Manager")
     async def greyblacklist(self, ctx, term: Option(str, "What word do you want to greylist?")):
-        """Adds a word to the greylist"""
+        """[STAFF] Adds a word to the greylist"""
+        if not GG.is_staff_bool(ctx):
+            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await GG.MDB['greylist'].insert_one({"guild": ctx.guild.id, "term": term})
         GG.GREYLIST, GG.GREYGUILDS = await GG.fillGreyList(GG.GREYLIST, GG.GREYGUILDS)
         await ctx.respond(f"{term} was added to the greylist.", ephemeral=True)
 
     @slash_command(name="whitelist")
-    @permissions.has_role("Bot Manager")
     async def whitelist(self, ctx, term: Option(str, "What word do you want to remove from the blacklist and greylist?")):
-        """Removes a word from the blacklist and/or greylist"""
+        """[STAFF] Removes a word from the blacklist and/or greylist"""
+        if not GG.is_staff_bool(ctx):
+            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await GG.MDB['blacklist'].delete_one({"guild": ctx.guild.id, "term": term})
         GG.BLACKLIST, GG.GUILDS = await GG.fillBlackList(GG.BLACKLIST, GG.GUILDS)
         await GG.MDB['greylist'].delete_one({"guild": ctx.guild.id, "term": term})

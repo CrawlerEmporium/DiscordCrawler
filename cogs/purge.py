@@ -25,9 +25,11 @@ class Purge(commands.Cog):
         self.bot = bot
 
     @slash_command(name="purge")
-    @permissions.has_role("Bot Manager")
     async def purge(self, ctx, limit: Option(int, "How many messages do you want to delete?")):
-        """Purges messages from a channel, skips pinned messages"""
+        """[STAFF] Purges messages from a channel, skips pinned messages"""
+        if not GG.is_staff_bool(ctx):
+            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
+
         await ctx.defer(ephemeral=True)
         confirmation = BotConfirmation(ctx, 0x012345)
         channel = await self.bot.fetch_channel(ctx.interaction.channel_id)

@@ -95,7 +95,7 @@ async def on_thread_join(thread):
 
 @bot.event
 async def on_connect():
-    await discord.ApplicationCommandMixin.register_commands(bot)
+    await discord.ApplicationCommandMixin.register_commands(bot, False)
     await fillGlobals()
     bot.owner = await bot.fetch_user(GG.OWNER)
     print(f"OWNER: {bot.owner.name}")
