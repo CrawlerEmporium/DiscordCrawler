@@ -41,7 +41,7 @@ class KeepThreadsActive(commands.Cog):
                                "But a member of staff enabled the K.T.A. (Keep Threads Active) feature for this thread.\n\n"
                                "A member of staff can disable this by re-running the ``kta`` command.")
 
-    @slash_command(name="keepthreadalive", guild_ids=[584842413135101990])
+    @slash_command(name="keepthreadalive")
     async def kta(self, ctx, channel: Option(SlashCommandOptionType.channel, "Which thread do you want to keep alive?")):
         """[STAFF] Adds a watcher on a thread, so that it won't automatically archive after its time"""
         if not GG.is_staff_bool(ctx):
