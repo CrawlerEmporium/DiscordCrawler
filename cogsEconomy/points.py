@@ -43,9 +43,22 @@ class Points(commands.Cog):
         await try_delete(ctx.message)
         if member is None:
             member = await ctx.guild.fetch_member(ctx.message.author.id)
+
+
         point = await GG.MDB.points.find_one({"user": member.id, "server": ctx.guild.id})
         embed = EmbedWithAuthor(ctx)
-        embed.title = "Points"
+
+        if ctx.author.id == member.id:
+            embed.title = "Your Points"
+        else:
+            if member.nick is None:
+                if member.name is None:
+                    embed.title = f"Points for {member}"
+                else:
+                    embed.title = f"Points for {member.name}"
+            else:
+                embed.title = f"Points for {member.nick}"
+        embed.set_footer(text=f"ID: {member.id}")
         if point is not None:
             embed.description = str(point['points'])
         else:
