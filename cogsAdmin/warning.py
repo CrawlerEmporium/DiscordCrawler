@@ -2,6 +2,8 @@ import typing
 from datetime import datetime
 
 import discord
+from discord import slash_command, Option
+from discord.enums import SlashCommandOptionType
 
 import utils.globals as GG
 
@@ -27,18 +29,21 @@ class Warning(commands.Cog):
     async def warn(self, ctx, member: typing.Optional[discord.Member], *, message):
         await self.warnCommand(ctx, member, message)
 
-    # @cog_ext.cog_slash(name="warn", description="Warns an user.", guild_ids=GG.slashGuilds, options=[
-    #     create_option(name="user", description="The user you want to warn.", option_type=6, required=True),
-    #     create_option(name="reason", description="The reason for warning this person.", option_type=3, required=True)
-    # ])
-    # @GG.is_staff()
-    # async def warnSlash(self, ctx, member: typing.Optional[discord.Member], *, message):
-    #     await self.warnCommand(ctx, member, message)
+    @slash_command(name="warn")
+    async def warn(self, ctx, member: Option(SlashCommandOptionType.user, "Who do you want to warn?"), message: Option(str, "Warning message")):
+        """[STAFF] Warns a user for breaking the rules."""
+        if not GG.is_staff_bool(ctx):
+            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
 
-    async def warnCommand(self, ctx, member, message):
+        await self.warnCommand(ctx, member, message, True)
+
+    async def warnCommand(self, ctx, member, message, interaction=False):
         if member is None:
             return await ctx.send(
                 "Member wasn't found.\n\nCheck the ID, it might not be a member.\nAlso you can't warn someone who isn't on the server.")
+
+        if interaction:
+            await ctx.defer(ephemeral=True)
 
         memberDB = await GG.MDB.members.find_one({"server": ctx.guild.id, "user": member.id})
         caseId = await get_next_num(self.bot.mdb['properties'], 'caseId')
@@ -69,9 +74,15 @@ class Warning(commands.Cog):
         try:
             embed = await getCaseTargetEmbed(ctx, case)
             await DM.send(embed=embed)
-            await ctx.send(f"DM with info send to {member}")
+            if interaction:
+                await ctx.respond(f"DM with info send to {member}")
+            else:
+                await ctx.send(f"DM with info send to {member}")
         except discord.Forbidden:
-            await ctx.send(f"Message failed to send. (Not allowed to DM)")
+            if interaction:
+                await ctx.respond(f"Message failed to send. (Not allowed to DM)")
+            else:
+                await ctx.send(f"Message failed to send. (Not allowed to DM)")
 
 
 def setup(bot):
