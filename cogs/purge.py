@@ -51,7 +51,7 @@ class Purge(commands.Cog):
             await ctx.respond(f"Succesfully purged {deleted} messages", ephemeral=True)
         else:
             await confirmation.quit()
-            await ctx.respond("Purge canceled", ephemeral=True  )
+            await ctx.respond("Purge canceled", ephemeral=True)
 
 
 def setup(bot):

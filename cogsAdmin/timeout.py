@@ -35,6 +35,12 @@ class TimeOut(discord.ui.Select):
                 label="1 Hour"
             ),
             discord.SelectOption(
+                label="3 Hours"
+            ),
+            discord.SelectOption(
+                label="6 Hours"
+            ),
+            discord.SelectOption(
                 label="12 Hours"
             ),
             discord.SelectOption(
@@ -64,6 +70,10 @@ class TimeOut(discord.ui.Select):
                 timeoutActual = timeoutActual + timedelta(minutes=10)
             elif self.values[0] == "1 Hour":
                 timeoutActual = timeoutActual + timedelta(hours=1)
+            elif self.values[0] == "3 Hours":
+                timeoutActual = timeoutActual + timedelta(hours=3)
+            elif self.values[0] == "6 Hours":
+                timeoutActual = timeoutActual + timedelta(hours=6)
             elif self.values[0] == "12 Hours":
                 timeoutActual = timeoutActual + timedelta(hours=12)
             elif self.values[0] == "1 Day":

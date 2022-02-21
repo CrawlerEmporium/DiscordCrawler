@@ -166,7 +166,7 @@ class Case(commands.Cog):
         if caseId == 0:
             return
 
-        case = await GG.MDB.cases.find_one({"caseId": caseId})
+        case = await GG.MDB.cases.find_one({"caseId": f"{caseId}"})
         if case is not None:
             embed = discord.Embed()
             embed.title = f"Case {case['caseId']}"
