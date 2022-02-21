@@ -12,7 +12,7 @@ from models.buttons.greylist import Greylist
 
 log = logger.logger
 
-version = "v2.5.1"
+version = "v2.5.2"
 SHARD_COUNT = 1
 TESTING = False
 defaultPrefix = GG.PREFIX if not TESTING else '*'
@@ -95,7 +95,7 @@ async def on_thread_join(thread):
 
 @bot.event
 async def on_connect():
-    await discord.ApplicationCommandMixin.register_commands(bot, False)
+    await discord.ApplicationCommandMixin.sync_commands(bot, force=True)
     await fillGlobals()
     bot.owner = await bot.fetch_user(GG.OWNER)
     print(f"OWNER: {bot.owner.name}")
@@ -138,6 +138,7 @@ def loadCogs():
         try:
             bot.load_extension(GG.COGS + "." + extension)
         except Exception as e:
+            print(e)
             log.error(f'Failed to load extension {extension}')
             i += 1
     log.info("-------------------")
