@@ -26,9 +26,10 @@ class Blacklist(commands.Cog):
         await self.checkForListedTerms(message)
 
     @slash_command(name="reloadblackllist")
-    @permissions.is_owner()
     async def refillLists(self, ctx):
         """Reloads all blacklists and greylists"""
+        if not GG.is_staff_bool(ctx):
+            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         GG.BLACKLIST = "["
         TERMDB = await GG.MDB['blacklist'].find({}).to_list(length=None)
         guildList = []

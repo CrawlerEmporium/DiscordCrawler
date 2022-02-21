@@ -23,16 +23,18 @@ class Owner(commands.Cog):
         self.bot = bot
 
     @slash_command(name="gitpull", guild_ids=[584842413135101990])
-    @permissions.is_owner()
     async def gitpull(self, ctx):
+        if not GG.is_staff_bool(ctx):
+            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         """Pulls from github and updates bot"""
         subprocess.run('git pull', stdout=subprocess.PIPE, shell=True).stdout.decode('utf-8')
         await self.reloadCogs(ctx)
 
     @slash_command(name="reloadcogs", guild_ids=[584842413135101990])
-    @permissions.is_owner()
     async def reloadCogs(self, ctx):
         """Reloads all cogs from the bot"""
+        if not GG.is_staff_bool(ctx):
+            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await self.reload(ctx)
 
     async def reload(self, ctx):
@@ -88,9 +90,11 @@ class Owner(commands.Cog):
             await ctx.respond('All cogs reloaded :white_check_mark:', ephemeral=True)
 
     @slash_command(name="botcheck", guild_ids=[584842413135101990])
-    @permissions.is_owner()
     async def botcheck(self, ctx):
         """Does a check how many bots there are in the servers."""
+        if not GG.is_staff_bool(ctx):
+            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
+
         await ctx.respond(f"Checking {len(ctx.bot.guilds)} servers for bot collection servers.", ephemeral=True)
         for guild in ctx.bot.guilds:
             bots = sum(1 for m in guild.members if m.bot)
@@ -109,9 +113,10 @@ class Owner(commands.Cog):
         await ctx.bot.change_presence(activity=discord.Game(f"with {len(ctx.bot.guilds)} servers | !help | {ctx.bot.version}"), afk=True)
 
     @slash_command(name="commands", guild_ids=[584842413135101990])
-    @permissions.is_owner()
     async def commands(self, ctx):
         """Returns a list of all commands that are not in the database yet."""
+        if not GG.is_staff_bool(ctx):
+            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         nonHiddenCommands = []
         for command in self.bot.commands:
             if not command.hidden:
