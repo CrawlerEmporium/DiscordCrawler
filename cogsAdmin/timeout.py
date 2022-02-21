@@ -85,6 +85,9 @@ class TimeOut(discord.ui.Select):
             else:
                 timeoutActual = timeoutActual
 
+
+            print(timeoutActual)
+            print(self.message)
             await self.member.timeout(timeoutActual, self.message)
 
             await interaction.response.send_message(f"{self.member} was timed-out for {self.values[0]}")
@@ -130,13 +133,13 @@ class Mute(commands.Cog):
     @commands.command()
     @commands.guild_only()
     @GG.is_staff()
-    async def timeout(self, ctx, member: typing.Optional[discord.Member], *, message):
+    async def timeoutCommand(self, ctx, member: typing.Optional[discord.Member], *, message):
         await muteMember(self.bot, ctx, member, message)
 
     @commands.command()
     @commands.guild_only()
     @GG.is_staff()
-    async def untimeout(self, ctx, member: typing.Optional[discord.Member]):
+    async def untimeoutCommand(self, ctx, member: typing.Optional[discord.Member]):
         await unmuteMember(member)
         await ctx.send(f"Removed timeout for {member}")
 
