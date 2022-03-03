@@ -177,7 +177,7 @@ def loadCogs():
 def loadCrawlerUtilitiesCogs():
     cu_event_extensions = ["cmdLog", "errors", "joinLeave"]
     cu_event_folder = "crawler_utilities.events"
-    cu_cogs_extensions = ["flare"]
+    cu_cogs_extensions = ["flare", "stats"]
     cu_cogs_folder = "crawler_utilities.cogs"
 
     i = 0
