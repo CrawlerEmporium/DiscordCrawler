@@ -77,7 +77,7 @@ class Case(commands.Cog):
         if caseId == 0:
             return
 
-        case = await GG.MDB.cases.find_one({"caseId": caseId})
+        case = await GG.MDB.cases.find_one({"caseId": f"{caseId}"})
         if case is not None:
             msg = case['message']
             msg += f"\nCLOSED - {message}"
@@ -92,7 +92,7 @@ class Case(commands.Cog):
         if caseId == 0:
             return
 
-        case = await GG.MDB.cases.find_one({"caseId": caseId})
+        case = await GG.MDB.cases.find_one({"caseId": f"{caseId}"})
         if case is not None:
             msg = case['message']
             msg += f"\nUPDATE - {message}"
