@@ -81,7 +81,7 @@ class Case(commands.Cog):
         if case is not None:
             msg = case['message']
             msg += f"\nCLOSED - {message}"
-            await GG.MDB.cases.update_one({"caseId": caseId}, {"$set": {"status": CaseStatus.CLOSED, "message": msg}},
+            await GG.MDB.cases.update_one({"caseId": f"{caseId}"}, {"$set": {"status": CaseStatus.CLOSED, "message": msg}},
                                           upsert=False)
             await ctx.send(f"Case ``{caseId}`` was closed.")
         else:
@@ -96,7 +96,7 @@ class Case(commands.Cog):
         if case is not None:
             msg = case['message']
             msg += f"\nUPDATE - {message}"
-            await GG.MDB.cases.update_one({"caseId": caseId}, {"$set": {"message": msg}}, upsert=False)
+            await GG.MDB.cases.update_one({"caseId": f"{caseId}"}, {"$set": {"message": msg}}, upsert=False)
             await ctx.send(f"Case ``{caseId}`` was updated.")
         else:
             await ctx.send(f"There is no case with id: ``{caseId}``")
