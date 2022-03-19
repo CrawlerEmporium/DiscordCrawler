@@ -39,7 +39,7 @@ class KeepThreadsActive(commands.Cog):
         if len(messages) == 0:
             await channel.send("This thread was scheduled to be automatically archived for inactivity.\n"
                                "But a member of staff enabled the K.T.A. (Keep Threads Active) feature for this thread.\n\n"
-                               "A member of staff can disable this by re-running the ``kta`` command.")
+                               "A member of staff can disable this by re-running the ``/keepthreadalive`` command.")
 
     @slash_command(name="keepthreadalive")
     async def kta(self, ctx, channel: Option(SlashCommandOptionType.channel, "Which thread do you want to keep alive?")):
