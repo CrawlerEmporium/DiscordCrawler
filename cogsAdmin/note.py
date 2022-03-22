@@ -1,5 +1,7 @@
 from datetime import datetime
 
+import discord
+
 import utils.globals as GG
 
 from discord.ext import commands
@@ -32,10 +34,19 @@ class Note(commands.Cog):
     #     await self.noteCommand(ctx, member, message)
 
     async def noteCommand(self, ctx, member, message):
-        member = int(member)
+        try:
+            member = int(member)
+        except ValueError:
+            try:
+                ic = await ctx.guild.fetch_member(602779023151595546)
+            except discord.HTTPException:
+                ic = None
+            if ic is None:
+                return await ctx.send(f"{member} is not a userid (or username). Seeing that you have <@> in this server, it might be possible you are mixing commands.")
+            else:
+                return await ctx.send(f"{member} is not a userid (or username).")
         if ctx.guild.get_member(member) is None:
-            await ctx.send(
-                "Member wasn't found on the server. Inserting note as a general snowflake.\n\nPlease check if this is actually a member, it might be a channel/message id.")
+            return await ctx.send("Member wasn't found on the server. Inserting note as a general snowflake.\n\nPlease check if this is actually a member, it might be a channel/message id.")
         memberDB = await GG.MDB.members.find_one({"server": ctx.guild.id, "user": member})
         caseId = await get_next_num(self.bot.mdb['properties'], 'caseId')
         if memberDB is None:
