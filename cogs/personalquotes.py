@@ -25,16 +25,16 @@ def personal_embed(db_response, author):
     return embed, db_response['attachments']
 
 
+def get_quote(ctx: AutocompleteContext):
+    db = await GG.MDB['personalcommands'].find({"user": ctx.interaction.user.id}).to_list(length=None)
+    return [item['trigger'] for item in db if ctx.value.lower() in item['trigger']]
+
+
 class PersonalQuotes(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     personal = SlashCommandGroup("personal", "All your personal quotes")
-
-    @staticmethod
-    async def get_quote(ctx: AutocompleteContext):
-        db = await GG.MDB['personalcommands'].find({"user": ctx.interaction.user.id}).to_list(length=None)
-        return [item['trigger'] for item in db if ctx.value.lower() in item['trigger']]
 
     @personal.command()
     async def quote(self, ctx, trigger: Option(str, "Which personal quote do you want to post?", autocomplete=get_quote)):
