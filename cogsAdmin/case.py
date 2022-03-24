@@ -20,25 +20,25 @@ class Case(commands.Cog):
     case = SlashCommandGroup("case", "All case commands")
 
     @case.command(name='check')
-    async def check(self, ctx, caseId: Option(int, "Which case do you want check?")):
+    async def check(self, ctx, caseid: Option(int, "Which case do you want check?")):
         """[STAFF] Checks a case"""
         if not GG.is_staff_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
-        await self.caseCommand(ctx, caseId)
+        await self.caseCommand(ctx, caseid)
 
     @case.command(name='close')
-    async def close(self, ctx, caseId: Option(int, "Which case do you want check?"), message: Option(str, "Optional note for closing the case") = ""):
+    async def close(self, ctx, caseid: Option(int, "Which case do you want check?"), message: Option(str, "Optional note for closing the case") = ""):
         """[STAFF] Closes a case"""
         if not GG.is_staff_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
-        await self.closeCaseCommand(ctx, caseId, message)
+        await self.closeCaseCommand(ctx, caseid, message)
 
     @case.command(name='update')
-    async def update(self, ctx, caseId: Option(int, "Which case do you want check?"), message: Option(str, "Optional note for updating the case") = ""):
+    async def update(self, ctx, caseid: Option(int, "Which case do you want check?"), message: Option(str, "Optional note for updating the case") = ""):
         """[STAFF] Updates a case"""
         if not GG.is_staff_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
-        await self.updateCaseCommand(ctx, caseId, message)
+        await self.updateCaseCommand(ctx, caseid, message)
 
     @case.command(name='list')
     async def list(self, ctx, member: Option(discord.Member, "Whose cases do you want to see?")):
