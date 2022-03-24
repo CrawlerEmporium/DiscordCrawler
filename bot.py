@@ -12,7 +12,7 @@ from models.buttons.greylist import Greylist
 
 log = logger.logger
 
-version = "v2.5.2"
+version = "v2.6.0"
 SHARD_COUNT = 1
 TESTING = False
 defaultPrefix = GG.PREFIX if not TESTING else '*'
@@ -174,7 +174,7 @@ def loadCogs():
 
 
 def loadCrawlerUtilitiesCogs():
-    cu_event_extensions = ["cmdLog", "errors", "joinLeave"]
+    cu_event_extensions = ["errors", "joinLeave"]
     cu_event_folder = "crawler_utilities.events"
     cu_cogs_extensions = ["flare", "stats", "help"]
     cu_cogs_folder = "crawler_utilities.cogs"
