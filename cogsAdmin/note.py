@@ -29,15 +29,15 @@ class Note(commands.Cog):
         await self.noteCommand(ctx, member, message)
 
     async def noteCommand(self, ctx, member, message):
-        memberDB = await GG.MDB.members.find_one({"server": ctx.interaction.guild_id, "user": member})
+        memberDB = await GG.MDB.members.find_one({"server": ctx.interaction.guild_id, "user": member.id})
         caseId = await get_next_num(self.bot.mdb['properties'], 'caseId')
         if memberDB is None:
-            memberDB = {"server": ctx.interaction.guild_id, "user": member, "caseIds": [caseId]}
+            memberDB = {"server": ctx.interaction.guild_id, "user": member.id, "caseIds": [caseId]}
         else:
             memberDB['caseIds'].append(caseId)
-        case = Case(caseId, CaseType.NOTE, CaseStatus.OPEN, message, datetime.now(), member, ctx.interaction.author.id)
+        case = Case(caseId, CaseType.NOTE, CaseStatus.OPEN, message, datetime.now(), member.id, ctx.interaction.author.id)
         await GG.MDB.cases.insert_one(case.to_dict())
-        await GG.MDB.members.update_one({"server": ctx.guild.id, "user": member}, {"$set": memberDB}, upsert=True)
+        await GG.MDB.members.update_one({"server": ctx.guild.id, "user": member.id}, {"$set": memberDB}, upsert=True)
         embed = await getCaseEmbed(ctx, case)
         await ctx.respond(embed=embed)
 
