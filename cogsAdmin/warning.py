@@ -23,44 +23,33 @@ class Warning(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    @commands.guild_only()
-    @GG.is_staff()
-    async def warn(self, ctx, member: typing.Optional[discord.Member], *, message):
-        await self.warnCommand(ctx, member, message)
-
     @slash_command(name="warn")
-    async def warn(self, ctx, member: Option(SlashCommandOptionType.user, "Who do you want to warn?"), message: Option(str, "Warning message")):
+    async def warn(self, ctx, member: Option(discord.Member, "Who do you want to warn?"), message: Option(str, "Warning message")):
         """[STAFF] Warns a user for breaking the rules."""
-        if not GG.is_staff_bool(ctx):
+        if not GG.is_staff_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
 
-        await self.warnCommand(ctx, member, message, True)
+        await self.warnCommand(ctx, member, message)
 
-    async def warnCommand(self, ctx, member, message, interaction=False):
-        if member is None:
-            return await ctx.send(
-                "Member wasn't found.\n\nCheck the ID, it might not be a member.\nAlso you can't warn someone who isn't on the server.")
+    async def warnCommand(self, ctx, member, message):
+        await ctx.defer(ephemeral=True)
 
-        if interaction:
-            await ctx.defer(ephemeral=True)
-
-        memberDB = await GG.MDB.members.find_one({"server": ctx.guild.id, "user": member.id})
+        memberDB = await GG.MDB.members.find_one({"server": ctx.interaction.guild_id, "user": member.id})
         caseId = await get_next_num(self.bot.mdb['properties'], 'caseId')
 
         if memberDB is None:
-            memberDB = {"server": ctx.guild.id, "user": member.id, "caseIds": [caseId]}
+            memberDB = {"server": ctx.interaction.guild_id, "user": member.id, "caseIds": [caseId]}
         else:
             memberDB['caseIds'].append(caseId)
 
-        case = Case(caseId, CaseType.WARNING, CaseStatus.OPEN, message, datetime.now(), member.id, ctx.author.id)
+        case = Case(caseId, CaseType.WARNING, CaseStatus.OPEN, message, datetime.now(), member.id, ctx.interaction.user.id)
         await GG.MDB.cases.insert_one(case.to_dict())
-        await GG.MDB.members.update_one({"server": ctx.guild.id, "user": member.id}, {"$set": memberDB}, upsert=True)
+        await GG.MDB.members.update_one({"server": ctx.interaction.guild_id, "user": member.id}, {"$set": memberDB}, upsert=True)
         embed = await getCaseEmbed(ctx, case)
         await ctx.send(embed=embed)
 
         decisionChannelExist = await GG.MDB['channelinfo'].find_one(
-            {"guild": ctx.message.guild.id, "type": "MODDECISION"})
+            {"guild": ctx.interaction.guild_id, "type": "MODDECISION"})
         if decisionChannelExist is not None:
             modDecisionChannel = await self.bot.fetch_channel(decisionChannelExist['channel'])
             embed = await getModDecisionEmbed(ctx, case)
@@ -74,15 +63,9 @@ class Warning(commands.Cog):
         try:
             embed = await getCaseTargetEmbed(ctx, case)
             await DM.send(embed=embed)
-            if interaction:
-                await ctx.respond(f"DM with info send to {member}")
-            else:
-                await ctx.send(f"DM with info send to {member}")
+            await ctx.respond(f"DM with info send to {member}")
         except discord.Forbidden:
-            if interaction:
-                await ctx.respond(f"Message failed to send. (Not allowed to DM)")
-            else:
-                await ctx.send(f"Message failed to send. (Not allowed to DM)")
+            await ctx.respond(f"Message failed to send. (Not allowed to DM)")
 
 
 def setup(bot):

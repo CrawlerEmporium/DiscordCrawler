@@ -1,6 +1,8 @@
 import discord
 import typing
 
+from discord import Option, SlashCommandGroup
+
 import utils.globals as GG
 from discord.ext import commands
 
@@ -15,98 +17,62 @@ class Case(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True)
-    @commands.guild_only()
-    @GG.is_staff()
-    async def case(self, ctx, caseId: int = 0):
+    case = SlashCommandGroup("case", "All case commands")
+
+    @case.command(name='check')
+    async def check(self, ctx, caseId: Option(int, "Which case do you want check?")):
+        """[STAFF] Checks a case"""
+        if not GG.is_staff_bool_slash(ctx):
+            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await self.caseCommand(ctx, caseId)
 
     @case.command(name='close')
-    @commands.guild_only()
-    @GG.is_staff()
-    async def close_case(self, ctx, caseId: int, *, message=""):
+    async def close(self, ctx, caseId: Option(int, "Which case do you want check?"), message: Option(str, "Optional note for closing the case") = ""):
+        """[STAFF] Closes a case"""
+        if not GG.is_staff_bool_slash(ctx):
+            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await self.closeCaseCommand(ctx, caseId, message)
 
     @case.command(name='update')
-    @commands.guild_only()
-    @GG.is_staff()
-    async def update_case(self, ctx, caseId: int, *, message=""):
+    async def update(self, ctx, caseId: Option(int, "Which case do you want check?"), message: Option(str, "Optional note for updating the case") = ""):
+        """[STAFF] Updates a case"""
+        if not GG.is_staff_bool_slash(ctx):
+            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await self.updateCaseCommand(ctx, caseId, message)
 
     @case.command(name='list')
-    @commands.guild_only()
-    @GG.is_staff()
-    async def list_case(self, ctx, member: typing.Optional[discord.Member] = None):
+    async def list(self, ctx, member: Option(discord.Member, "Whose cases do you want to see?")):
+        """[STAFF] Lists all cases for a member"""
+        if not GG.is_staff_bool_slash(ctx):
+            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await self.listCaseCommand(ctx, member)
 
-
-    # @cog_ext.cog_subcommand(base="case", name="check", description="Checks a case", guild_ids=GG.slashGuilds, options=[
-    #     create_option(name="caseId", description="The id of the case you want to check.", option_type=4,
-    #                   required=True)
-    # ])
-    # @GG.is_staff()
-    # async def caseSlash(self, ctx, caseId: int = 0):
-    #     await self.caseCommand(ctx, caseId)
-    #
-    # @cog_ext.cog_subcommand(base="case", name="close", description="Closes a case", guild_ids=GG.slashGuilds, options=[
-    #     create_option(name="caseId", description="The id of the case you want to close.", option_type=4,
-    #                   required=True)
-    # ])
-    # @GG.is_staff()
-    # async def closeCaseSlash(self, ctx, caseId: int, *, message=""):
-    #     await self.closeCaseCommand(ctx, caseId, message)
-    #
-    # @cog_ext.cog_subcommand(base="case", name="update", description="Updates a case", guild_ids=GG.slashGuilds, options=[
-    #     create_option(name="caseId", description="The id of the case you want to update.", option_type=4,
-    #                   required=True)
-    # ])
-    # @GG.is_staff()
-    # async def updateCaseSlash(self, ctx, caseId: int, *, message=""):
-    #     await self.updateCaseCommand(ctx, caseId, message)
-    #
-    # @cog_ext.cog_subcommand(base="case", name="list", description="Lists all cases for an user", guild_ids=GG.slashGuilds, options=[
-    #     create_option(name="user", description="The user of which you want to check all cases.", option_type=6,
-    #                   required=False)
-    # ])
-    # @GG.is_staff()
-    # async def listCaseSlash(self, ctx, member: typing.Optional[discord.Member]):
-    #     await self.listCaseCommand(ctx, member)
-
-    async def closeCaseCommand(self, ctx, caseId, message):
-        caseId = await self.validId(caseId, ctx)
-        if caseId == 0:
-            return
-
+    @staticmethod
+    async def closeCaseCommand(ctx, caseId, message):
         case = await GG.MDB.cases.find_one({"caseId": f"{caseId}"})
         if case is not None:
             msg = case['message']
             msg += f"\nCLOSED - {message}"
             await GG.MDB.cases.update_one({"caseId": f"{caseId}"}, {"$set": {"status": CaseStatus.CLOSED, "message": msg}},
                                           upsert=False)
-            await ctx.send(f"Case ``{caseId}`` was closed.")
+            await ctx.respond(f"Case ``{caseId}`` was closed.")
         else:
-            await ctx.send(f"There is no case with id: ``{caseId}``")
+            await ctx.respond(f"There is no case with id: ``{caseId}``")
 
-    async def updateCaseCommand(self, ctx, caseId, message):
-        caseId = await self.validId(caseId, ctx)
-        if caseId == 0:
-            return
-
+    @staticmethod
+    async def updateCaseCommand(ctx, caseId, message):
         case = await GG.MDB.cases.find_one({"caseId": f"{caseId}"})
         if case is not None:
             msg = case['message']
             msg += f"\nUPDATE - {message}"
             await GG.MDB.cases.update_one({"caseId": f"{caseId}"}, {"$set": {"message": msg}}, upsert=False)
-            await ctx.send(f"Case ``{caseId}`` was updated.")
+            await ctx.respond(f"Case ``{caseId}`` was updated.")
         else:
-            await ctx.send(f"There is no case with id: ``{caseId}``")
+            await ctx.respond(f"There is no case with id: ``{caseId}``")
 
-    async def listCaseCommand(self, ctx, member):
-        if member is None:
-            return await ctx.send("Member can't be none. Proper command to use ``$case list [memberId]``")
-
-        user = member
-        guild = ctx.message.guild
+    @staticmethod
+    async def listCaseCommand(ctx, user):
+        guild = ctx.interaction.guild
         await guild.chunk()
         avi = user.display_avatar.url
 
@@ -159,13 +125,10 @@ class Case(commands.Cog):
             em.add_field(name='Notes', value=noteString, inline=False)
 
         em.set_thumbnail(url=avi)
-        await ctx.send(embed=em)
+        await ctx.respond(embed=em)
 
-    async def caseCommand(self, ctx, caseId):
-        caseId = await self.validId(caseId, ctx)
-        if caseId == 0:
-            return
-
+    @staticmethod
+    async def caseCommand(ctx, caseId):
         case = await GG.MDB.cases.find_one({"caseId": f"{caseId}"})
         if case is not None:
             embed = discord.Embed()
@@ -186,18 +149,7 @@ class Case(commands.Cog):
                 embed.set_footer(text="Status: OPEN")
             if case['status'] == 1:
                 embed.set_footer(text="Status: CLOSED")
-            await ctx.send(embed=embed)
-
-    async def validId(self, caseId, ctx):
-        if caseId is None:
-            await ctx.send("Please give me a valid case Id.")
-            caseId = 0
-        try:
-            caseId = int(caseId)
-        except ValueError:
-            await ctx.send("Please give me a valid case Id.")
-            caseId = 0
-        return caseId
+            await ctx.respond(embed=embed)
 
 
 def setup(bot):

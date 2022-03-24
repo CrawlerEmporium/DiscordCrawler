@@ -2,6 +2,7 @@ import typing
 from datetime import datetime, timedelta
 
 import discord
+from discord import slash_command, Option
 
 import utils.globals as GG
 
@@ -127,38 +128,35 @@ class Mute(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    @commands.guild_only()
-    @GG.is_staff()
-    async def timeout(self, ctx, member: typing.Optional[discord.Member], *, message):
+    @slash_command()
+    async def timeout(self, ctx, member: Option(discord.Member, "Which member do you want to timeout?"), message: Option(str, "What message do you want to attach to the timeout?")):
+        """[STAFF] times a user out"""
+        if not GG.is_staff_bool_slash(ctx):
+            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await muteMember(self.bot, ctx, member, message)
 
-    @commands.command()
-    @commands.guild_only()
-    @GG.is_staff()
-    async def untimeout(self, ctx, member: typing.Optional[discord.Member]):
-        await unmuteMember(member)
-        await ctx.send(f"Removed timeout for {member}")
+    @slash_command()
+    async def untimeout(self, ctx, member: Option(discord.Member, "For which member do you want to remove the timeout?")):
+        """[STAFF] prematurely remove a timeout from a user"""
+        if not GG.is_staff_bool_slash(ctx):
+            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
+        await unmuteMember(ctx, member)
 
 
 async def muteMember(bot, ctx, member: typing.Optional[discord.Member], message):
-    if member is None:
-        return await ctx.send(
-            "Member wasn't found.\n\nCheck the ID, it might not be a member.\nAlso you can't mute someone who isn't on the server.")
-
-    memberDB = await GG.MDB.members.find_one({"server": ctx.guild.id, "user": member.id})
+    memberDB = await GG.MDB.members.find_one({"server": ctx.interaction.guild_id, "user": member.id})
     caseId = await get_next_num(bot.mdb['properties'], 'caseId')
 
     if memberDB is None:
-        memberDB = {"server": ctx.guild.id, "user": member.id, "caseIds": [caseId]}
+        memberDB = {"server": ctx.interaction.guild_id, "user": member.id, "caseIds": [caseId]}
     else:
         memberDB['caseIds'].append(caseId)
 
-    await ctx.send(f"How long does {member} need to be timed-out?", view=TimeOutView(member, message, ctx.message.author, caseId, memberDB, bot, ctx))
+    await ctx.respond(f"How long does {member} need to be timed-out?", view=TimeOutView(member, message, ctx.interaction.user, caseId, memberDB, bot, ctx))
 
 
-async def unmuteMember(member: typing.Optional[discord.Member]):
-    memberExist = await GG.MDB.members.find_one({"server": member.guild.id, "user": member.id})
+async def unmuteMember(ctx, member: typing.Optional[discord.Member]):
+    memberExist = await GG.MDB.members.find_one({"server": ctx.interaction.guild_id, "user": member.id})
     if memberExist is not None:
         await member.remove_timeout()
         caseIds = memberExist['caseIds']
@@ -168,6 +166,7 @@ async def unmuteMember(member: typing.Optional[discord.Member]):
                 if case['caseType'] == 2:
                     case['status'] = 1
                     await GG.MDB.cases.update_one({"caseId": case['caseId']}, {"$set": {"status": 1}})
+        await ctx.respond(f"Removed timeout for {member}")
 
 
 def setup(bot):

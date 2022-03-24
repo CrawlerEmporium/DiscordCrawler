@@ -35,9 +35,9 @@ class Case:
 
 async def getCaseEmbed(ctx, case: Case):
     embed = discord.Embed()
-    await ctx.guild.chunk()
-    moderator = await ctx.guild.fetch_member(case.mod)
-    target = await ctx.guild.fetch_member(case.target)
+    await ctx.interaction.guild.chunk()
+    moderator = await ctx.interaction.guild.fetch_member(case.mod)
+    target = await ctx.interaction.guild.fetch_member(case.target)
 
     if case.caseType == CaseType.NOTE:
         embed.colour = Colour.blue()
@@ -68,8 +68,8 @@ async def getCaseEmbed(ctx, case: Case):
 
 async def getCaseTargetEmbed(ctx, case: Case):
     embed = discord.Embed()
-    await ctx.guild.chunk()
-    moderator = await ctx.guild.fetch_member(case.mod)
+    await ctx.interaction.guild.chunk()
+    moderator = await ctx.interaction.guild.fetch_member(case.mod)
 
     pretitle = "You have been "
     embed.description = f"The following message was included:\n\n``{case.message}``\n\n"
@@ -93,7 +93,7 @@ async def getCaseTargetEmbed(ctx, case: Case):
         embed.title = f"{pretitle} Banned from"
         embed.description += "You have been permanently banned from the server. If you think this is a mistake, contact someone from staff and include the case number below in your message."
 
-    embed.title = f"{embed.title} {ctx.guild.name}"
+    embed.title = f"{embed.title} {ctx.interaction.guild.name}"
     embed.set_footer(text=f"Case ID: {case.caseId} - Added by {moderator.display_name}")
     embed.timestamp = case.date
     return embed
@@ -101,9 +101,9 @@ async def getCaseTargetEmbed(ctx, case: Case):
 
 async def getModDecisionEmbed(ctx, case: Case):
     embed = discord.Embed()
-    await ctx.guild.chunk()
-    moderator = await ctx.guild.fetch_member(case.mod)
-    target = await ctx.guild.fetch_member(case.target)
+    await ctx.interaction.guild.chunk()
+    moderator = await ctx.interaction.guild.fetch_member(case.mod)
+    target = await ctx.interaction.guild.fetch_member(case.target)
 
     pretitle = f"{target} has been"
     if case.caseType == CaseType.WARNING:
@@ -126,7 +126,7 @@ async def getModDecisionEmbed(ctx, case: Case):
         embed.title = f"{pretitle} Banned from"
         embed.description = f"{target.mention} has been permanently banned from the server. If you think this is a mistake, contact someone from staff and include the case number below in your message."
 
-    embed.title = f"{embed.title} {ctx.guild.name}"
+    embed.title = f"{embed.title} {ctx.interaction.guild.name}"
     embed.set_footer(text=f"Case ID: {case.caseId} - Added by {moderator.display_name}")
     embed.timestamp = case.date
     return embed
