@@ -214,6 +214,39 @@ def is_staff_bool(ctx):
     return allowed
 
 
+def is_staff_bool_slash(ctx):
+    global allowed
+    if isinstance(ctx.interaction.user, discord.Member):
+        if ctx.interaction.user.roles is not None:
+            for r in ctx.interaction.user.roles:
+                if r.id in STAFF:
+                    allowed = True
+                    break
+                else:
+                    allowed = False
+
+            if ctx.interaction.user.id == OWNER or ctx.interaction.user.id == ctx.guild.owner_id:
+                allowed = True
+        else:
+            allowed = False
+    else:
+        try:
+            if ctx.interaction.user.id == OWNER or ctx.interaction.user.id == ctx.guild.owner_id:
+                allowed = True
+            else:
+                allowed = False
+        except Exception:
+            allowed = False
+
+    try:
+        if ctx.guild.get_member(ctx.interaction.user.id).guild_permissions.administrator:
+            allowed = True
+    except:
+        pass
+
+    return allowed
+
+
 def is_cleaner():
     async def predicate(ctx):
         if isinstance(ctx.author, discord.Member):
