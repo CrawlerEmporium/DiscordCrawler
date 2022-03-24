@@ -25,7 +25,7 @@ def personal_embed(db_response, author):
     return embed, db_response['attachments']
 
 
-def get_quote(ctx: AutocompleteContext):
+async def get_quote(ctx: AutocompleteContext):
     db = await GG.MDB['personalcommands'].find({"user": ctx.interaction.user.id}).to_list(length=None)
     return [item['trigger'] for item in db if ctx.value.lower() in item['trigger']]
 
