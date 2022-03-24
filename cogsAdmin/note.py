@@ -35,7 +35,7 @@ class Note(commands.Cog):
             memberDB = {"server": ctx.interaction.guild_id, "user": member.id, "caseIds": [caseId]}
         else:
             memberDB['caseIds'].append(caseId)
-        case = Case(caseId, CaseType.NOTE, CaseStatus.OPEN, message, datetime.now(), member.id, ctx.interaction.author.id)
+        case = Case(caseId, CaseType.NOTE, CaseStatus.OPEN, message, datetime.now(), member.id, ctx.interaction.user.id)
         await GG.MDB.cases.insert_one(case.to_dict())
         await GG.MDB.members.update_one({"server": ctx.guild.id, "user": member.id}, {"$set": memberDB}, upsert=True)
         embed = await getCaseEmbed(ctx, case)
