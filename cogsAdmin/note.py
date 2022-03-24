@@ -29,19 +29,6 @@ class Note(commands.Cog):
         await self.noteCommand(ctx, member, message)
 
     async def noteCommand(self, ctx, member, message):
-        try:
-            member = int(member)
-        except ValueError:
-            try:
-                ic = await ctx.interaction.guild.fetch_member(602779023151595546)
-            except discord.HTTPException:
-                ic = None
-            if ic is not None:
-                return await ctx.respond(f"{member} is not a userid (or username). Seeing that you have <@602779023151595546> in this server, it might be possible you are mixing commands.")
-            else:
-                return await ctx.respond(f"{member} is not a userid (or username).")
-        if ctx.interaction.guild.get_member(member) is None:
-            return await ctx.send("Member wasn't found on the server. Inserting note as a general snowflake.\n\nPlease check if this is actually a member, it might be a channel/message id.")
         memberDB = await GG.MDB.members.find_one({"server": ctx.interaction.guild_id, "user": member})
         caseId = await get_next_num(self.bot.mdb['properties'], 'caseId')
         if memberDB is None:
