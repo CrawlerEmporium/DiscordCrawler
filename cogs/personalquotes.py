@@ -35,10 +35,13 @@ class PersonalQuotes(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    names = GG.LOCALIZATION['personalquotes']['name']
+    descriptions = GG.LOCALIZATION['personalquotes']['description']
+
     personal = SlashCommandGroup("personal", "All your personal quotes")
 
-    @personal.command(name_localizations=GG.LOCALIZATION['personalquotes']['name']['quote'], description_localizations=GG.LOCALIZATION['personalquotes']['description']['quote'])
-    async def quote(self, ctx, quote: Option(str, "Which personal quote do you want to post?", autocomplete=get_quote, name_localizations=GG.LOCALIZATION['personalquotes']['name']['quote.quote'], description_localizations=GG.LOCALIZATION['personalquotes']['description']['quote.quote'])):
+    @personal.command(name_localizations=names['quote'], description_localizations=descriptions['quote'])
+    async def quote(self, ctx, quote: Option(str, "Which personal quote do you want to post?", autocomplete=get_quote, name_localizations=names['quote.quote'], description_localizations=descriptions['quote.quote'])):
         user_quote = await GG.MDB['personalcommands'].find_one({"user": ctx.interaction.user.id, "trigger": quote})
         await self.sendPersonalChoice(ctx, user_quote)
 

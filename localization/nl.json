@@ -1,7 +1,7 @@
 {
-  "personalquotes.name.quote" : "citaat",
-  "personalquotes.description.quote" : "Geeft je gekozen citaat terug.",
+  "personalquotes.quote.name" : "citaat",
+  "personalquotes.quote.description" : "Geeft je gekozen citaat terug.",
 
-  "personalquotes.name.quote.quote" : "citaat",
-  "personalquotes.description.quote.quote" : "Welk persoonlijk citaat wil je posten?"
+  "personalquotes.quote.quote.name" : "citaat",
+  "personalquotes.quote.quote.description" : "Welk persoonlijk citaat wil je posten?"
 }

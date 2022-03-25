@@ -1,7 +1,7 @@
 {
-  "personalquotes.name.quote" : "zitat",
-  "personalquotes.description.quote" : "Gibt Ihr ausgewähltes persönliches Angebot zurück.",
+  "personalquotes.quote.name" : "zitat",
+  "personalquotes.quote.description" : "Gibt Ihr ausgewähltes persönliches Angebot zurück.",
 
-  "personalquotes.name.quote.quote" : "zitat",
-  "personalquotes.description.quote.quote" : "Welches persönliche Zitat möchten Sie veröffentlichen?"
+  "personalquotes.quote.quote.name" : "zitat",
+  "personalquotes.quote.quote.description" : "Welches persönliche Zitat möchten Sie veröffentlichen?"
 }

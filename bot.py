@@ -216,37 +216,37 @@ def fillLocalization():
             for key in jsonFile:
                 value = jsonFile[key]
                 keySplit = key.split(".")
-                command, parameter, description = "", "", ""
+                cog, command, _type = "", "", ""
 
                 if len(keySplit) == 3:
-                    command = keySplit[0]
-                    parameter = keySplit[1]
-                    description = keySplit[2]
+                    cog = keySplit[0]
+                    command = keySplit[1]
+                    _type = keySplit[2]
 
                 if len(keySplit) == 4:
-                    command = keySplit[0]
-                    parameter = keySplit[1]
-                    description = f"{keySplit[2]}.{keySplit[3]}"
+                    cog = keySplit[0]
+                    command = f"{keySplit[1]}.{keySplit[2]}"
+                    _type = keySplit[3]
 
-                if GG.LOCALIZATION.get(command, None) is not None:
-                    command = GG.LOCALIZATION.get(command)
-                    if command.get(parameter, None) is not None:
-                        if command.get(parameter).get(description, None) is not None:
-                            command[parameter][description][locale] = value
+                if GG.LOCALIZATION.get(cog, None) is not None:
+                    cog = GG.LOCALIZATION.get(cog)
+                    if cog.get(_type, None) is not None:
+                        if cog.get(_type).get(command, None) is not None:
+                            cog[_type][command][locale] = value
                         else:
-                            command[parameter][description] = {
+                            cog[_type][command] = {
                                 f"{locale}": value
                             }
                     else:
-                        command[parameter] = {
-                            f"{description}": {
+                        cog[_type] = {
+                            f"{command}": {
                                 f"{locale}": value
                             }
                         }
                 else:
-                    GG.LOCALIZATION[command] = {
-                        f"{parameter}": {
-                            f"{description}": {
+                    GG.LOCALIZATION[cog] = {
+                        f"{_type}": {
+                            f"{command}": {
                                 f"{locale}": value
                             }
                         }
