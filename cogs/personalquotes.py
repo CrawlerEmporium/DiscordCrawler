@@ -57,10 +57,7 @@ class PersonalQuotes(commands.Cog):
         await ctx.respond(f"```{user_quote['response'].replace('`', replaceString)}```", files=user_quote['attachments'])
 
     @personal.command()
-    async def add(self, ctx,
-                  quote: Option(str, "What should the trigger be for this quote?"),
-                  response: Option(str, "What should the quote say?"),
-                  attachment: Option(discord.Attachment, "File to attach to the quote.", required=False)):
+    async def add(self, ctx, quote: Option(str, "What should the trigger be for this quote?"), response: Option(str, "What should the quote say?"), attachment: Option(discord.Attachment, "File to attach to the quote.", required=False)):
         """Adds a personal quote."""
         checkIfExist = await GG.MDB['personalcommands'].find_one({"user": ctx.interaction.user.id, "trigger": quote})
         if checkIfExist is not None:
