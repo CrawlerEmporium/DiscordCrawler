@@ -9,6 +9,7 @@ from discord.ext import commands
 from cogsAdmin.models.caseStatus import CaseStatus
 from cogsAdmin.models.caseType import CaseType
 from crawler_utilities.handlers import logger
+from utils.functions import get_command_kwargs, get_parameter_kwargs
 
 log = logger.logger
 
@@ -17,32 +18,29 @@ class Case(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    cogName = "case"
     case = SlashCommandGroup("case", "All case commands")
 
-    @case.command(name='check')
-    async def check(self, ctx, caseid: Option(int, "Which case do you want check?")):
-        """[STAFF] Checks a case"""
+    @case.command(**get_command_kwargs(cogName, 'check'))
+    async def check(self, ctx, caseid: Option(int, **get_parameter_kwargs(cogName, 'check.caseid'))):
         if not GG.is_staff_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await self.caseCommand(ctx, caseid)
 
-    @case.command(name='close')
-    async def close(self, ctx, caseid: Option(int, "Which case do you want check?"), message: Option(str, "Optional note for closing the case") = ""):
-        """[STAFF] Closes a case"""
+    @case.command(**get_command_kwargs(cogName, 'close'))
+    async def close(self, ctx, caseid: Option(int, **get_parameter_kwargs(cogName, 'close.caseid')), message: Option(str, **get_parameter_kwargs(cogName, 'close.message')) = ""):
         if not GG.is_staff_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await self.closeCaseCommand(ctx, caseid, message)
 
-    @case.command(name='update')
-    async def update(self, ctx, caseid: Option(int, "Which case do you want check?"), message: Option(str, "Optional note for updating the case") = ""):
-        """[STAFF] Updates a case"""
+    @case.command(**get_command_kwargs(cogName, 'update'))
+    async def update(self, ctx, caseid: Option(int, **get_parameter_kwargs(cogName, 'update.caseid')), message: Option(str, **get_parameter_kwargs(cogName, 'update.message')) = ""):
         if not GG.is_staff_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await self.updateCaseCommand(ctx, caseid, message)
 
-    @case.command(name='list')
-    async def list(self, ctx, member: Option(discord.Member, "Whose cases do you want to see?")):
-        """[STAFF] Lists all cases for a member"""
+    @case.command(**get_command_kwargs(cogName, 'list'))
+    async def list(self, ctx, member: Option(discord.Member, **get_parameter_kwargs(cogName, 'list.member'))):
         if not GG.is_staff_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await self.listCaseCommand(ctx, member)

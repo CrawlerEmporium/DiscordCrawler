@@ -14,6 +14,7 @@ from cogsAdmin.models.caseType import CaseType
 from crawler_utilities.handlers import logger
 
 from crawler_utilities.utils.functions import get_next_num
+from utils.functions import get_command_kwargs, get_parameter_kwargs
 
 log = logger.logger
 
@@ -22,9 +23,11 @@ class Ban(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @slash_command()
-    async def ban(self, ctx, member: Option(discord.Member, "Which member do you want to ban?"), message: Option(str, "What message do you want to attach to the ban?")):
-        """[STAFF] Bans a member from the server"""
+    cogName = "ban"
+
+    @slash_command(**get_command_kwargs(cogName, 'ban'))
+    async def ban(self, ctx, member: Option(discord.Member, **get_parameter_kwargs(cogName, 'ban.member')), message: Option(str, **get_parameter_kwargs(cogName, 'ban.message'))):
+
         if not GG.is_staff_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await self.BanCommand(ctx, member, message)
