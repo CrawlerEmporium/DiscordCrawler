@@ -1,4 +1,5 @@
 import io
+import json
 
 import discord
 import requests
@@ -36,10 +37,9 @@ class PersonalQuotes(commands.Cog):
 
     personal = SlashCommandGroup("personal", "All your personal quotes")
 
-    @personal.command()
-    async def quote(self, ctx, trigger: Option(str, "Which personal quote do you want to post?", autocomplete=get_quote)):
-        """Returns your chosen personal quote."""
-        user_quote = await GG.MDB['personalcommands'].find_one({"user": ctx.interaction.user.id, "trigger": trigger})
+    @personal.command(name_localizations=GG.LOCALIZATION['personalquotes']['name']['quote'], description_localizations=GG.LOCALIZATION['personalquotes']['description']['quote'])
+    async def quote(self, ctx, quote: Option(str, "Which personal quote do you want to post?", autocomplete=get_quote, name_localizations=GG.LOCALIZATION['personalquotes']['name']['quote.quote'], description_localizations=GG.LOCALIZATION['personalquotes']['description']['quote.quote'])):
+        user_quote = await GG.MDB['personalcommands'].find_one({"user": ctx.interaction.user.id, "trigger": quote})
         await self.sendPersonalChoice(ctx, user_quote)
 
     @personal.command()

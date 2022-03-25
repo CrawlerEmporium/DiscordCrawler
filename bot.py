@@ -1,4 +1,5 @@
 import asyncio
+import json
 from os import listdir
 from os.path import isfile, join
 
@@ -207,7 +208,53 @@ def loadButtons(bot):
     bot.add_view(Greylist(bot))
 
 
+def fillLocalization():
+    for file in listdir(GG.LOCALEFOLDER):
+        if isfile(join(GG.LOCALEFOLDER, file)):
+            locale = file.replace('.json', '')
+            jsonFile = json.loads(open(GG.LOCALEFOLDER + "/" + file, "r", encoding="UTF-8").read())
+            for key in jsonFile:
+                value = jsonFile[key]
+                keySplit = key.split(".")
+                command, parameter, description = "", "", ""
+
+                if len(keySplit) == 3:
+                    command = keySplit[0]
+                    parameter = keySplit[1]
+                    description = keySplit[2]
+
+                if len(keySplit) == 4:
+                    command = keySplit[0]
+                    parameter = keySplit[1]
+                    description = f"{keySplit[2]}.{keySplit[3]}"
+
+                if GG.LOCALIZATION.get(command, None) is not None:
+                    command = GG.LOCALIZATION.get(command)
+                    if command.get(parameter, None) is not None:
+                        if command.get(parameter).get(description, None) is not None:
+                            command[parameter][description][locale] = value
+                        else:
+                            command[parameter][description] = {
+                                f"{locale}": value
+                            }
+                    else:
+                        command[parameter] = {
+                            f"{description}": {
+                                f"{locale}": value
+                            }
+                        }
+                else:
+                    GG.LOCALIZATION[command] = {
+                        f"{parameter}": {
+                            f"{description}": {
+                                f"{locale}": value
+                            }
+                        }
+                    }
+
+
 if __name__ == "__main__":
+    fillLocalization()
     bot.state = "run"
     loadCogs()
     loadCrawlerUtilitiesCogs()
