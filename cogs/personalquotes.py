@@ -12,9 +12,10 @@ from crawler_utilities.utils.functions import try_delete
 
 # noinspection PyUnresolvedReferences
 from crawler_utilities.utils.pagination import get_selection
-from utils.functions import get_description, get_names, get_descriptions, get_name
+from utils.functions import get_parameter_kwargs, get_command_kwargs
 
 log = logger.logger
+
 
 def personal_embed(db_response, author):
     if isinstance(author, discord.Member) and author.color != discord.Colour.default():
@@ -38,27 +39,27 @@ class PersonalQuotes(commands.Cog):
     cogName = 'personalquotes'
     personal = SlashCommandGroup("personal", "All your personal quotes")
 
-    @personal.command(name=get_name(cogName), description=get_description(cogName), name_localizations=get_names(cogName, 'quote'), description_localizations=get_descriptions(cogName, 'quote'))
-    async def quote(self, ctx, quote: Option(str, descriptions['quote.quote']['en-US'], name_localizations=names['quote.quote'], description_localizations=descriptions['quote.quote'], autocomplete=get_quote)):
+    @personal.command(**get_command_kwargs(cogName, "quote"))
+    async def quote(self, ctx, quote: Option(str, autocomplete=get_quote, **get_parameter_kwargs(cogName, "quote.quote"))):
         user_quote = await GG.MDB['personalcommands'].find_one({"user": ctx.interaction.user.id, "trigger": quote})
         await self.sendPersonalChoice(ctx, user_quote)
 
-    @personal.command(description=descriptions['clear']['en-US'], name_localizations=names['clear'], description_localizations=descriptions['clear'])
+    @personal.command(**get_command_kwargs(cogName, "clear"))
     async def clear(self, ctx):
         await GG.MDB['personalcommands'].delete_many({"user": ctx.interaction.user.id})
         await ctx.respond(content=":white_check_mark:" + ' **Cleared all your personal quotes.**')
 
-    @personal.command(description=descriptions['code']['en-US'], name_localizations=names['code'], description_localizations=descriptions['code'])
-    async def code(self, ctx, quote: Option(str, descriptions['code.quote']['en-US'],  name_localizations=names['code.quote'], description_localizations=descriptions['code.quote'], autocomplete=get_quote)):
+    @personal.command(**get_command_kwargs(cogName, "code"))
+    async def code(self, ctx, quote: Option(str, autocomplete=get_quote, **get_parameter_kwargs(cogName, "code.quote"))):
         user_quote = await GG.MDB['personalcommands'].find_one({"user": ctx.interaction.user.id, "trigger": quote})
         replaceString = '\`'
         await ctx.respond(f"```{user_quote['response'].replace('`', replaceString)}```", files=user_quote['attachments'])
 
-    @personal.command(description=descriptions['add']['en-US'], name_localizations=names['add'], description_localizations=descriptions['add'])
+    @personal.command(**get_command_kwargs(cogName, "add"))
     async def add(self, ctx,
-                  quote: Option(str, descriptions['add.quote']['en-US'], name_localizations=names['add.quote'], description_localizations=descriptions['add.quote']),
-                  response: Option(str, descriptions['add.response']['en-US'], name_localizations=names['add.response'], description_localizations=descriptions['add.response']),
-                  attachment: Option(discord.Attachment, descriptions['add.attachment']['en-US'], name_localizations=names['add.attachment'], description_localizations=descriptions['add.attachment'], required=False)):
+                  quote: Option(str, **get_parameter_kwargs(cogName, "add.quote")),
+                  response: Option(str, **get_parameter_kwargs(cogName, "add.response")),
+                  attachment: Option(discord.Attachment, required=False, **get_parameter_kwargs(cogName, "add.attachment"))):
         checkIfExist = await GG.MDB['personalcommands'].find_one({"user": ctx.interaction.user.id, "trigger": quote})
         if checkIfExist is not None:
             return await ctx.respond(content=":x:" + ' **You already have a command with that trigger.**')
@@ -70,9 +71,8 @@ class PersonalQuotes(commands.Cog):
 
         await ctx.respond(content=":white_check_mark:" + ' **Command added.**')
 
-    @personal.command()
-    async def delete(self, ctx, quote: Option(str, descriptions['delete.quote']['en-US'], autocomplete=get_quote)):
-        """Deletes a personal quote."""
+    @personal.command(**get_command_kwargs(cogName, "delete"))
+    async def delete(self, ctx, quote: Option(str, autocomplete=get_quote, **get_parameter_kwargs(cogName, "delete.quote"))):
         result = await GG.MDB['personalcommands'].delete_one(
             {"user": ctx.interaction.user.id, "trigger": quote.replace('\'', '\'\'')})
         if result.deleted_count > 0:
@@ -80,9 +80,8 @@ class PersonalQuotes(commands.Cog):
         else:
             await ctx.respond(content=":x:" + ' **Command with that trigger does not exist.**')
 
-    @personal.command()
+    @personal.command(**get_command_kwargs(cogName, "list"))
     async def list(self, ctx):
-        """Returns all your personal quotes in a list format"""
         user_quotes = await GG.MDB['personalcommands'].find({"user": ctx.interaction.user.id}).to_list(length=None)
         if len(user_quotes) == 0:
             await ctx.respond(content=":x:" + ' **You have no personal commands**')
