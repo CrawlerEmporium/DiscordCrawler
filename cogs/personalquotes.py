@@ -12,7 +12,6 @@ from crawler_utilities.utils.functions import try_delete
 
 # noinspection PyUnresolvedReferences
 from crawler_utilities.utils.pagination import get_selection
-from utils.functions import get_description, get_names, get_descriptions, get_name
 
 log = logger.logger
 
@@ -38,27 +37,31 @@ class PersonalQuotes(commands.Cog):
     cogName = 'personalquotes'
     personal = SlashCommandGroup("personal", "All your personal quotes")
 
-    @personal.command(name=get_name(cogName), description=get_description(cogName), name_localizations=get_names(cogName, 'quote'), description_localizations=get_descriptions(cogName, 'quote'))
-    async def quote(self, ctx, quote: Option(str, descriptions['quote.quote']['en-US'], name_localizations=names['quote.quote'], description_localizations=descriptions['quote.quote'], autocomplete=get_quote)):
+    @personal.command()
+    async def quote(self, ctx, quote: Option(str, "Which personal quote do you want to post?", autocomplete=get_quote)):
+        """Returns your chosen personal quote."""
         user_quote = await GG.MDB['personalcommands'].find_one({"user": ctx.interaction.user.id, "trigger": quote})
         await self.sendPersonalChoice(ctx, user_quote)
 
-    @personal.command(description=descriptions['clear']['en-US'], name_localizations=names['clear'], description_localizations=descriptions['clear'])
+    @personal.command()
     async def clear(self, ctx):
+        """Deletes **ALL** your personal quotes."""
         await GG.MDB['personalcommands'].delete_many({"user": ctx.interaction.user.id})
         await ctx.respond(content=":white_check_mark:" + ' **Cleared all your personal quotes.**')
 
-    @personal.command(description=descriptions['code']['en-US'], name_localizations=names['code'], description_localizations=descriptions['code'])
-    async def code(self, ctx, quote: Option(str, descriptions['code.quote']['en-US'],  name_localizations=names['code.quote'], description_localizations=descriptions['code.quote'], autocomplete=get_quote)):
+    @personal.command()
+    async def code(self, ctx, quote: Option(str, "For which personal quote do you want to see the code?", autocomplete=get_quote)):
+        """Returns your chosen personal quote in code."""
         user_quote = await GG.MDB['personalcommands'].find_one({"user": ctx.interaction.user.id, "trigger": quote})
         replaceString = '\`'
         await ctx.respond(f"```{user_quote['response'].replace('`', replaceString)}```", files=user_quote['attachments'])
 
-    @personal.command(description=descriptions['add']['en-US'], name_localizations=names['add'], description_localizations=descriptions['add'])
+    @personal.command()
     async def add(self, ctx,
-                  quote: Option(str, descriptions['add.quote']['en-US'], name_localizations=names['add.quote'], description_localizations=descriptions['add.quote']),
-                  response: Option(str, descriptions['add.response']['en-US'], name_localizations=names['add.response'], description_localizations=descriptions['add.response']),
-                  attachment: Option(discord.Attachment, descriptions['add.attachment']['en-US'], name_localizations=names['add.attachment'], description_localizations=descriptions['add.attachment'], required=False)):
+                  quote: Option(str, "What should the trigger be for this quote?"),
+                  response: Option(str, "What should the quote say?"),
+                  attachment: Option(discord.Attachment, "File to attach to the quote.", required=False)):
+        """Adds a personal quote."""
         checkIfExist = await GG.MDB['personalcommands'].find_one({"user": ctx.interaction.user.id, "trigger": quote})
         if checkIfExist is not None:
             return await ctx.respond(content=":x:" + ' **You already have a command with that trigger.**')
@@ -71,7 +74,7 @@ class PersonalQuotes(commands.Cog):
         await ctx.respond(content=":white_check_mark:" + ' **Command added.**')
 
     @personal.command()
-    async def delete(self, ctx, quote: Option(str, descriptions['delete.quote']['en-US'], autocomplete=get_quote)):
+    async def delete(self, ctx, quote: Option(str, "Which personal quote do you want to delete?", autocomplete=get_quote)):
         """Deletes a personal quote."""
         result = await GG.MDB['personalcommands'].delete_one(
             {"user": ctx.interaction.user.id, "trigger": quote.replace('\'', '\'\'')})

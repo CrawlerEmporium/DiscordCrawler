@@ -208,53 +208,7 @@ def loadButtons(bot):
     bot.add_view(Greylist(bot))
 
 
-def fillLocalization():
-    for file in listdir(GG.LOCALEFOLDER):
-        if isfile(join(GG.LOCALEFOLDER, file)):
-            locale = file.replace('.json', '')
-            jsonFile = json.loads(open(GG.LOCALEFOLDER + "/" + file, "r", encoding="UTF-8").read())
-            for key in jsonFile:
-                value = jsonFile[key]
-                keySplit = key.split(".")
-                cog, command, _type = "", "", ""
-
-                if len(keySplit) == 3:
-                    cog = keySplit[0]
-                    command = keySplit[1]
-                    _type = keySplit[2]
-
-                if len(keySplit) == 4:
-                    cog = keySplit[0]
-                    command = f"{keySplit[1]}.{keySplit[2]}"
-                    _type = keySplit[3]
-
-                if GG.LOCALIZATION.get(cog, None) is not None:
-                    cog = GG.LOCALIZATION.get(cog)
-                    if cog.get(_type, None) is not None:
-                        if cog.get(_type).get(command, None) is not None:
-                            cog[_type][command][locale] = value
-                        else:
-                            cog[_type][command] = {
-                                f"{locale}": value
-                            }
-                    else:
-                        cog[_type] = {
-                            f"{command}": {
-                                f"{locale}": value
-                            }
-                        }
-                else:
-                    GG.LOCALIZATION[cog] = {
-                        f"{_type}": {
-                            f"{command}": {
-                                f"{locale}": value
-                            }
-                        }
-                    }
-
-
 if __name__ == "__main__":
-    fillLocalization()
     bot.state = "run"
     loadCogs()
     loadCrawlerUtilitiesCogs()
