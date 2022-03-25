@@ -58,18 +58,14 @@ class PersonalQuotes(commands.Cog):
     @personal.command()
     async def add(self, ctx, trigger: Option(str, "What should the trigger be for this quote?"), response: Option(str, "What should the quote say?"), attachment: Option(discord.Attachment, "File to attach to the quote", required=False)):
         """Adds a personal quote."""
-        if not response and not ctx.message.attachments:
-            return await ctx.respond(
-                content=":x:" + ' **You must include at least a response or an attachment in your message.**')
+        trig = trigger
+        if response is not None:
+            response = response
+        checkIfExist = await GG.MDB['personalcommands'].find_one({"user": ctx.interaction.user.id, "trigger": trig})
+        if checkIfExist is not None:
+            return await ctx.respond(content=":x:" + ' **You already have a command with that trigger.**')
         else:
-            trig = trigger
-            if response is not None:
-                response = response
-            checkIfExist = await GG.MDB['personalcommands'].find_one({"user": ctx.interaction.user.id, "trigger": trig})
-            if checkIfExist is not None:
-                return await ctx.respond(content=":x:" + ' **You already have a command with that trigger.**')
-            else:
-                await GG.MDB['personalcommands'].insert_one({"user": ctx.interaction.user.id, "trigger": trig, "response": response, "attachments": attachment.url})
+            await GG.MDB['personalcommands'].insert_one({"user": ctx.interaction.user.id, "trigger": trig, "response": response, "attachments": attachment.url})
 
         await ctx.respond(content=":white_check_mark:" + ' **Command added.**')
 
