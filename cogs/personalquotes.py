@@ -59,7 +59,7 @@ class PersonalQuotes(commands.Cog):
     @personal.command(name_localizations=names['add'], description_localizations=descriptions['add'])
     async def add(self, ctx,
                   quote: Option(str, name_localizations=names['add.quote'], description_localizations=descriptions['add.quote']),
-                  response: Option(str, name_localizations=names['add.response'], description_localizations=descriptions['code.response']),
+                  response: Option(str, name_localizations=names['add.response'], description_localizations=descriptions['add.response']),
                   attachment: Option(discord.Attachment, required=False, name_localizations=names['add.attachment'], description_localizations=descriptions['add.attachment'])):
         checkIfExist = await GG.MDB['personalcommands'].find_one({"user": ctx.interaction.user.id, "trigger": quote})
         if checkIfExist is not None:
