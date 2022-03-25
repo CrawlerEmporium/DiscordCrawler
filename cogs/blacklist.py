@@ -1,7 +1,7 @@
 import json
 
 import discord
-from discord import slash_command, permissions, Option
+from discord import slash_command, permissions, Option, Interaction, InteractionType
 from discord.ext import commands
 
 from crawler_utilities.handlers import logger
@@ -149,36 +149,37 @@ class Blacklist(commands.Cog):
             await ctx.respond(f"{ctx.author.mention} I tried DMing you, but you either blocked me, or you don't allow DM's", ephemeral=True)
 
     @commands.Cog.listener()
-    async def on_interaction(self, res):
-        if res.guild.id in GG.GREYGUILDS or res.guild.id in GG.GUILDS:
-            if res.channel.id in GG.CHANNEL:
-                if res.component.label == "Reject":
-                    msg = res.message
-                    embed = msg.embeds[0]
-                    msgID = 0
-                    channelID = 0
-                    i = 0
-                    for field in embed.fields:
-                        if field.name == "MSGID":
-                            msgID = field.value
-                            embed.remove_field(i)
-                        i += 1
-                    i = 0
-                    for field in embed.fields:
-                        if field.name == "CHANNELID":
-                            channelID = field.value
-                            embed.remove_field(i)
-                        i += 1
-                    if channelID != 0 and msgID != 0:
-                        try:
-                            channel = await self.bot.fetch_channel(channelID)
-                            message = await channel.fetch_message(msgID)
-                            await message.delete()
-                            embed.set_footer(text=f"Message was removed by {res.user.display_name}.")
-                            await msg.edit(embed=embed, components=[])
-                        except:
-                            embed.set_footer(text="Couldn't find message, probably already deleted.")
-                            await msg.edit(embed=embed, components=[])
+    async def on_interaction(self, res: Interaction):
+        if res.type == InteractionType.component:
+            if res.guild.id in GG.GREYGUILDS or res.guild.id in GG.GUILDS:
+                if res.channel.id in GG.CHANNEL:
+                    if res.component.label == "Reject":
+                        msg = res.message
+                        embed = msg.embeds[0]
+                        msgID = 0
+                        channelID = 0
+                        i = 0
+                        for field in embed.fields:
+                            if field.name == "MSGID":
+                                msgID = field.value
+                                embed.remove_field(i)
+                            i += 1
+                        i = 0
+                        for field in embed.fields:
+                            if field.name == "CHANNELID":
+                                channelID = field.value
+                                embed.remove_field(i)
+                            i += 1
+                        if channelID != 0 and msgID != 0:
+                            try:
+                                channel = await self.bot.fetch_channel(channelID)
+                                message = await channel.fetch_message(msgID)
+                                await message.delete()
+                                embed.set_footer(text=f"Message was removed by {res.user.display_name}.")
+                                await msg.edit(embed=embed, components=[])
+                            except:
+                                embed.set_footer(text="Couldn't find message, probably already deleted.")
+                                await msg.edit(embed=embed, components=[])
 
     async def checkForListedTerms(self, message):
         if message.author.id != 602774912595263490:  # if not bot

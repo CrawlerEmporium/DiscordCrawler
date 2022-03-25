@@ -65,7 +65,10 @@ class PersonalQuotes(commands.Cog):
         if checkIfExist is not None:
             return await ctx.respond(content=":x:" + ' **You already have a command with that trigger.**')
         else:
-            await GG.MDB['personalcommands'].insert_one({"user": ctx.interaction.user.id, "trigger": trig, "response": response, "attachments": attachment.url})
+            if attachment is not None:
+                await GG.MDB['personalcommands'].insert_one({"user": ctx.interaction.user.id, "trigger": trig, "response": response, "attachments": [attachment.url]})
+            else:
+                await GG.MDB['personalcommands'].insert_one({"user": ctx.interaction.user.id, "trigger": trig, "response": response, "attachments": []})
 
         await ctx.respond(content=":white_check_mark:" + ' **Command added.**')
 
