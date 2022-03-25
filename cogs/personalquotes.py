@@ -12,6 +12,7 @@ from crawler_utilities.utils.functions import try_delete
 
 # noinspection PyUnresolvedReferences
 from crawler_utilities.utils.pagination import get_selection
+from utils.functions import get_description, get_names, get_descriptions, get_name
 
 log = logger.logger
 
@@ -34,12 +35,10 @@ class PersonalQuotes(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    names = GG.LOCALIZATION['personalquotes']['name']
-    descriptions = GG.LOCALIZATION['personalquotes']['description']
-
+    cogName = 'personalquotes'
     personal = SlashCommandGroup("personal", "All your personal quotes")
 
-    @personal.command(description=descriptions['quote']['en-US'], name_localizations=names['quote'], description_localizations=descriptions['quote'])
+    @personal.command(name=get_name(cogName), description=get_description(cogName), name_localizations=get_names(cogName, 'quote'), description_localizations=get_descriptions(cogName, 'quote'))
     async def quote(self, ctx, quote: Option(str, descriptions['quote.quote']['en-US'], name_localizations=names['quote.quote'], description_localizations=descriptions['quote.quote'], autocomplete=get_quote)):
         user_quote = await GG.MDB['personalcommands'].find_one({"user": ctx.interaction.user.id, "trigger": quote})
         await self.sendPersonalChoice(ctx, user_quote)
@@ -71,8 +70,9 @@ class PersonalQuotes(commands.Cog):
 
         await ctx.respond(content=":white_check_mark:" + ' **Command added.**')
 
-    @personal.command(description=descriptions['delete']['en-US'], name_localizations=names['delete'], description_localizations=descriptions['delete'])
-    async def delete(self, ctx, quote: Option(str, descriptions['delete.quote']['en-US'], name_localizations=names['delete.quote'], description_localizations=descriptions['delete.quote'], autocomplete=get_quote)):
+    @personal.command()
+    async def delete(self, ctx, quote: Option(str, descriptions['delete.quote']['en-US'], autocomplete=get_quote)):
+        """Deletes a personal quote."""
         result = await GG.MDB['personalcommands'].delete_one(
             {"user": ctx.interaction.user.id, "trigger": quote.replace('\'', '\'\'')})
         if result.deleted_count > 0:
@@ -80,8 +80,9 @@ class PersonalQuotes(commands.Cog):
         else:
             await ctx.respond(content=":x:" + ' **Command with that trigger does not exist.**')
 
-    @personal.command(description=descriptions['list']['en-US'], name_localizations=names['list'], description_localizations=descriptions['list'])
+    @personal.command()
     async def list(self, ctx):
+        """Returns all your personal quotes in a list format"""
         user_quotes = await GG.MDB['personalcommands'].find({"user": ctx.interaction.user.id}).to_list(length=None)
         if len(user_quotes) == 0:
             await ctx.respond(content=":x:" + ' **You have no personal commands**')
