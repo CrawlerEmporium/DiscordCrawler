@@ -43,6 +43,8 @@ GREYLIST = ""
 GUILDS = []
 GREYGUILDS = []
 
+LOCALEFOLDER = env('LOCALEFOLDER')
+LOCALIZATION = {}
 
 def loadChannels(CHANNELDB):
     channel = {}
