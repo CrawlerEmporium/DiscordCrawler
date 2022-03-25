@@ -15,7 +15,6 @@ from crawler_utilities.utils.pagination import get_selection
 
 log = logger.logger
 
-
 def personal_embed(db_response, author):
     if isinstance(author, discord.Member) and author.color != discord.Colour.default():
         embed = discord.Embed(description=db_response['response'], color=author.color)
@@ -41,7 +40,7 @@ class PersonalQuotes(commands.Cog):
     personal = SlashCommandGroup("personal", "All your personal quotes")
 
     @personal.command(description=descriptions['quote']['en-US'], name_localizations=names['quote'], description_localizations=descriptions['quote'])
-    async def quote(self, ctx, quote: Option(str, description=descriptions['quote.quote']['en-US'], autocomplete=get_quote, name_localizations=names['quote.quote'], description_localizations=descriptions['quote.quote'])):
+    async def quote(self, ctx, quote: Option(str, descriptions['quote.quote']['en-US'], name_localizations=names['quote.quote'], description_localizations=descriptions['quote.quote'], autocomplete=get_quote)):
         user_quote = await GG.MDB['personalcommands'].find_one({"user": ctx.interaction.user.id, "trigger": quote})
         await self.sendPersonalChoice(ctx, user_quote)
 
@@ -51,16 +50,16 @@ class PersonalQuotes(commands.Cog):
         await ctx.respond(content=":white_check_mark:" + ' **Cleared all your personal quotes.**')
 
     @personal.command(description=descriptions['code']['en-US'], name_localizations=names['code'], description_localizations=descriptions['code'])
-    async def code(self, ctx, quote: Option(str, autocomplete=get_quote, description=descriptions['code.quote']['en-US'],  name_localizations=names['code.quote'], description_localizations=descriptions['code.quote'])):
+    async def code(self, ctx, quote: Option(str, descriptions['code.quote']['en-US'],  name_localizations=names['code.quote'], description_localizations=descriptions['code.quote'], autocomplete=get_quote)):
         user_quote = await GG.MDB['personalcommands'].find_one({"user": ctx.interaction.user.id, "trigger": quote})
         replaceString = '\`'
         await ctx.respond(f"```{user_quote['response'].replace('`', replaceString)}```", files=user_quote['attachments'])
 
     @personal.command(description=descriptions['add']['en-US'], name_localizations=names['add'], description_localizations=descriptions['add'])
     async def add(self, ctx,
-                  quote: Option(str, description=descriptions['add.quote']['en-US'], name_localizations=names['add.quote'], description_localizations=descriptions['add.quote']),
-                  response: Option(str, description=descriptions['add.response']['en-US'], name_localizations=names['add.response'], description_localizations=descriptions['add.response']),
-                  attachment: Option(discord.Attachment, required=False, description=descriptions['add.attachment']['en-US'], name_localizations=names['add.attachment'], description_localizations=descriptions['add.attachment'])):
+                  quote: Option(str, descriptions['add.quote']['en-US'], name_localizations=names['add.quote'], description_localizations=descriptions['add.quote']),
+                  response: Option(str, descriptions['add.response']['en-US'], name_localizations=names['add.response'], description_localizations=descriptions['add.response']),
+                  attachment: Option(discord.Attachment, descriptions['add.attachment']['en-US'], name_localizations=names['add.attachment'], description_localizations=descriptions['add.attachment'], required=False)):
         checkIfExist = await GG.MDB['personalcommands'].find_one({"user": ctx.interaction.user.id, "trigger": quote})
         if checkIfExist is not None:
             return await ctx.respond(content=":x:" + ' **You already have a command with that trigger.**')
@@ -73,7 +72,7 @@ class PersonalQuotes(commands.Cog):
         await ctx.respond(content=":white_check_mark:" + ' **Command added.**')
 
     @personal.command(description=descriptions['delete']['en-US'], name_localizations=names['delete'], description_localizations=descriptions['delete'])
-    async def delete(self, ctx, quote: Option(str, autocomplete=get_quote, description=descriptions['delete.quote']['en-US'], name_localizations=names['delete.quote'], description_localizations=descriptions['delete.quote'])):
+    async def delete(self, ctx, quote: Option(str, descriptions['delete.quote']['en-US'], name_localizations=names['delete.quote'], description_localizations=descriptions['delete.quote'], autocomplete=get_quote)):
         result = await GG.MDB['personalcommands'].delete_one(
             {"user": ctx.interaction.user.id, "trigger": quote.replace('\'', '\'\'')})
         if result.deleted_count > 0:
