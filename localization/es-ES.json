@@ -1,1 +1,62 @@
-{}
+{
+    "personalquotes.quote.name": "cita",
+    "personalquotes.quote.description": "Devuelve tu cita personal seleccionada.",
+    "personalquotes.quote.quote.name": "cita",
+    "personalquotes.quote.quote.description": "¿Qué cita personal quieres publicar?",
+  
+    "personalquotes.clear.name": "limpiar",
+    "personalquotes.clear.description": "Elimina **TODAS** tus citas personales.",
+  
+    "personalquotes.code.name": "código",
+    "personalquotes.code.description": "Devuelve tu cita personal seleccionada en un bloque de código.",
+    "personalquotes.code.quote.name": "cita",
+    "personalquotes.code.quote.description": "¿De qué cita personal quieres ver el código?",
+  
+    "personalquotes.add.name": "añadir",
+    "personalquotes.add.description": "Añade una cita personal.",
+    "personalquotes.add.quote.name": "cita",
+    "personalquotes.add.quote.description": "¿Cuál debería ser el activador de esta cita?",
+    "personalquotes.add.response.name": "respuesta",
+    "personalquotes.add.response.description": "¿Cuál sería el contenido de la cita?",
+    "personalquotes.add.attachment.name": "adjunto",
+    "personalquotes.add.attachment.description": "Archivo adjunto a la cita.",
+  
+    "personalquotes.delete.name": "eliminar",
+    "personalquotes.delete.description": "Elimina una cita personal.",
+    "personalquotes.delete.quote.name": "cita",
+    "personalquotes.delete.quote.description": "¿Qué cita personal quieres eliminar?",
+  
+    "personalquotes.list.name": "lista",
+    "personalquotes.list.description": "Devuelve una lista con todas tus citas personales.",
+  
+    "ban.ban.name": "ban",
+    "ban.ban.description": "[STAFF] Banea a un miembro del servidor.",
+    "ban.ban.member.name": "miembro",
+    "ban.ban.member.description": "¿A qué miembro quieres banear?",
+    "ban.ban.message.name": "mensaje",
+    "ban.ban.message.description": "¿Qué mensaje quieres adjuntar al baneo?",
+  
+    "case.check.name": "comprobar",
+    "case.check.description": "[STAFF] Comprueba un caso.",
+    "case.check.caseid.name": "casoID",
+    "case.check.caseid.description": "¿Qué caso quieres comprobar?",
+  
+    "case.close.name": "cerrar",
+    "case.close.description": "[STAFF] Cierra un caso.",
+    "case.close.caseid.name": "casoID",
+    "case.close.caseid.description": "¿Qué caso quieres cerrar?",
+    "case.close.message.name": "mensaje",
+    "case.close.message.description": "Nota opcional para cerrar el caso",
+  
+    "case.update.name": "actualizar",
+    "case.update.description": "[STAFF] Actualiza un caso",
+    "case.update.caseid.name": "casoID",
+    "case.update.caseid.description": "¿Qué caso quieres actualizar?",
+    "case.update.message.name": "mensaje",
+    "case.update.message.description": "Nota opcional para actualizar el caso",
+  
+    "case.list.name": "lista",
+    "case.list.description": "[STAFF] Devuelve la lista de todos los casos de un miembro",
+    "case.list.member.name": "miembro",
+    "case.list.member.description": "¿De quién quieres ver los casos?"
+  }
