@@ -15,7 +15,7 @@ log = logger.logger
 
 version = "v2.6.0"
 SHARD_COUNT = 1
-TESTING = False
+TESTING = True
 defaultPrefix = GG.PREFIX if not TESTING else '*'
 intents = discord.Intents().default()
 intents.members = True
@@ -156,6 +156,7 @@ def loadCogs():
         try:
             bot.load_extension(GG.COGSADMIN + "." + extension)
         except Exception as e:
+            print(e)
             log.error(f'Failed to load extension {extension}')
             i += 1
     log.info("-------------------")
@@ -178,7 +179,7 @@ def loadCogs():
 def loadCrawlerUtilitiesCogs():
     cu_event_extensions = ["errors", "joinLeave"]
     cu_event_folder = "crawler_utilities.events"
-    cu_cogs_extensions = ["flare", "stats", "help"]
+    cu_cogs_extensions = ["flare", "stats", "help", "localization"]
     cu_cogs_folder = "crawler_utilities.cogs"
 
     i = 0
@@ -187,6 +188,7 @@ def loadCrawlerUtilitiesCogs():
         try:
             bot.load_extension(f"{cu_cogs_folder}.{extension}")
         except Exception as e:
+            print(e)
             log.error(f'Failed to load extension {extension}')
             i += 1
     log.info("-------------------")
@@ -208,54 +210,8 @@ def loadButtons(bot):
     bot.add_view(Greylist(bot))
 
 
-def fillLocalization():
-    for file in listdir(GG.LOCALEFOLDER):
-        if isfile(join(GG.LOCALEFOLDER, file)):
-            locale = file.replace('.json', '')
-            jsonFile = json.loads(open(GG.LOCALEFOLDER + "/" + file, "r", encoding="UTF-8").read())
-            for key in jsonFile:
-                value = jsonFile[key]
-                keySplit = key.split(".")
-                cog, command, _type = "", "", ""
-
-                if len(keySplit) == 3:
-                    cog = keySplit[0]
-                    command = keySplit[1]
-                    _type = keySplit[2]
-
-                if len(keySplit) == 4:
-                    cog = keySplit[0]
-                    command = f"{keySplit[1]}.{keySplit[2]}"
-                    _type = keySplit[3]
-
-                if GG.LOCALIZATION.get(cog, None) is not None:
-                    cog = GG.LOCALIZATION.get(cog)
-                    if cog.get(_type, None) is not None:
-                        if cog.get(_type).get(command, None) is not None:
-                            cog[_type][command][locale] = value
-                        else:
-                            cog[_type][command] = {
-                                f"{locale}": value
-                            }
-                    else:
-                        cog[_type] = {
-                            f"{command}": {
-                                f"{locale}": value
-                            }
-                        }
-                else:
-                    GG.LOCALIZATION[cog] = {
-                        f"{_type}": {
-                            f"{command}": {
-                                f"{locale}": value
-                            }
-                        }
-                    }
-
-
 if __name__ == "__main__":
-    fillLocalization()
     bot.state = "run"
-    loadCogs()
     loadCrawlerUtilitiesCogs()
+    loadCogs()
     bot.run(bot.token)

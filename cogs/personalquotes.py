@@ -10,7 +10,7 @@ from crawler_utilities.handlers import logger
 
 # noinspection PyUnresolvedReferences
 from crawler_utilities.utils.pagination import get_selection
-from utils.functions import get_parameter_kwargs, get_command_kwargs
+from crawler_utilities.cogs.localization import get_command_kwargs, get_parameter_kwargs
 
 log = logger.logger
 

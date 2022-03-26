@@ -11,10 +11,10 @@ from discord.ext import commands
 from cogsAdmin.models.case import Case, getCaseEmbed, getCaseTargetEmbed, getModDecisionEmbed
 from cogsAdmin.models.caseStatus import CaseStatus
 from cogsAdmin.models.caseType import CaseType
+from crawler_utilities.cogs.localization import get_command_kwargs, get_parameter_kwargs
 from crawler_utilities.handlers import logger
 
 from crawler_utilities.utils.functions import get_next_num
-from utils.functions import get_command_kwargs, get_parameter_kwargs
 
 log = logger.logger
 
