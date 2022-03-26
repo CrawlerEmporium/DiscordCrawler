@@ -32,8 +32,8 @@ class Whois(commands.Cog):
         bans = []
 
         user = member
-        guild = ctx.interaction.guild_id
-        cases = await GG.MDB.members.find_one({"server": guild, "user": user.id})
+        guild = ctx.interaction.guild
+        cases = await GG.MDB.members.find_one({"server": guild.id, "user": user.id})
 
         adminString, noteString, warningString = await getCaseStrings(bans, cases, mutes, notes, tempbans, warnings)
 
@@ -122,6 +122,7 @@ async def getCaseStrings(bans, cases, mutes, notes, tempbans, warnings):
         for note in notes:
             noteString += f"{note['message']}\n(Id: ``{note['caseId']}`` - {note['date'].__format__('%B %d, %Y')})\n\n"
     return adminString, noteString, warningString
+
 
 def setup(bot):
     log.info("[Admin] Whois")
