@@ -15,7 +15,7 @@ log = logger.logger
 
 version = "v2.6.0"
 SHARD_COUNT = 1
-TESTING = True
+TESTING = False
 defaultPrefix = GG.PREFIX if not TESTING else '*'
 intents = discord.Intents().default()
 intents.members = True
