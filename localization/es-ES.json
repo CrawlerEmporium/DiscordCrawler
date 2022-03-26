@@ -49,14 +49,14 @@
     "case.close.message.description": "Nota opcional para cerrar el caso",
   
     "case.update.name": "actualizar",
-    "case.update.description": "[STAFF] Actualiza un caso",
+    "case.update.description": "[STAFF] Actualiza un caso.",
     "case.update.caseid.name": "casoID",
     "case.update.caseid.description": "¿Qué caso quieres actualizar?",
     "case.update.message.name": "mensaje",
-    "case.update.message.description": "Nota opcional para actualizar el caso",
+    "case.update.message.description": "Nota opcional para actualizar el caso.",
   
     "case.list.name": "lista",
-    "case.list.description": "[STAFF] Devuelve la lista de todos los casos de un miembro",
+    "case.list.description": "[STAFF] Devuelve la lista de todos los casos de un miembro.",
     "case.list.member.name": "miembro",
     "case.list.member.description": "¿De quién quieres ver los casos?"
   }
