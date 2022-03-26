@@ -30,33 +30,33 @@
   "personalquotes.list.description": "Returns all your personal quotes in a list format",
 
   "ban.ban.name": "ban",
-  "ban.ban.description": "[STAFF] Bans a member from the server",
+  "ban.ban.description": "[STAFF] Bans a member from the server.",
   "ban.ban.member.name": "member",
   "ban.ban.member.description": "Which member do you want to ban?",
   "ban.ban.message.name": "message",
   "ban.ban.message.description": "What message do you want to attach to the ban?",
 
   "case.check.name": "check",
-  "case.check.description": "[STAFF] Checks a case",
+  "case.check.description": "[STAFF] Checks a case.",
   "case.check.caseid.name": "caseid",
   "case.check.caseid.description": "Which case do you want check?",
 
   "case.close.name": "close",
-  "case.close.description": "[STAFF] Closes a case",
+  "case.close.description": "[STAFF] Closes a case.",
   "case.close.caseid.name": "caseid",
   "case.close.caseid.description": "Which case do you want close?",
   "case.close.message.name": "message",
   "case.close.message.description": "Optional note for closing the case",
 
   "case.update.name": "update",
-  "case.update.description": "[STAFF] Updates a case",
+  "case.update.description": "[STAFF] Updates a case.",
   "case.update.caseid.name": "caseid",
   "case.update.caseid.description": "Which case do you want update?",
   "case.update.message.name": "message",
   "case.update.message.description": "Optional note for updating the case",
 
   "case.list.name": "list",
-  "case.list.description": "[STAFF] Lists all cases for a member",
+  "case.list.description": "[STAFF] Lists all cases for a member.",
   "case.list.member.name": "member",
   "case.list.member.description": "Whose cases do you want to see?"
 }
