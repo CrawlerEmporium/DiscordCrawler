@@ -38,19 +38,19 @@
   
     "case.check.name": "comprobar",
     "case.check.description": "[STAFF] Comprueba un caso.",
-    "case.check.caseid.name": "casoID",
+    "case.check.caseid.name": "casoid",
     "case.check.caseid.description": "¿Qué caso quieres comprobar?",
   
     "case.close.name": "cerrar",
     "case.close.description": "[STAFF] Cierra un caso.",
-    "case.close.caseid.name": "casoID",
+    "case.close.caseid.name": "casoid",
     "case.close.caseid.description": "¿Qué caso quieres cerrar?",
     "case.close.message.name": "mensaje",
     "case.close.message.description": "Nota opcional para cerrar el caso",
   
     "case.update.name": "actualizar",
     "case.update.description": "[STAFF] Actualiza un caso.",
-    "case.update.caseid.name": "casoID",
+    "case.update.caseid.name": "casoid",
     "case.update.caseid.description": "¿Qué caso quieres actualizar?",
     "case.update.message.name": "mensaje",
     "case.update.message.description": "Nota opcional para actualizar el caso.",
