@@ -1,15 +1,15 @@
 from datetime import datetime
 
 import discord
-import typing
 
-from discord.commands import permissions
+from discord import slash_command, Option
 
 import utils.globals as GG
 from discord.ext import commands
 from cogsAdmin.models.caseType import CaseType
 
 from crawler_utilities.handlers import logger
+from utils.functions import get_command_kwargs, get_parameter_kwargs
 
 log = logger.logger
 
@@ -18,46 +18,27 @@ class Whois(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['check'])
-    @commands.guild_only()
-    @GG.is_staff()
-    async def whois(self, ctx, member: typing.Union[discord.Member, int] = None):
-        """[STAFF ONLY]"""
-        if member is None:
-            return await ctx.send("Member can't be none.")
-        else:
-            notes = []
-            warnings = []
-            mutes = []
-            tempbans = []
-            bans = []
-            cases = None
+    cogName = "whois"
 
-            if type(member) is discord.Member:
-                user = member
-                guild = ctx.message.guild
-                cases = await GG.MDB.members.find_one({"server": guild.id, "user": user.id})
-            if type(member) is int:
-                user = member
-                cases = await GG.MDB.members.find_one({"server": ctx.message.guild.id, "user": user})
-                if cases is None:
-                    return await ctx.send("Member no is longer on this server, and has no notes attached to it.")
+    @slash_command(**get_command_kwargs(cogName, "whois"))
+    async def whois(self, ctx, member: Option(discord.Member, **get_parameter_kwargs(cogName, "whois.member"))):
+        if not GG.is_staff_bool_slash(ctx):
+            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
 
-            adminString, noteString, warningString = await getCaseStrings(bans, cases, mutes, notes, tempbans, warnings)
+        notes = []
+        warnings = []
+        mutes = []
+        tempbans = []
+        bans = []
 
-            if type(member) is discord.Member:
-                em = await getMemberEmbed(adminString, guild, noteString, user, warningString)
-                await ctx.send(embed=em)
+        user = member
+        guild = ctx.interaction.guild_id
+        cases = await GG.MDB.members.find_one({"server": guild, "user": user.id})
 
-            if type(member) is int:
-                em = discord.Embed()
-                if noteString != "":
-                    em.add_field(name='Notes', value=noteString, inline=False)
-                if warningString != "":
-                    em.add_field(name='Warnings', value=warningString, inline=False)
-                if adminString != "":
-                    em.add_field(name='Administration', value=adminString, inline=False)
-                await ctx.send(content="Member no is longer on this server, but has prior notes attached to it.", embed=em)
+        adminString, noteString, warningString = await getCaseStrings(bans, cases, mutes, notes, tempbans, warnings)
+
+        em = await getMemberEmbed(adminString, guild, noteString, user, warningString)
+        await ctx.respond(embed=em)
 
     @commands.user_command(name="Staff: User Check")
     async def user_whois_test(self, ctx, member: discord.Member):

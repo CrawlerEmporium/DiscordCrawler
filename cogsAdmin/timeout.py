@@ -14,11 +14,12 @@ from cogsAdmin.models.caseType import CaseType
 from crawler_utilities.handlers import logger
 
 from crawler_utilities.utils.functions import get_next_num
+from utils.functions import get_parameter_kwargs, get_command_kwargs
 
 log = logger.logger
 
 
-class TimeOut(discord.ui.Select):
+class TimeOutSelection(discord.ui.Select):
     def __init__(self, cmember, cmessage, cauthor, caseId, memberDB, bot, ctx):
         self.member = cmember
         self.author = cauthor
@@ -121,23 +122,23 @@ class TimeOutView(discord.ui.View):
     def __init__(self, member, message, author, caseId, memberDB, bot, ctx):
         super().__init__()
 
-        self.add_item(TimeOut(member, message, author, caseId, memberDB, bot, ctx))
+        self.add_item(TimeOutSelection(member, message, author, caseId, memberDB, bot, ctx))
 
 
-class Mute(commands.Cog):
+class Timeout(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @slash_command()
-    async def timeout(self, ctx, member: Option(discord.Member, "Which member do you want to timeout?"), message: Option(str, "What message do you want to attach to the timeout?")):
-        """[STAFF] times a user out"""
+    cogName = "timeout"
+
+    @slash_command(**get_command_kwargs(cogName, "timeout"))
+    async def timeout(self, ctx, member: Option(discord.Member, **get_parameter_kwargs(cogName, "timeout.member")), message: Option(str, **get_parameter_kwargs(cogName, "timeout.message"))):
         if not GG.is_staff_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await muteMember(self.bot, ctx, member, message)
 
-    @slash_command()
-    async def untimeout(self, ctx, member: Option(discord.Member, "For which member do you want to remove the timeout?")):
-        """[STAFF] prematurely remove a timeout from a user"""
+    @slash_command(**get_command_kwargs(cogName, "untimeout"))
+    async def untimeout(self, ctx, member: Option(discord.Member, **get_parameter_kwargs(cogName, "untimeout.member"))):
         if not GG.is_staff_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await unmuteMember(ctx, member)
@@ -171,4 +172,4 @@ async def unmuteMember(ctx, member: typing.Optional[discord.Member]):
 
 def setup(bot):
     log.info("[Admin] Timeout")
-    bot.add_cog(Mute(bot))
+    bot.add_cog(Timeout(bot))

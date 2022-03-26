@@ -58,5 +58,36 @@
   "case.list.name": "list",
   "case.list.description": "[STAFF] Lists all cases for a member.",
   "case.list.member.name": "member",
-  "case.list.member.description": "Whose cases do you want to see?"
+  "case.list.member.description": "Whose cases do you want to see?",
+
+  "note.note.name": "note",
+  "note.note.description": "[STAFF] Adds a note to the member.",
+  "note.note.member.name": "member",
+  "note.note.member.description": "To which member do you want to attach a note?",
+  "note.note.message.name": "message",
+  "note.note.message.description": "What should the note say?",
+
+  "timeout.timeout.name": "timeout",
+  "timeout.timeout.description": "[STAFF] Times a user out.",
+  "timeout.timeout.member.name": "member",
+  "timeout.timeout.member.description": "Which member do you want to timeout?",
+  "timeout.timeout.message.name": "message",
+  "timeout.timeout.message.description": "What message do you want to attach to the timeout?",
+
+  "timeout.untimeout.name": "untimeout",
+  "timeout.untimeout.description": "[STAFF] Prematurely removes a timeout from a user.",
+  "timeout.untimeout.member.name": "member",
+  "timeout.untimeout.member.description": "For which member do you want to remove the timeout?",
+
+  "warn.warn.name": "warn",
+  "warn.warn.description": "[STAFF] Warns a user for breaking the rules.",
+  "warn.warn.member.name": "member",
+  "warn.warn.member.description": "Who do you want to warn?",
+  "warn.warn.message.name": "message",
+  "warn.warn.message.description": "What should the warning message say?",
+
+  "whois.whois.name": "whois",
+  "whois.whois.description": "[STAFF] Checks who a person is. Includes moderational notes.",
+  "whois.whois.member.name": "member",
+  "whois.whois.member.description": "Which member do you want to check?"
 }
