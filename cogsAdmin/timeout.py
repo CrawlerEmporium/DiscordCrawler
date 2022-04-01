@@ -67,7 +67,7 @@ class TimeOutSelection(discord.ui.Select):
         if self.author != interaction.user:
             return
         else:
-            timeoutActual = datetime.now() - timedelta(hours=1)
+            timeoutActual = datetime.now() - timedelta(hours=2)
             if self.values[0] == "10 Minutes":
                 timeoutActual = timeoutActual + timedelta(minutes=10)
             elif self.values[0] == "1 Hour":
