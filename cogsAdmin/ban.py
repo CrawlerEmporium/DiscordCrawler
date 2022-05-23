@@ -49,7 +49,6 @@ class Ban(commands.Cog):
         await GG.MDB.cases.insert_one(case.to_dict())
         await GG.MDB.members.update_one({"server": ctx.interaction.guild_id, "user": member.id}, {"$set": memberDB}, upsert=True)
         embed = await getCaseEmbed(ctx, case)
-        await member.ban(reason=message)
         await ctx.respond(embed=embed)
 
         decisionChannelExist = await GG.MDB['channelinfo'].find_one({"guild": ctx.interaction.guild_id, "type": "MODDECISION"})
@@ -68,6 +67,8 @@ class Ban(commands.Cog):
             await ctx.send(f"DM with info send to {member}")
         except discord.Forbidden:
             await ctx.send(f"Message failed to send. (Not allowed to DM)")
+
+        await member.ban(reason=message)
 
 
 def setup(bot):
