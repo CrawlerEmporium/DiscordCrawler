@@ -17,6 +17,7 @@ version = "v2.6.0"
 SHARD_COUNT = 1
 TESTING = False
 defaultPrefix = GG.PREFIX if not TESTING else '*'
+COGS = [GG.COGS, GG.COGSADMIN, GG.COGSECONOMY, "cogsToBeDetermined"]
 intents = discord.Intents().default()
 intents.members = True
 intents.message_content = True
@@ -134,41 +135,16 @@ async def fillGlobals():
 
 def loadCogs():
     i = 0
-    log.info("Loading Cogs...")
-    for extension in [f.replace('.py', '') for f in listdir(GG.COGS) if isfile(join(GG.COGS, f))]:
-        try:
-            bot.load_extension(GG.COGS + "." + extension)
-        except Exception as e:
-            print(e)
-            log.error(f'Failed to load extension {extension}')
-            i += 1
-    log.info("-------------------")
-    log.info("Loading Economy Cogs...")
-    for extension in [f.replace('.py', '') for f in listdir(GG.COGSECONOMY) if isfile(join(GG.COGSECONOMY, f))]:
-        try:
-            bot.load_extension(GG.COGSECONOMY + "." + extension)
-        except Exception as e:
-            log.error(f'Failed to load extension {extension}')
-            i += 1
-    log.info("-------------------")
-    log.info("Loading Admin Cogs...")
-    for extension in [f.replace('.py', '') for f in listdir(GG.COGSADMIN) if isfile(join(GG.COGSADMIN, f))]:
-        try:
-            bot.load_extension(GG.COGSADMIN + "." + extension)
-        except Exception as e:
-            print(e)
-            log.error(f'Failed to load extension {extension}')
-            i += 1
-    log.info("-------------------")
-
-    log.info("Loading ToBeDetermined Cogs...")
-    for extension in [f.replace('.py', '') for f in listdir("cogsToBeDetermined") if isfile(join("cogsToBeDetermined", f))]:
-        try:
-            bot.load_extension("cogsToBeDetermined" + "." + extension)
-        except Exception as e:
-            log.error(f'Failed to load extension {extension}')
-            i += 1
-    log.info("-------------------")
+    for COG in COGS:
+        log.info(f"Loading {COG}...")
+        for extension in [f.replace('.py', '') for f in listdir(GG.COG) if isfile(join(GG.COG, f))]:
+            try:
+                bot.load_extension(COG + "." + extension)
+            except Exception as e:
+                print(e)
+                log.error(f'Failed to load extension {extension}')
+                i += 1
+        log.info("-------------------")
 
     if i == 0:
         log.info("Finished Loading All Cogs...")

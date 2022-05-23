@@ -31,13 +31,14 @@ class Whois(commands.Cog):
         tempbans = []
         bans = []
 
-        user = member
         guild = ctx.interaction.guild
-        cases = await GG.MDB.members.find_one({"server": guild.id, "user": user.id})
+        if member is None:
+            return await ctx.respond("Member is no longer in this server.")
 
+        cases = await GG.MDB.members.find_one({"server": guild.id, "user": member.id})
         adminString, noteString, warningString = await getCaseStrings(bans, cases, mutes, notes, tempbans, warnings)
 
-        em = await getMemberEmbed(adminString, guild, noteString, user, warningString)
+        em = await getMemberEmbed(adminString, guild, noteString, member, warningString)
         await ctx.respond(embed=em)
 
     @commands.user_command(name="Staff: User Check")
@@ -46,6 +47,9 @@ class Whois(commands.Cog):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
 
         guild = ctx.guild
+        if member is None:
+            return await ctx.respond("Member is no longer in this server.")
+
         cases = await GG.MDB.members.find_one({"server": guild.id, "user": member.id})
 
         notes = []
