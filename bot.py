@@ -137,7 +137,7 @@ def loadCogs():
     i = 0
     for COG in COGS:
         log.info(f"Loading {COG}...")
-        for extension in [f.replace('.py', '') for f in listdir(GG.COG) if isfile(join(GG.COG, f))]:
+        for extension in [f.replace('.py', '') for f in listdir(COG) if isfile(join(COG, f))]:
             try:
                 bot.load_extension(COG + "." + extension)
             except Exception as e:
