@@ -1,5 +1,4 @@
 import json
-import random
 
 import discord
 import motor.motor_asyncio
@@ -8,6 +7,9 @@ from discord import VerificationLevel as VL
 from discord import VoiceRegion as VR
 from discord.ext import commands
 from environs import Env
+from crawler_utilities.handlers.logger import Logger
+
+log = Logger("logs", "CommunityCrawler", "CommunityCrawler").logger
 
 env = Env()
 env.read_env()

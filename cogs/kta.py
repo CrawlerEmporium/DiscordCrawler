@@ -2,16 +2,13 @@ import asyncio
 from datetime import datetime, timedelta
 
 import discord
-from discord import Thread, slash_command, permissions, Option
-from discord.enums import SlashCommandOptionType
+from discord import Thread, slash_command, Option
 from discord.ext import commands, tasks
-from crawler_utilities.handlers import logger
 
 import utils.globals as GG
 from crawler_utilities.utils.confirmation import BotConfirmation
-from crawler_utilities.utils.functions import try_delete
 
-log = logger.logger
+log = GG.log
 
 
 class KeepThreadsActive(commands.Cog):

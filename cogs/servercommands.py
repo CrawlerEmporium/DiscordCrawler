@@ -1,13 +1,10 @@
 import discord
-from discord import Option, slash_command, permissions
-
-import utils.globals as GG
+from discord import Option, slash_command
 
 from discord.ext import commands
-from crawler_utilities.handlers import logger
-from utils import checks
+from utils import globals as GG
 
-log = logger.logger
+log = GG.log
 
 categories = ['ANON', 'DELIVERY', 'MODDECISION', 'BLACKLIST']
 

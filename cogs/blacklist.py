@@ -1,15 +1,13 @@
 import json
 
 import discord
-from discord import slash_command, permissions, Option, Interaction, InteractionType
+from discord import slash_command, Option, Interaction, InteractionType
 from discord.ext import commands
 
-from crawler_utilities.handlers import logger
-from crawler_utilities.utils.functions import try_delete
 from models.buttons.greylist import Greylist
 from utils import globals as GG
 
-log = logger.logger
+log = GG.log
 
 CHECKS = [' ', ',', '.', '!', '?', None, '"', '\'', '(', ')', '{', '}', '[', ']', '_', '-', ':', '|', '*', '~', '\n']
 

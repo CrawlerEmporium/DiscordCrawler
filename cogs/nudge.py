@@ -1,12 +1,11 @@
 import discord
 from discord.ext import commands
 
-import utils.globals as GG
-from crawler_utilities.handlers import logger
+from utils import globals as GG
 from utils.checks import is_staff_trouble
 from crawler_utilities.utils.functions import try_delete
 
-log = logger.logger
+log = GG.log
 
 
 def singleOrMulti(length):

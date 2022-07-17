@@ -4,14 +4,13 @@ import subprocess
 import inspect
 
 import discord
-from discord import permissions, slash_command
+from discord import slash_command
 
-import utils.globals as GG
 from discord.ext import commands
 
-from crawler_utilities.handlers import logger
+from utils import globals as GG
 
-log = logger.logger
+log = GG.log
 
 extensions = [x.replace('.py', '') for x in os.listdir(GG.COGS) if x.endswith('.py')]
 extensionsAdmin = [x.replace('.py', '') for x in os.listdir(GG.COGSADMIN) if x.endswith('.py')]

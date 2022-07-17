@@ -2,15 +2,14 @@ import discord
 from discord import InputTextStyle, Interaction
 from discord.ui import Modal, InputText
 from utils import globals as GG
-from crawler_utilities.handlers import logger
 from cryptography.fernet import Fernet
 
-log = logger.logger
+log = GG.log
 
 
 class Anonymous(Modal):
     def __init__(self, bot, interaction, author, delivery_channel) -> None:
-        super().__init__(f"Anonymous Report")
+        super().__init__(title="Anonymous Report")
 
         self.bot = bot
         self.interaction = interaction

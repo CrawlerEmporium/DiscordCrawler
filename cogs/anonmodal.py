@@ -5,9 +5,8 @@ from discord.ext import commands
 
 from modals.Anonymous import Anonymous
 from utils import globals as GG
-from crawler_utilities.handlers import logger
 
-log = logger.logger
+log = GG.log
 
 
 class AnonModal(commands.Cog):
@@ -21,6 +20,7 @@ class AnonModal(commands.Cog):
         if delivery_channel is None:
             await self.noDeliveryChannel(ctx.interaction.guild, ctx.interaction)
             await self.notifyOwner(ctx.interaction.guild, ctx.interaction)
+            return
 
         delivery_channel = await self.bot.fetch_channel(delivery_channel['channel'])
         modal = Anonymous(self.bot, ctx.interaction, ctx.interaction.user, delivery_channel)

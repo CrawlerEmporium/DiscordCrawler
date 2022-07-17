@@ -1,13 +1,12 @@
 import random
 
 import discord
-import utils.globals as GG
 
 from discord.ext import commands, tasks
-from crawler_utilities.handlers import logger
-from crawler_utilities.utils.functions import splitDiscordEmbedField, safeEmbed
+from utils import globals as GG
+from crawler_utilities.utils.functions import safeEmbed
 
-log = logger.logger
+log = GG.log
 
 
 class Giveaway(commands.Cog):

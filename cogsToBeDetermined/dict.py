@@ -1,11 +1,10 @@
 import requests
 from discord.ext import commands
 
-import utils.globals as GG
-from crawler_utilities.handlers import logger
+from utils import globals as GG
 from crawler_utilities.utils.embeds import EmbedWithAuthor
 
-log = logger.logger
+log = GG.log
 
 DATA_SRC = "https://api.dictionaryapi.dev/api/v1/entries/en/"
 

@@ -1,17 +1,14 @@
-import asyncio
-import json
 from os import listdir
 from os.path import isfile, join
 
 import discord
 
-import utils.globals as GG
 from discord.ext import commands
 
-from crawler_utilities.handlers import logger
+from utils import globals as GG
 from models.buttons.greylist import Greylist
 
-log = logger.logger
+log = GG.log
 
 version = "v2.6.0"
 SHARD_COUNT = 1

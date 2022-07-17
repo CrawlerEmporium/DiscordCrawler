@@ -5,11 +5,10 @@ import discord
 # noinspection PyUnresolvedReferences
 from crawler_utilities.utils.pagination import get_selection
 from discord.ext import commands
-from crawler_utilities.handlers import logger
 import utils.globals as GG
 from crawler_utilities.utils.functions import try_delete
 
-log = logger.logger
+log = GG.log
 
 
 async def global_embed(self, db_response, ctx, command, server=None, whisper=False):

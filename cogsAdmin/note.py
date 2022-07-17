@@ -3,19 +3,17 @@ from datetime import datetime
 import discord
 from discord import slash_command, Option
 
-import utils.globals as GG
-
 from discord.ext import commands
 
 from cogsAdmin.models.case import Case, getCaseEmbed
 from cogsAdmin.models.caseStatus import CaseStatus
 from cogsAdmin.models.caseType import CaseType
-from crawler_utilities.handlers import logger
+from utils import globals as GG
 
 from crawler_utilities.utils.functions import get_next_num
 from crawler_utilities.cogs.localization import get_command_kwargs, get_parameter_kwargs
 
-log = logger.logger
+log = GG.log
 
 
 class Note(commands.Cog):

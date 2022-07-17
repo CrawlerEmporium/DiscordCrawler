@@ -4,10 +4,9 @@ from io import BytesIO
 from discord import File as reportFile
 from discord.ext import commands
 from utils import globals as GG
-from crawler_utilities.handlers import logger
 from cryptography.fernet import Fernet
 
-log = logger.logger
+log = GG.log
 
 
 class Anon(commands.Cog):

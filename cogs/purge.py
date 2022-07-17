@@ -1,16 +1,13 @@
 import asyncio
 
 import discord
-from discord import slash_command, permissions, Option
-
-import utils.globals as GG
+from discord import slash_command, Option
 
 from discord.ext import commands
-from crawler_utilities.handlers import logger
-from crawler_utilities.utils.functions import try_delete
+from utils import globals as GG
 from crawler_utilities.utils.confirmation import BotConfirmation
 
-log = logger.logger
+log = GG.log
 
 
 def pinned(message: discord.Message):
