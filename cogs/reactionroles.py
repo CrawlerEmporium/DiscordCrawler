@@ -206,16 +206,13 @@ class Roles(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        print(GG.REACTIONROLES)
         if payload.message_id in GG.REACTIONROLES:
-            print("payload in reactionroles")
             emoji = payload.emoji
             server = GG.REACTIONROLES[payload.message_id]
             roleId = None
             for x in server:
                 dbEmoji = x[1][2:].split(":")
                 if emoji.name == dbEmoji[0] or emoji.name == x[1]:
-                    print("emoji found")
                     roleId = int(x[0])
                     userId = payload.user_id
                     guildId = payload.guild_id
