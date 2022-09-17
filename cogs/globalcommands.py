@@ -17,9 +17,9 @@ def global_embed(ctx, quote, whisper):
     embed = discord.Embed(description=quote['Response'])
     embed.set_author(name=str(ctx.interaction.user), icon_url=ctx.interaction.user.display_avatar.url)
     if not whisper:
-        embed.set_footer(text=f'You too can use this command. ``/global quote:{quote["Trigger"]}``')
+        embed.set_footer(text=f'You too can use this command. /global quote:{quote["Trigger"]}')
     else:
-        embed.set_footer(text=f'This command was triggered in {ctx.interaction.guild}. You can trigger it there by running ``/whisper quote:{quote["Trigger"]}``')
+        embed.set_footer(text=f'This command was triggered in {ctx.interaction.guild}. You can trigger it there by running /whisper quote:{quote["Trigger"]}')
     attachments = quote.get("Attachments", [])
     return embed, attachments
 
@@ -70,14 +70,14 @@ class GlobalCommands(commands.Cog):
                   quote: Option(str, **get_parameter_kwargs(cogName, "add.quote")),
                   response: Option(str, **get_parameter_kwargs(cogName, "add.response")),
                   attachment: Option(discord.Attachment, required=False, **get_parameter_kwargs(cogName, "add.attachment"))):
-        checkIfExist = await GG.MDB['globalcommands'].find_one({"Guild": ctx.message.guild.id, "Trigger": quote})
+        checkIfExist = await GG.MDB['globalcommands'].find_one({"Guild": ctx.interaction.guild_id, "Trigger": quote})
         if checkIfExist is not None:
             return await ctx.respond(content=":x:" + ' **You already have a command with that trigger.**')
         else:
             if attachment is not None:
-                await GG.MDB['globalcommands'].insert_one({"Guild": ctx.message.guild.id, "Trigger": quote, "Response": response, "Attachments": [attachment.url]})
+                await GG.MDB['globalcommands'].insert_one({"Guild": ctx.interaction.guild_id, "Trigger": quote, "Response": response, "Attachments": [attachment.url]})
             else:
-                await GG.MDB['globalcommands'].insert_one({"Guild": ctx.message.guild.id, "Trigger": quote, "Response": response, "Attachments": []})
+                await GG.MDB['globalcommands'].insert_one({"Guild": ctx.interaction.guild_id, "Trigger": quote, "Response": response, "Attachments": []})
 
         await ctx.respond(content=":white_check_mark:" + ' **Command added.**')
 
@@ -87,7 +87,7 @@ class GlobalCommands(commands.Cog):
         manage_messages=True,
     )
     async def delete(self, ctx, quote: Option(str, autocomplete=get_quote, **get_parameter_kwargs(cogName, "delete.quote"))):
-        result = await GG.MDB['globalcommands'].delete_one({"Guild": ctx.message.guild.id, "Trigger": quote.replace('\'', '\'\'')})
+        result = await GG.MDB['globalcommands'].delete_one({"Guild": ctx.interaction.guild_id, "Trigger": quote.replace('\'', '\'\'')})
         if result.deleted_count > 0:
             await ctx.respond(content=":white_check_mark:" + ' **Command deleted.**')
         else:
@@ -98,7 +98,7 @@ class GlobalCommands(commands.Cog):
     async def whisper(self, ctx, quote: Option(str, autocomplete=get_quote, description="Which quote do you want?")):
         """Returns your chosen global command. But silent"""
         global_quote = await GG.MDB['globalcommands'].find_one({"Guild": ctx.interaction.guild_id, "Trigger": quote})
-        await self.send_global_quote(ctx, global_quote)
+        await self.send_global_quote(ctx, global_quote, True)
 
     async def send_global_quote(self, ctx, global_quote, whisper=False):
         embed, attachments = global_embed(ctx, global_quote, whisper)
