@@ -20,7 +20,8 @@ def global_embed(ctx, quote, whisper):
         embed.set_footer(text=f'You too can use this command. ``/global quote:{quote["Trigger"]}``')
     else:
         embed.set_footer(text=f'This command was triggered in {ctx.interaction.guild}. You can trigger it there by running ``/whisper quote:{quote["Trigger"]}``')
-    return embed, quote['attachments']
+    attachments = quote.get("Attachments", [])
+    return embed, attachments
 
 
 async def get_quote(ctx: AutocompleteContext):
