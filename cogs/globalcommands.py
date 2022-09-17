@@ -53,6 +53,7 @@ class GlobalCommands(commands.Cog):
     @personal.command(**get_command_kwargs(cogName, "list"))
     @commands.guild_only()
     async def list(self, ctx):
+        await ctx.defer()
         user_quotes = await GG.MDB['globalcommands'].find({"Guild": ctx.interaction.guild_id}).to_list(length=None)
         if len(user_quotes) == 0:
             await ctx.respond(content=":x:" + ' **There are no global commands for this server**')

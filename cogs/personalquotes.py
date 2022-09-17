@@ -79,6 +79,7 @@ class PersonalQuotes(commands.Cog):
 
     @personal.command(**get_command_kwargs(cogName, "list"))
     async def list(self, ctx):
+        await ctx.defer()
         user_quotes = await GG.MDB['personalcommands'].find({"user": ctx.interaction.user.id}).to_list(length=None)
         if len(user_quotes) == 0:
             await ctx.respond(content=":x:" + ' **You have no personal commands**')
