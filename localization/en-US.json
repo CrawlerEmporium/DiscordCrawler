@@ -29,6 +29,33 @@
   "personalquotes.list.name": "list",
   "personalquotes.list.description": "Returns all your personal quotes in a list format",
 
+  "globalcommands.quote.name": "quote",
+  "globalcommands.quote.description": "Returns your chosen global quote.",
+  "globalcommands.quote.quote.name": "quote",
+  "globalcommands.quote.quote.description": "Which global quote do you want to post?",
+
+  "globalcommands.code.name": "code",
+  "globalcommands.code.description": "Returns your chosen global quote in code.",
+  "globalcommands.code.quote.name": "quote",
+  "globalcommands.code.quote.description": "For which global quote do you want to see the code?",
+
+  "globalcommands.add.name": "add",
+  "globalcommands.add.description": "Adds a global quote.",
+  "globalcommands.add.quote.name": "quote",
+  "globalcommands.add.quote.description": "What should the trigger be for this quote?",
+  "globalcommands.add.response.name": "response",
+  "globalcommands.add.response.description": "What should the quote say?",
+  "globalcommands.add.attachment.name": "attachment",
+  "globalcommands.add.attachment.description": "File to attach to the quote.",
+
+  "globalcommands.delete.name": "delete",
+  "globalcommands.delete.description": "Deletes a global quote.",
+  "globalcommands.delete.quote.name": "quote",
+  "globalcommands.delete.quote.description": "Which global quote do you want to delete?",
+
+  "globalcommands.list.name": "list",
+  "globalcommands.list.description": "Returns all your global quotes in a list format",
+
   "ban.ban.name": "ban",
   "ban.ban.description": "[STAFF] Bans a member from the server.",
   "ban.ban.member.name": "member",

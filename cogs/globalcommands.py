@@ -94,7 +94,7 @@ class GlobalCommands(commands.Cog):
 
     @slash_command(name="whisper")
     @commands.guild_only()
-    async def whisper(self, ctx, quote: Option(str, autocomplete=get_quote, **get_parameter_kwargs(cogName, "quote.quote"))):
+    async def whisper(self, ctx, quote: Option(str, autocomplete=get_quote, description="Which quote do you want?")):
         """Returns your chosen global command. But silent"""
         global_quote = await GG.MDB['globalcommands'].find_one({"Guild": ctx.interaction.guild_id, "Trigger": quote})
         await self.send_global_quote(ctx, global_quote)
