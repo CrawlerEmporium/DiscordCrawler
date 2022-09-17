@@ -1,155 +1,124 @@
-import typing
+import io
 
 import discord
+import requests
+from discord import AutocompleteContext, SlashCommandGroup, Option, slash_command
 
+from crawler_utilities.cogs.localization import get_command_kwargs, get_parameter_kwargs
 # noinspection PyUnresolvedReferences
 from crawler_utilities.utils.pagination import get_selection
 from discord.ext import commands
 import utils.globals as GG
-from crawler_utilities.utils.functions import try_delete
 
 log = GG.log
 
 
-async def global_embed(self, db_response, ctx, command, server=None, whisper=False):
-    if isinstance(ctx.author, discord.Member) and ctx.author.color != discord.Colour.default():
-        embed = discord.Embed(description=db_response['Response'], color=ctx.author.color)
-    else:
-        embed = discord.Embed(description=db_response['Response'])
-    if db_response['Attachments'] != None:
-        attachments = db_response['Attachments']
-        if len(attachments) == 1 and (
-                attachments[0].lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.gifv', '.webp', '.bmp')) or
-                attachments[0].lower().startswith('https://chart.googleapis.com/chart?')):
-            embed.set_image(url=attachments[0])
-        else:
-            attachment_count = 0
-            for attachment in attachments:
-                attachment_count += 1
-                embed.add_field(name='Attachment ' + str(attachment_count), value=attachment, inline=False)
-    prefix = await self.bot.get_server_prefix(ctx.message)
+def global_embed(ctx, quote, whisper):
+    embed = discord.Embed(description=quote['Response'])
+    embed.set_author(name=str(ctx.interaction.user), icon_url=ctx.interaction.user.display_avatar.url)
     if not whisper:
-        embed.set_footer(text=f'You too can use this command. {prefix}g {command}')
+        embed.set_footer(text=f'You too can use this command. ``/global quote:{quote["Trigger"]}``')
     else:
-        embed.set_footer(text=f'This command was triggered in {server}. You can trigger it there by running {prefix}g {command}')
-    return embed
+        embed.set_footer(text=f'This command was triggered in {ctx.interaction.guild}. You can trigger it there by running ``/whisper quote:{quote["Trigger"]}``')
+    return embed, quote['attachments']
+
+
+async def get_quote(ctx: AutocompleteContext):
+    db = await GG.MDB['globalcommands'].find({"Guild": ctx.interaction.guild_id}).to_list(length=None)
+    return [item['Trigger'] for item in db if ctx.value.lower() in item['Trigger']]
 
 
 class GlobalCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['gadd'], hidden=True)
-    @GG.is_staff()
-    @commands.guild_only()
-    async def globaladd(self, ctx, trigger, *, response=None):
-        """Adds a global command."""
-        if not response and not ctx.message.attachments:
-            return await ctx.send(
-                content=":x:" + ' **You must include at least a response or an attachment in your message.**')
-        else:
-            trig = trigger
-            if response is not None:
-                response = response
-            checkIfExist = await GG.MDB['globalcommands'].find_one({"Guild": ctx.message.guild.id, "Trigger": trig})
-            if checkIfExist is not None:
-                return await ctx.send(content=":x:" + ' **This server already has a command with that trigger.**')
-            else:
-                await GG.MDB['globalcommands'].insert_one({"Guild": ctx.message.guild.id, "Trigger": trig, "Response": response, "Attachments": [attachment.url for attachment in ctx.message.attachments]})
-        await ctx.send(content=":white_check_mark:" + ' **Command added.**')
+    cogName = 'globalcommands'
+    personal = SlashCommandGroup("global", "All quotes specifically for this server")
 
-    @commands.command(aliases=['gremove', 'grem'], hidden=True)
-    @GG.is_staff()
+    @personal.command(**get_command_kwargs(cogName, "quote"))
     @commands.guild_only()
-    async def globalremove(self, ctx, trigger):
-        """Removes a global command."""
-        result = await GG.MDB['globalcommands'].delete_one({"Guild": ctx.message.guild.id, "Trigger": trigger.replace('\'', '\'\'')})
-        if result.deleted_count > 0:
-            await ctx.send(content=":white_check_mark:" + ' **Command deleted.**')
-        else:
-            await ctx.send(content=":x:" + ' **Command with that trigger does not exist.**')
-
-    @commands.command(aliases=['g'])
-    @commands.guild_only()
-    async def globalcommand(self, ctx, trigger, member: typing.Optional[discord.Member] = None):
+    async def quote(self, ctx, quote: Option(str, autocomplete=get_quote, **get_parameter_kwargs(cogName, "quote.quote"))):
         """Returns your chosen global command."""
-        trig = trigger
-        user_quote = await GG.MDB['globalcommands'].find_one({"Guild": ctx.message.guild.id, "Trigger": trig})
-        if user_quote is None:
-            await ctx.send(content=":x:" + ' **Command with that trigger does not exist.**')
-        else:
-            if ctx.channel.permissions_for(ctx.guild.me).manage_messages:
-                await try_delete(ctx.message)
+        global_quote = await GG.MDB['globalcommands'].find_one({"Guild": ctx.interaction.guild_id, "Trigger": quote})
+        await self.send_global_quote(ctx, global_quote)
 
-            if member is not None:
-                await ctx.send(content=member.mention, embed=await global_embed(self, user_quote, ctx, trig))
-            else:
-                await ctx.send(embed=await global_embed(self, user_quote, ctx, trig))
-
-    @commands.command(aliases=['w'])
+    @personal.command(**get_command_kwargs(cogName, "code"))
     @commands.guild_only()
-    async def whispercommand(self, ctx, trigger, member: typing.Optional[discord.Member] = None):
-        """Returns your chosen global command."""
-        trig = trigger
-        user_quote = await GG.MDB['globalcommands'].find_one({"Guild": ctx.message.guild.id, "Trigger": trig})
-        if ctx.author.dm_channel is not None:
-            DM = ctx.author.dm_channel
-        else:
-            DM = await ctx.author.create_dm()
+    async def code(self, ctx, quote: Option(str, autocomplete=get_quote, **get_parameter_kwargs(cogName, "code.quote"))):
+        user_quote = await GG.MDB['globalcommands'].find_one({"Guild": ctx.interaction.guild_id, "Trigger": quote})
+        replaceString = '\`'
+        await ctx.respond(f"```{user_quote['Response'].replace('`', replaceString)}```", files=user_quote['Attachments'])
 
-        if member is not None:
-            if member.dm_channel is not None:
-                DM = member.dm_channel
-            else:
-                DM = await member.create_dm()
-
-        if user_quote is None:
-            try:
-                await DM.send(content=":x:" + ' **Command with that trigger does not exist.**')
-            except discord.Forbidden:
-                if member is not None:
-                    await ctx.send(f"{ctx.author.mention} I tried DMing {member.mention}, they either blocked me, or they don't allow DM's")
-                else:
-                    await ctx.send(f"{ctx.author.mention} I tried DMing you, but you either blocked me, or you don't allow DM's")
-        else:
-            if ctx.channel.permissions_for(ctx.guild.me).manage_messages:
-                await try_delete(ctx.message)
-            try:
-                await DM.send(embed=await global_embed(self, user_quote, ctx, trig, ctx.guild.name, True))
-            except discord.Forbidden:
-                if member is not None:
-                    await ctx.send(f"{ctx.author.mention} I tried DMing {member.mention}, they either blocked me, or they don't allow DM's")
-                else:
-                    await ctx.send(f"{ctx.author.mention} I tried DMing you, but you either blocked me, or you don't allow DM's")
-
-    @commands.command(aliases=['glist'])
+    @personal.command(**get_command_kwargs(cogName, "list"))
     @commands.guild_only()
-    async def globallist(self, ctx):
-        """Returns all global commands."""
-        user_quotes = await GG.MDB['globalcommands'].find({"Guild": ctx.message.guild.id}).to_list(length=None)
+    async def list(self, ctx):
+        user_quotes = await GG.MDB['globalcommands'].find({"Guild": ctx.interaction.guild_id}).to_list(length=None)
         if len(user_quotes) == 0:
-            await ctx.send(content=":x:" + ' **You have no global quotes**')
+            await ctx.respond(content=":x:" + ' **There are no global commands for this server**')
         else:
             choices = [(r['Trigger'], r) for r in user_quotes]
-            choice = await get_selection(ctx, choices, title=f"Server Commands for {ctx.guild}", author=True)
-            if choice is not None:
-                await ctx.send(embed=await global_embed(self, choice, ctx, choice['Trigger']))
+            choice = await get_selection(ctx, choices, title=f"Global Quotes for {ctx.interaction.guild}", author=True)
+            await self.send_global_quote(ctx, choice)
 
-    @commands.command(aliases=['gc'])
+    @personal.command(**get_command_kwargs(cogName, "add"))
     @commands.guild_only()
-    async def globalcode(self, ctx, trigger):
-        """Returns your chosen global command."""
-        trig = trigger
-        user_quote = await GG.MDB['globalcommands'].find_one({"Guild": ctx.message.guild.id, "Trigger": trig})
-        if user_quote is None:
-            await ctx.send(content=":x:" + ' **Command with that trigger does not exist.**')
+    @discord.default_permissions(
+        manage_messages=True,
+    )
+    async def add(self, ctx,
+                  quote: Option(str, **get_parameter_kwargs(cogName, "add.quote")),
+                  response: Option(str, **get_parameter_kwargs(cogName, "add.response")),
+                  attachment: Option(discord.Attachment, required=False, **get_parameter_kwargs(cogName, "add.attachment"))):
+        checkIfExist = await GG.MDB['globalcommands'].find_one({"Guild": ctx.message.guild.id, "Trigger": quote})
+        if checkIfExist is not None:
+            return await ctx.respond(content=":x:" + ' **You already have a command with that trigger.**')
         else:
-            if ctx.channel.permissions_for(ctx.guild.me).manage_messages:
-                await try_delete(ctx.message)
+            if attachment is not None:
+                await GG.MDB['globalcommands'].insert_one({"Guild": ctx.message.guild.id, "Trigger": quote, "Response": response, "Attachments": [attachment.url]})
+            else:
+                await GG.MDB['globalcommands'].insert_one({"Guild": ctx.message.guild.id, "Trigger": quote, "Response": response, "Attachments": []})
 
-            replaceString = '\`'
-            await ctx.send(f"```{user_quote['Response'].replace('`', replaceString)}```",
-                           files=user_quote['Attachments'])
+        await ctx.respond(content=":white_check_mark:" + ' **Command added.**')
+
+    @personal.command(**get_command_kwargs(cogName, "delete"))
+    @commands.guild_only()
+    @discord.default_permissions(
+        manage_messages=True,
+    )
+    async def delete(self, ctx, quote: Option(str, autocomplete=get_quote, **get_parameter_kwargs(cogName, "delete.quote"))):
+        result = await GG.MDB['globalcommands'].delete_one({"Guild": ctx.message.guild.id, "Trigger": quote.replace('\'', '\'\'')})
+        if result.deleted_count > 0:
+            await ctx.respond(content=":white_check_mark:" + ' **Command deleted.**')
+        else:
+            await ctx.respond(content=":x:" + ' **Command with that trigger does not exist.**')
+
+    @slash_command(name="whisper")
+    @commands.guild_only()
+    async def whisper(self, ctx, quote: Option(str, autocomplete=get_quote, **get_parameter_kwargs(cogName, "quote.quote"))):
+        """Returns your chosen global command. But silent"""
+        global_quote = await GG.MDB['globalcommands'].find_one({"Guild": ctx.interaction.guild_id, "Trigger": quote})
+        await self.send_global_quote(ctx, global_quote)
+
+    async def send_global_quote(self, ctx, global_quote, whisper=False):
+        embed, attachments = global_embed(ctx, global_quote, whisper)
+        files = []
+        if attachments is not None:
+            if len(attachments) == 1 and (
+                    attachments[0].lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.gifv', '.webp', '.bmp')) or
+                    attachments[0].lower().startswith('https://chart.googleapis.com/chart?')):
+                embed.set_image(url=attachments[0])
+            else:
+                for attachment in attachments:
+                    url = attachment
+                    file = requests.get(url)
+                    bitties = io.BytesIO(file.content)
+                    bitties.seek(0)
+                    dFile = discord.File(bitties, filename=url.rsplit('/', 1)[-1])
+                    files.append(dFile)
+        if not whisper:
+            await ctx.respond(embed=embed, files=files)
+        else:
+            await ctx.respond(embed=embed, files=files, ephemeral=True)
 
 
 def setup(bot):

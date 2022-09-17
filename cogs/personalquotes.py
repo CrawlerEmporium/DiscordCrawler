@@ -91,7 +91,7 @@ class PersonalQuotes(commands.Cog):
         if user_quote is not None:  # Check for the personalList action, as it can return the stop button
             embed, attachments = personal_embed(user_quote, ctx.interaction.user)
             files = []
-            if attachments != None:
+            if attachments is not None:
                 if len(attachments) == 1 and (
                         attachments[0].lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.gifv', '.webp', '.bmp')) or
                         attachments[0].lower().startswith('https://chart.googleapis.com/chart?')):
