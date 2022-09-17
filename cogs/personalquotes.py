@@ -86,7 +86,10 @@ class PersonalQuotes(commands.Cog):
         else:
             choices = [(r['trigger'], r) for r in user_quotes]
             choice = await get_selection(ctx, choices, title=f"Personal Quotes for {ctx.interaction.user}", author=True)
-            await self.sendPersonalChoice(ctx, choice)
+            if choice is not None:
+                await self.sendPersonalChoice(ctx, choice)
+            else:
+                await ctx.respond("Command canceled", delete_after=5)
 
     async def sendPersonalChoice(self, ctx, user_quote):
         if user_quote is not None:  # Check for the personalList action, as it can return the stop button

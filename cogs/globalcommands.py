@@ -60,7 +60,11 @@ class GlobalCommands(commands.Cog):
         else:
             choices = [(r['Trigger'], r) for r in user_quotes]
             choice = await get_selection(ctx, choices, title=f"Global Quotes for {ctx.interaction.guild}", author=True)
-            await self.send_global_quote(ctx, choice)
+            if choice is not None:
+                await self.send_global_quote(ctx, choice)
+            else:
+                await ctx.respond("Command canceled", delete_after=5)
+
 
     @personal.command(**get_command_kwargs(cogName, "add"))
     @commands.guild_only()
