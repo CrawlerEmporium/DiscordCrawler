@@ -18,7 +18,7 @@ def global_embed(ctx, quote, whisper):
     embed = EmbedWithAuthor(ctx)
     embed.colour = ctx.author.color
     response = f"{quote['Response']}"
-    embed.description = response.replace('\\n', '\n')
+    embed.description = response.replace('\\n', '\n').replace('\\t', '\t')
     if not whisper:
         embed.set_footer(text=f'You too can use this command. /global quote:{quote["Trigger"]}')
     else:
