@@ -18,7 +18,8 @@ log = GG.log
 def personal_embed(db_response, author):
     embed = EmbedWithAuthorWithoutContext(author)
     embed.colour = author.color
-    embed.description = db_response['response']
+    response = f"{db_response['Response']}"
+    embed.description = response.replace('\\n', '\n')
     embed.set_footer(text='Personal Quote')
     return embed, db_response['attachments']
 

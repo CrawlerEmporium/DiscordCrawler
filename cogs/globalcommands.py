@@ -17,7 +17,8 @@ log = GG.log
 def global_embed(ctx, quote, whisper):
     embed = EmbedWithAuthor(ctx)
     embed.colour = ctx.author.color
-    embed.description = f"{quote['Response']}"
+    response = f"{quote['Response']}"
+    embed.description = response.replace('\\n', '\n')
     if not whisper:
         embed.set_footer(text=f'You too can use this command. /global quote:{quote["Trigger"]}')
     else:
