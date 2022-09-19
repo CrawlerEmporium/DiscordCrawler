@@ -5,6 +5,7 @@ import requests
 from discord import SlashCommandGroup, Option, AutocompleteContext
 from discord.ext import commands
 
+from crawler_utilities.utils.embeds import EmbedWithAuthorWithoutContext
 from utils import globals as GG
 
 # noinspection PyUnresolvedReferences
@@ -15,11 +16,9 @@ log = GG.log
 
 
 def personal_embed(db_response, author):
-    if isinstance(author, discord.Member) and author.color != discord.Colour.default():
-        embed = discord.Embed(description=db_response['response'], color=author.color)
-    else:
-        embed = discord.Embed(description=db_response['response'])
-    embed.set_author(name=str(author), icon_url=author.display_avatar.url)
+    embed = EmbedWithAuthorWithoutContext(author)
+    embed.colour = author.color
+    embed.description = db_response['response']
     embed.set_footer(text='Personal Quote')
     return embed, db_response['attachments']
 
