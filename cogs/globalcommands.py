@@ -18,7 +18,6 @@ def global_embed(ctx, quote, whisper):
     embed = EmbedWithAuthor(ctx)
     embed.colour = ctx.author.color
     embed.description = quote['Response']
-    embed.set_author(name=str(ctx.interaction.user), icon_url=ctx.interaction.user.display_avatar.url)
     if not whisper:
         embed.set_footer(text=f'You too can use this command. /global quote:{quote["Trigger"]}')
     else:
