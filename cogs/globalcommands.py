@@ -3,6 +3,7 @@ import io
 import discord
 import requests
 from discord import AutocompleteContext, SlashCommandGroup, Option, slash_command
+from discord.commands import permissions
 
 from crawler_utilities.cogs.localization import get_command_kwargs, get_parameter_kwargs
 from crawler_utilities.utils.embeds import EmbedWithAuthor
@@ -71,9 +72,7 @@ class GlobalCommands(commands.Cog):
 
     @personal.command(**get_command_kwargs(cogName, "add"))
     @commands.guild_only()
-    @discord.default_permissions(
-        manage_messages=True,
-    )
+    @commands.has_permissions(manage_messages=True)
     async def add(self, ctx,
                   quote: Option(str, **get_parameter_kwargs(cogName, "add.quote")),
                   response: Option(str, **get_parameter_kwargs(cogName, "add.response")),
@@ -91,9 +90,7 @@ class GlobalCommands(commands.Cog):
 
     @personal.command(**get_command_kwargs(cogName, "delete"))
     @commands.guild_only()
-    @discord.default_permissions(
-        manage_messages=True,
-    )
+    @commands.has_permissions(manage_messages=True)
     async def delete(self, ctx, quote: Option(str, autocomplete=get_quote, **get_parameter_kwargs(cogName, "delete.quote"))):
         result = await GG.MDB['globalcommands'].delete_one({"Guild": ctx.interaction.guild_id, "Trigger": quote.replace('\'', '\'\'')})
         if result.deleted_count > 0:
