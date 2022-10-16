@@ -45,7 +45,7 @@ class GlobalCommands(commands.Cog):
     async def quote(self, ctx, quote: Option(str, autocomplete=get_quote, **get_parameter_kwargs(cogName, "quote.quote"))):
         """Returns your chosen global command."""
         global_quote = await GG.MDB['globalcommands'].find_one({"Guild": ctx.interaction.guild_id, "Trigger": quote})
-        await self.send_global_quote(ctx, global_quote)
+        await self.send_global_quote(ctx, global_quote, quote)
 
     @personal.command(**get_command_kwargs(cogName, "code"))
     @commands.guild_only()
@@ -65,7 +65,7 @@ class GlobalCommands(commands.Cog):
             choices = [(r['Trigger'], r) for r in user_quotes]
             choice = await get_selection(ctx, choices, title=f"Global Quotes for {ctx.interaction.guild}", author=True)
             if choice is not None:
-                await self.send_global_quote(ctx, choice)
+                await self.send_global_quote(ctx, choice, None)
             else:
                 await ctx.respond("Command canceled", delete_after=5)
 
@@ -103,9 +103,11 @@ class GlobalCommands(commands.Cog):
     async def whisper(self, ctx, quote: Option(str, autocomplete=get_quote, description="Which quote do you want?")):
         """Returns your chosen global command. But silent"""
         global_quote = await GG.MDB['globalcommands'].find_one({"Guild": ctx.interaction.guild_id, "Trigger": quote})
-        await self.send_global_quote(ctx, global_quote, True)
+        await self.send_global_quote(ctx, global_quote, quote, True)
 
-    async def send_global_quote(self, ctx, global_quote, whisper=False):
+    async def send_global_quote(self, ctx, global_quote, trigger, whisper=False):
+        if global_quote is None:
+            return await ctx.respond(f"This command (``{trigger}``) does not exist. Please check the spelling.", ephemeral=True)
         embed, attachments = global_embed(ctx, global_quote, whisper)
         files = []
         if attachments is not None:
