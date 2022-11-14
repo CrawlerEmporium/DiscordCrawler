@@ -80,25 +80,27 @@ class DeleteCommands(commands.Cog):
             await msg.delete(delay=10)
         else:
             if message.author is not None:
-                if message.author.guild_permissions.administrator:
-                    return await ctx.send("You are not allowed to delete messages from admins this way.")
+                if type(message.author) == discord.Member:
+                    if message.author.guild_permissions.administrator:
+                        return await ctx.send("You are not allowed to delete messages from admins this way.")
+
+                    if message.author.dm_channel is not None:
+                        DM = message.author.dm_channel
+                    else:
+                        DM = await message.author.create_dm()
+
                 await message.delete()
-                if message.author.dm_channel is not None:
-                    DM = message.author.dm_channel
-                else:
-                    DM = await message.author.create_dm()
+                try:
+                    await DM.send(embed=global_embed(user_quote, ctx.author))
+                except discord.Forbidden:
+                    if message.author is not None:
+                        await ctx.send(
+                            f"{ctx.author.mention} I tried DMing {message.author.mention}, they either blocked me, or they don't allow DM's")
+                    else:
+                        await ctx.send(
+                            f"{ctx.author.mention} I tried DMing you, but you either blocked me, or you don't allow DM's")
             else:
                 return await message.delete()
-
-            try:
-                await DM.send(embed=global_embed(user_quote, ctx.author))
-            except discord.Forbidden:
-                if message.author is not None:
-                    await ctx.send(
-                        f"{ctx.author.mention} I tried DMing {message.author.mention}, they either blocked me, or they don't allow DM's")
-                else:
-                    await ctx.send(
-                        f"{ctx.author.mention} I tried DMing you, but you either blocked me, or you don't allow DM's")
 
     @commands.command(aliases=['dlist'])
     @GG.is_staff()
