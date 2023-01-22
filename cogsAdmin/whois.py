@@ -20,6 +20,7 @@ class Whois(commands.Cog):
     cogName = "whois"
 
     @slash_command(**get_command_kwargs(cogName, "whois"))
+    @commands.guild_only()
     async def whois(self, ctx, member: Option(discord.Member, **get_parameter_kwargs(cogName, "whois.member"))):
         if not GG.is_staff_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
@@ -41,6 +42,7 @@ class Whois(commands.Cog):
         await ctx.respond(embed=em)
 
     @commands.user_command(name="Staff: User Check")
+    @commands.guild_only()
     async def user_whois_test(self, ctx, member: discord.Member):
         if not GG.is_staff_bool(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)

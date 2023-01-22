@@ -21,6 +21,7 @@ class Nudge(commands.Cog):
 
     @commands.command()
     @is_staff_trouble()
+    @commands.guild_only()
     async def nudge(self, ctx, messages: commands.Greedy[int]):
         msgs = []
         msgAuthors = []

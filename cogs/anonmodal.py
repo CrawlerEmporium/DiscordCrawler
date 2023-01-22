@@ -14,6 +14,7 @@ class AnonModal(commands.Cog):
         self.bot = bot
 
     @slash_command(name="anonreport")
+    @commands.guild_only()
     async def anonreport(self, ctx):
         """Opens a modal to post an anonymous report."""
         delivery_channel = await GG.MDB['channelinfo'].find_one({"guild": ctx.interaction.guild_id, "type": "DELIVERY"})

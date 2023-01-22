@@ -130,12 +130,14 @@ class Timeout(commands.Cog):
     cogName = "timeout"
 
     @slash_command(**get_command_kwargs(cogName, "timeout"))
+    @commands.guild_only()
     async def timeout(self, ctx, member: Option(discord.Member, **get_parameter_kwargs(cogName, "timeout.member")), message: Option(str, **get_parameter_kwargs(cogName, "timeout.message"))):
         if not GG.is_staff_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await muteMember(self.bot, ctx, member, message)
 
     @slash_command(**get_command_kwargs(cogName, "untimeout"))
+    @commands.guild_only()
     async def untimeout(self, ctx, member: Option(discord.Member, **get_parameter_kwargs(cogName, "untimeout.member"))):
         if not GG.is_staff_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)

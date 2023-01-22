@@ -30,6 +30,7 @@ class ServerCommands(commands.Cog):
         self.bot = bot
 
     @slash_command(name="addstaff")
+    @commands.guild_only()
     async def addstaff(self, ctx, role: discord.Role):
         """[STAFF] Adds a role to the staff list"""
         if not GG.is_staff_bool(ctx):
@@ -42,6 +43,7 @@ class ServerCommands(commands.Cog):
             return await ctx.respond(f"{role.name} was added to the staff list.", ephemeral=True)
 
     @slash_command(name="stafflist")
+    @commands.guild_only()
     async def stafflist(self, ctx):
         """[STAFF] Returns a list of all staff roles"""
         if not GG.is_staff_bool(ctx):
@@ -53,6 +55,7 @@ class ServerCommands(commands.Cog):
             return await ctx.respond("This server has no roles assigned as staff.", ephemeral=True)
 
     @slash_command(name="delstaff")
+    @commands.guild_only()
     async def delstaff(self, ctx, role: discord.Role):
         """[STAFF] Removes a role to the staff list"""
         if not GG.is_staff_bool(ctx):
@@ -66,6 +69,7 @@ class ServerCommands(commands.Cog):
             return await ctx.respond(f"{role.name} is not on the staff list.", ephemeral=True)
 
     @slash_command(name="prefix")
+    @commands.guild_only()
     async def prefix(self, ctx, prefix: Option(str, "What do you want the prefix to be")):
         """[STAFF] Sets the bot's prefix for this server. Forgot the prefix? Reset it with "/prefix $"""
         if not GG.is_staff_bool(ctx):
@@ -86,6 +90,7 @@ class ServerCommands(commands.Cog):
         return await ctx.respond("Prefix set to `{}` for this server.".format(prefix), ephemeral=True)
 
     @slash_command(name="addchannel")
+    @commands.guild_only()
     async def addchannel(self, ctx, channeltype: Option(str, "Choose your channel type", choices=categories), channel: Option(discord.TextChannel, "For which channel do you want to set the type?")):
         """[STAFF] Gives a channel a specific type."""
         if not GG.is_staff_bool(ctx):
@@ -99,6 +104,7 @@ class ServerCommands(commands.Cog):
             return await ctx.respond(f"{channel.name} was added to the special channel list as {channeltype}", ephemeral=True)
 
     @slash_command(name="delchannel")
+    @commands.guild_only()
     async def delchannel(self, ctx, channel: Option(discord.TextChannel, "From what channel do you want to remove the channel type?")):
         """[STAFF] Removes the type of a channel, reverting it to a "normal" channel"""
         if not GG.is_staff_bool(ctx):

@@ -14,6 +14,7 @@ class Dictionary(commands.Cog):
         self.bot = bot
 
     @commands.command(aliases=['dict', 'define'])
+    @commands.guild_only()
     async def dictionary(self, ctx, *, search):
         with requests.Session() as s:
             resp = s.get(DATA_SRC + search)

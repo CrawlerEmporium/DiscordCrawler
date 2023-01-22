@@ -23,6 +23,7 @@ class Ban(commands.Cog):
     cogName = "ban"
 
     @slash_command(**get_command_kwargs(cogName, 'ban'))
+    @commands.guild_only()
     async def ban(self, ctx, member: Option(discord.Member, **get_parameter_kwargs(cogName, 'ban.member')), message: Option(str, **get_parameter_kwargs(cogName, 'ban.message'))):
 
         if not GG.is_staff_bool_slash(ctx):

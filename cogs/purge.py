@@ -22,6 +22,7 @@ class Purge(commands.Cog):
         self.bot = bot
 
     @slash_command(name="purge")
+    @commands.guild_only()
     async def purge(self, ctx, limit: Option(int, "How many messages do you want to delete?")):
         """[STAFF] Purges messages from a channel, skips pinned messages"""
         if not GG.is_staff_bool(ctx):

@@ -37,22 +37,26 @@ class PersonalQuotes(commands.Cog):
     personal = SlashCommandGroup("personal", "All your personal quotes")
 
     @personal.command(**get_command_kwargs(cogName, "quote"))
+    @commands.guild_only()
     async def quote(self, ctx, quote: Option(str, autocomplete=get_quote, **get_parameter_kwargs(cogName, "quote.quote"))):
         user_quote = await GG.MDB['personalcommands'].find_one({"user": ctx.interaction.user.id, "trigger": quote})
         await self.sendPersonalChoice(ctx, user_quote)
 
     @personal.command(**get_command_kwargs(cogName, "clear"))
+    @commands.guild_only()
     async def clear(self, ctx):
         await GG.MDB['personalcommands'].delete_many({"user": ctx.interaction.user.id})
         await ctx.respond(content=":white_check_mark:" + ' **Cleared all your personal quotes.**')
 
     @personal.command(**get_command_kwargs(cogName, "code"))
+    @commands.guild_only()
     async def code(self, ctx, quote: Option(str, autocomplete=get_quote, **get_parameter_kwargs(cogName, "code.quote"))):
         user_quote = await GG.MDB['personalcommands'].find_one({"user": ctx.interaction.user.id, "trigger": quote})
         replaceString = '\`'
         await ctx.respond(f"```{user_quote['response'].replace('`', replaceString)}```", files=user_quote['attachments'])
 
     @personal.command(**get_command_kwargs(cogName, "add"))
+    @commands.guild_only()
     async def add(self, ctx,
                   quote: Option(str, **get_parameter_kwargs(cogName, "add.quote")),
                   response: Option(str, **get_parameter_kwargs(cogName, "add.response")),
@@ -69,6 +73,7 @@ class PersonalQuotes(commands.Cog):
         await ctx.respond(content=":white_check_mark:" + ' **Command added.**')
 
     @personal.command(**get_command_kwargs(cogName, "delete"))
+    @commands.guild_only()
     async def delete(self, ctx, quote: Option(str, autocomplete=get_quote, **get_parameter_kwargs(cogName, "delete.quote"))):
         result = await GG.MDB['personalcommands'].delete_one(
             {"user": ctx.interaction.user.id, "trigger": quote.replace('\'', '\'\'')})
@@ -78,6 +83,7 @@ class PersonalQuotes(commands.Cog):
             await ctx.respond(content=":x:" + ' **Command with that trigger does not exist.**')
 
     @personal.command(**get_command_kwargs(cogName, "list"))
+    @commands.guild_only()
     async def list(self, ctx):
         await ctx.defer()
         user_quotes = await GG.MDB['personalcommands'].find({"user": ctx.interaction.user.id}).to_list(length=None)

@@ -20,24 +20,28 @@ class Case(commands.Cog):
     case = SlashCommandGroup("case", "All case commands")
 
     @case.command(**get_command_kwargs(cogName, 'check'))
+    @commands.guild_only()
     async def check(self, ctx, caseid: Option(int, **get_parameter_kwargs(cogName, 'check.caseid'))):
         if not GG.is_staff_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await self.caseCommand(ctx, caseid)
 
     @case.command(**get_command_kwargs(cogName, 'close'))
+    @commands.guild_only()
     async def close(self, ctx, caseid: Option(int, **get_parameter_kwargs(cogName, 'close.caseid')), message: Option(str, **get_parameter_kwargs(cogName, 'close.message')) = ""):
         if not GG.is_staff_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await self.closeCaseCommand(ctx, caseid, message)
 
     @case.command(**get_command_kwargs(cogName, 'update'))
+    @commands.guild_only()
     async def update(self, ctx, caseid: Option(int, **get_parameter_kwargs(cogName, 'update.caseid')), message: Option(str, **get_parameter_kwargs(cogName, 'update.message')) = ""):
         if not GG.is_staff_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await self.updateCaseCommand(ctx, caseid, message)
 
     @case.command(**get_command_kwargs(cogName, 'list'))
+    @commands.guild_only()
     async def list(self, ctx, member: Option(discord.Member, **get_parameter_kwargs(cogName, 'list.member'))):
         if not GG.is_staff_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
