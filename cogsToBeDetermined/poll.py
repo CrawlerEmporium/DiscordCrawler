@@ -89,6 +89,6 @@ class Poll(commands.Cog):
             await ctx.send("I don't have the add_reactions permission, while it is optional, I need it for this command.")
 
 
-def setup(bot):
-    log.info("[Cog] Polling")
-    bot.add_cog(Poll(bot))
+# def setup(bot):
+#     log.info("[Cog] Polling")
+#     bot.add_cog(Poll(bot))

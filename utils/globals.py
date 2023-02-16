@@ -290,6 +290,10 @@ def countChannels(channels):
 def get_server_prefix(self, msg):
     return self.get_prefix(self, msg)[-1]
 
+def get_status(boolean):
+    if boolean:
+        return "Open"
+    return "Closed"
 
 VERIFLEVELS = {VL.none: "None", VL.low: "Low", VL.medium: "Medium", VL.high: "(╯°□°）╯︵  ┻━┻"}
 REGION = {VR.brazil: ":flag_br: Brazil",
