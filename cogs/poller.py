@@ -98,7 +98,7 @@ class Poller(commands.Cog):
         option_list = []
         for i in range(len(options) - 1):
             option_list.append(PollOption.new(i, options[i]))
-        new_poll = Poll.new(_id, ctx.interaction.user.id, f"Moderative Action for <@{member.id}>", option_list, ctx.interaction.guild_id, ctx.channel.id, admin=True)
+        new_poll = Poll.new(_id, ctx.interaction.user.id, f"Moderative Action for {str(member)}", option_list, ctx.interaction.guild_id, ctx.channel.id, admin=True)
         new_poll.populate_settings(False, False, 1, 11)
         await GG.MDB['polls'].insert_one(new_poll.to_dict())
         embed = await new_poll.get_embed(guild=ctx.interaction.guild)
