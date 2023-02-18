@@ -85,7 +85,7 @@ class Poller(commands.Cog):
 
             await GG.MDB['polls'].insert_one(new_poll.to_dict())
             embed = await new_poll.get_embed(guild=ctx.interaction.guild)
-            msg = await ctx.channel.send(content="<@&1009059409894314034>", embed=embed)
+            msg = await ctx.channel.send(embed=embed)
             new_poll.message_id = msg.id
             await new_poll.commit()
             return await ctx.respond(f"Poll with title: ``{new_poll.title}`` and id: ``{new_poll.id}`` was succesfully posted", ephemeral=True)
@@ -96,13 +96,14 @@ class Poller(commands.Cog):
         _id = await get_next_num(self.bot.mdb['properties'], 'pollId')
         options = ["No action", "Emergency timeout", "DM warning", "In channel warning", "Formal warning", "Timeout", "Kick", "Ban"]
         option_list = []
-        for i in range(len(options) - 1):
+        for i in range(len(options)):
             option_list.append(PollOption.new(i, options[i]))
         new_poll = Poll.new(_id, ctx.interaction.user.id, f"Moderative Action for {str(member)}", option_list, ctx.interaction.guild_id, ctx.channel.id, admin=True)
         new_poll.populate_settings(False, False, 1, 11)
+
         await GG.MDB['polls'].insert_one(new_poll.to_dict())
         embed = await new_poll.get_embed(guild=ctx.interaction.guild)
-        msg = await ctx.channel.send(embed=embed)
+        msg = await ctx.channel.send(content="<@&1009059409894314034>", embed=embed)
         new_poll.message_id = msg.id
         await new_poll.commit()
         return await ctx.respond(f"Poll with title: ``{new_poll.title}`` and id: ``{new_poll.id}`` was succesfully posted", ephemeral=True)
