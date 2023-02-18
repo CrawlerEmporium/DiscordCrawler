@@ -9,7 +9,7 @@ def create_options(options):
     option_list = []
     for option in options:
         option_list.append(discord.SelectOption(
-            label=f"{option.name}", value=f"{option.id}", description=f"{option.name}"
+            label=f"{option.name}", value=f"{option.id}"
         ))
     return option_list
 
@@ -20,13 +20,20 @@ class VoteSelect(Select):
         self.poll = poll
 
         options = create_options(self.poll.options)
+        multivote = self.poll.get_state_by_setting_name("multivote")
+        if multivote > 1:
+            placeholder = f"Select up to {multivote} options you want to vote for"
+        else:
+            placeholder = "Select the option you want to vote for"
 
-        super().__init__(placeholder="Select the option you want to vote for", min_values=1, max_values=1, options=options)
+        super().__init__(placeholder=placeholder, min_values=1, max_values=multivote, options=options)
 
     async def callback(self, interaction: discord.Interaction):
-        selected_option = self.values[0]
         author_id = interaction.user.id
-        message = await self.poll.vote(author_id, selected_option)
+        if len(self.values) > 1:
+            message = await self.poll.vote(author_id, True, self.values)
+        else:
+            message = await self.poll.vote(author_id, False, self.values[0])
         self.disabled = True
         msg = await self.poll.get_message(self.bot)
         await msg.edit(embed=await self.poll.get_embed(self.bot))

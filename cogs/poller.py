@@ -6,9 +6,11 @@ from discord import SlashCommandGroup, Option, AutocompleteContext
 from discord.ext import commands
 from utils import globals as GG
 from crawler_utilities.utils.functions import get_next_num
-from models.poll import Poll, PollOption
+from models.poll import Poll, PollOption, PollSetting
 
 log = GG.log
+
+current_available_settings = ['locked', 'anonymous']
 
 
 def get_poll_options(content):
@@ -40,16 +42,12 @@ async def get_open_polls(ctx: AutocompleteContext):
     return [f"{poll['id']} - {poll['title']}" for poll in db]
 
 
-async def get_settings_options(ctx: AutocompleteContext):
-    return ['locked']
-
-
 class Poller(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     cogName = 'poll'
-    poll = SlashCommandGroup(name="poll", description="Create polls for your server")
+    poll = SlashCommandGroup(name="poll", description="Create polls for your server", guild_ids=[584842413135101990])
 
     @poll.command(**get_command_kwargs(cogName, "create"))
     @commands.guild_only()
@@ -57,7 +55,10 @@ class Poller(commands.Cog):
                      ctx,
                      title: Option(str, **get_parameter_kwargs(cogName, "create.title")),
                      options: Option(str, **get_parameter_kwargs(cogName, "create.options")),
-                     locked: Option(bool, **get_parameter_kwargs(cogName, "create.locked"), required=False, default=False)):
+                     locked: Option(bool, **get_parameter_kwargs(cogName, "create.locked"), required=False, default=False),
+                     anonymous: Option(bool, **get_parameter_kwargs(cogName, "create.anonymous"), required=False, default=False),
+                     multivote: Option(int, **get_parameter_kwargs(cogName, "create.multivote"), required=False, default=1),
+                     autolock: Option(int, **get_parameter_kwargs(cogName, "create.autolock"), required=False, default=0)):
         separated_options = get_poll_options(options)
         if 1 > len(separated_options) or len(separated_options) > 20:
             return await ctx.respond(content='This polling command requires between 2 and 20 options, you either have too many or too little options. Try again.')
@@ -66,7 +67,9 @@ class Poller(commands.Cog):
             options_list = []
             for i in range(len(separated_options) - 1):
                 options_list.append(PollOption.new(i, separated_options[i]))
-            new_poll = Poll.new(_id, ctx.interaction.user.id, title, options_list, ctx.interaction.guild_id, ctx.channel.id, locked=locked)
+            new_poll = Poll.new(_id, ctx.interaction.user.id, title, options_list, ctx.interaction.guild_id, ctx.channel.id)
+            new_poll.populate_settings(locked, anonymous, multivote, autolock)
+
             await GG.MDB['polls'].insert_one(new_poll.to_dict())
             embed = await new_poll.get_embed(guild=ctx.interaction.guild)
             msg = await ctx.channel.send(embed=embed)
@@ -102,12 +105,13 @@ class Poller(commands.Cog):
     async def settings(self,
                        ctx,
                        id: Option(str, autocomplete=get_open_polls, **get_parameter_kwargs(cogName, "settings.id")),
-                       setting: Option(str, autocomplete=get_settings_options, **get_parameter_kwargs(cogName, "settings.setting"))):
+                       setting: Option(str, autocomplete=current_available_settings, **get_parameter_kwargs(cogName, "settings.setting"))):
         poll = await Poll.from_id(id.split(" - ")[0])
-        if setting == "locked":
-            poll.locked = not poll.locked
-            await poll.commit()
-            return await ctx.respond(f"``{poll.title}``'s locked setting was set to {poll.locked}")
+        for _set in poll.settings:
+            if _set.name == setting:
+                _set.toggle_setting()
+                await poll.commit()
+                return await ctx.respond(f"``{poll.title}``'s {_set.name} setting was set to {_set.state}")
         else:
             return await ctx.respond(f"This setting has not been implemented yet.")
 
