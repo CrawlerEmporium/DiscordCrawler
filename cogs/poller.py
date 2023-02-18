@@ -39,7 +39,10 @@ def get_poll_options(content):
 
 
 async def get_open_polls(ctx: AutocompleteContext):
-    db = await GG.MDB['polls'].find({"server_id": ctx.interaction.guild_id, "status": True}).to_list(length=None)
+    if ctx.interaction.user.guild_permissions.manage_messages:
+        db = await GG.MDB['polls'].find({"server_id": ctx.interaction.guild_id, "status": True}).to_list(length=None)
+    else:
+        db = await GG.MDB['polls'].find({"server_id": ctx.interaction.guild_id, "status": True, "admin": False}).to_list(length=None)
     return [f"{poll['id']} - {poll['title']}" for poll in db]
 
 
@@ -82,7 +85,7 @@ class Poller(commands.Cog):
 
             await GG.MDB['polls'].insert_one(new_poll.to_dict())
             embed = await new_poll.get_embed(guild=ctx.interaction.guild)
-            msg = await ctx.channel.send(embed=embed)
+            msg = await ctx.channel.send(content="<@&1009059409894314034>", embed=embed)
             new_poll.message_id = msg.id
             await new_poll.commit()
             return await ctx.respond(f"Poll with title: ``{new_poll.title}`` and id: ``{new_poll.id}`` was succesfully posted", ephemeral=True)
@@ -95,7 +98,7 @@ class Poller(commands.Cog):
         option_list = []
         for i in range(len(options) - 1):
             option_list.append(PollOption.new(i, options[i]))
-        new_poll = Poll.new(_id, ctx.interaction.user.id, f"Moderative Action for @<{member.id}>", option_list, ctx.interaction.guild_id, ctx.channel.id)
+        new_poll = Poll.new(_id, ctx.interaction.user.id, f"Moderative Action for <@{member.id}>", option_list, ctx.interaction.guild_id, ctx.channel.id, admin=True)
         new_poll.populate_settings(False, False, 1, 11)
         await GG.MDB['polls'].insert_one(new_poll.to_dict())
         embed = await new_poll.get_embed(guild=ctx.interaction.guild)

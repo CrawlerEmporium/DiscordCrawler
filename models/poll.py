@@ -7,7 +7,7 @@ from utils import globals as GG
 
 
 class Poll:
-    def __init__(self, id: int, author: int, title: str, options: list, server_id: int, channel_id: int, message_id: int = 0, settings: list = None, voters: list = None, status: bool = True):
+    def __init__(self, id: int, author: int, title: str, options: list, server_id: int, channel_id: int, message_id: int = 0, settings: list = None, voters: list = None, status: bool = True, admin: bool = False):
         if voters is None:
             voters = []
         if settings is None:
@@ -22,16 +22,16 @@ class Poll:
         self.status = status
         self.channel_id = channel_id
         self.message_id = message_id
+        self.admin = admin
 
     @classmethod
-    def new(cls, id, author, title, options, server_id, channel_id, message_id=None, settings=None):
-        return cls(id, author, title, options, server_id, channel_id, message_id, settings, voters=None, status=True)
+    def new(cls, id, author, title, options, server_id, channel_id, message_id=None, settings=None, admin=False):
+        return cls(id, author, title, options, server_id, channel_id, message_id, settings, voters=None, status=True, admin=False)
 
     @classmethod
     def from_dict(cls, poll_dict):
         poll_dict['options'] = [PollOption.from_dict(o) for o in poll_dict['options']]
         poll_dict['voters'] = [Voter.from_dict(v) for v in poll_dict['voters']]
-        print(len(poll_dict['voters']))
         poll_dict['settings'] = [PollSetting.from_dict(s) for s in poll_dict['settings']]
         return cls(**poll_dict)
 
@@ -179,7 +179,8 @@ class Poll:
             "channel_id": self.channel_id,
             "settings": [s.to_dict() for s in self.settings],
             "voters": [v.to_dict() for v in self.voters],
-            "status": self.status
+            "status": self.status,
+            "admin": self.admin
         }
 
 
