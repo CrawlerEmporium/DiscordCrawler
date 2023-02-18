@@ -90,9 +90,9 @@ class Poller(commands.Cog):
             await new_poll.commit()
             return await ctx.respond(f"Poll with title: ``{new_poll.title}`` and id: ``{new_poll.id}`` was succesfully posted", ephemeral=True)
 
-    @poll.command(**get_command_kwargs(cogName, "admin"), guild_ids=[363680385336606740])
+    @poll.command(**get_command_kwargs(cogName, "mod"), guild_ids=[363680385336606740])
     @commands.guild_only()
-    async def admin(self, ctx, member: Option(discord.Member, **get_parameter_kwargs(cogName, "admin.member"))):
+    async def mod(self, ctx, member: Option(discord.Member, **get_parameter_kwargs(cogName, "mod.member"))):
         _id = await get_next_num(self.bot.mdb['properties'], 'pollId')
         options = ["No action", "Emergency timeout", "DM warning", "In channel warning", "Formal warning", "Timeout", "Kick", "Ban"]
         option_list = []

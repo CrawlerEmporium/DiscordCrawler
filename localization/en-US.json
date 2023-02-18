@@ -19,10 +19,10 @@
   "poll.vote.id.name": "id",
   "poll.vote.id.description": "Select the id of the poll you want to vote on.",
 
-  "poll.admin.name": "admin",
-  "poll.admin.description": "Start an admin poll.",
-  "poll.admin.member.name": "member",
-  "poll.admin.member.description": "Select the member you want to admin poll to be about.",
+  "poll.mod.name": "admin",
+  "poll.mod.description": "Start an moderative action poll.",
+  "poll.mod.member.name": "member",
+  "poll.mod.member.description": "Select the member you want to moderative action poll to be about.",
 
   "poll.close.name": "close",
   "poll.close.description": "Close a poll.",
