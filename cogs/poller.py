@@ -57,7 +57,7 @@ class Poller(commands.Cog):
         self.bot = bot
 
     cogName = 'poll'
-    poll = SlashCommandGroup(name="poll", description="Create polls for your server", guild_ids=[584842413135101990])
+    poll = SlashCommandGroup(name="poll", description="Create polls for your server")
 
     @poll.command(**get_command_kwargs(cogName, "create"))
     @commands.guild_only()
