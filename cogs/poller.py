@@ -114,7 +114,7 @@ class Poller(commands.Cog):
                    ctx,
                    id: Option(str, autocomplete=get_open_polls, **get_parameter_kwargs(cogName, "vote.id"))):
         poll = await Poll.from_id(id.split(" - ")[0])
-        view = VoteView(bot_=ctx.bot, poll=poll)
+        view = VoteView(bot_=ctx.bot, poll_id=poll.id, options=poll.options, multivote=poll.get_state_by_setting_name("multivote"))
         await ctx.respond(f"Voting for ``{poll.title}``", ephemeral=True, view=view)
 
     @poll.command(**get_command_kwargs(cogName, "close"))
