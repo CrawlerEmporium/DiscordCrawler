@@ -56,6 +56,9 @@ class Poll:
     def get_state_by_setting_name(self, name):
         return [setting for setting in self.settings if setting.name == name][0].state
 
+    def get_option_name_by_id(self, id):
+        return [option for option in self.options if option.id == id][0].name
+
     def populate_settings(self, locked, anonymous, multivote, autolock):
         self.settings.append(PollSetting.new("locked", locked))
         self.settings.append(PollSetting.new("anonymous", anonymous))

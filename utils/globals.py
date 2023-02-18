@@ -295,6 +295,11 @@ def get_status(boolean):
         return "Open"
     return "Closed"
 
+def human_readable_boolean(boolean):
+    if boolean:
+        return "Yes"
+    return "No"
+
 VERIFLEVELS = {VL.none: "None", VL.low: "Low", VL.medium: "Medium", VL.high: "(╯°□°）╯︵  ┻━┻"}
 REGION = {VR.brazil: ":flag_br: Brazil",
           VR.eu_central: ":flag_eu: Central Europe",

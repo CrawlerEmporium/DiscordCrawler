@@ -31,6 +31,13 @@
   "poll.settings.setting.name": "setting",
   "poll.settings.setting.description": "Which setting do you want to toggle?",
 
+  "poll.info.name": "info",
+  "poll.info.description": "Returns all info about the selected poll.",
+  "poll.info.id.name": "id",
+  "poll.info.id.description": "Select the id of the poll you want to see the info for.",
+  "poll.info.export.name": "export",
+  "poll.info.export.description": "Exports vote data to csv, if anonymous is false.",
+
   "personalquotes.quote.name": "quote",
   "personalquotes.quote.description": "Returns your chosen personal quote.",
   "personalquotes.quote.quote.name": "quote",

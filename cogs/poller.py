@@ -1,16 +1,17 @@
+import csv
+import io
+
 import discord
 
 from cogs.models.voteselect import VoteView
 from crawler_utilities.cogs.localization import get_command_kwargs, get_parameter_kwargs
-from discord import SlashCommandGroup, Option, AutocompleteContext
+from discord import SlashCommandGroup, Option, AutocompleteContext, File
 from discord.ext import commands
 from utils import globals as GG
 from crawler_utilities.utils.functions import get_next_num
 from models.poll import Poll, PollOption, PollSetting
 
 log = GG.log
-
-current_available_settings = ['locked', 'anonymous']
 
 
 def get_poll_options(content):
@@ -40,6 +41,15 @@ def get_poll_options(content):
 async def get_open_polls(ctx: AutocompleteContext):
     db = await GG.MDB['polls'].find({"server_id": ctx.interaction.guild_id, "status": True}).to_list(length=None)
     return [f"{poll['id']} - {poll['title']}" for poll in db]
+
+
+async def get_all_polls(ctx: AutocompleteContext):
+    db = await GG.MDB['polls'].find({"server_id": ctx.interaction.guild_id}).to_list(length=None)
+    return [f"{poll['id']} - {poll['title']}" for poll in db]
+
+
+async def current_available_settings(ctx: AutocompleteContext):
+    return ['locked', 'anonymous']
 
 
 class Poller(commands.Cog):
@@ -114,6 +124,42 @@ class Poller(commands.Cog):
                 return await ctx.respond(f"``{poll.title}``'s {_set.name} setting was set to {_set.state}")
         else:
             return await ctx.respond(f"This setting has not been implemented yet.")
+
+    @poll.command(**get_command_kwargs(cogName, "info"))
+    @commands.guild_only()
+    async def info(self,
+                   ctx,
+                   id: Option(str, autocomplete=get_all_polls, **get_parameter_kwargs(cogName, "info.id")),
+                   export: Option(bool, **get_parameter_kwargs(cogName, "info.export"), required=False, default=False)):
+        poll = await Poll.from_id(id.split(" - ")[0])
+        file = None
+        if not poll.get_state_by_setting_name("anonymous"):
+            if (ctx.interaction.user.id == poll.author or ctx.interaction.user.guild_permissions.manage_messages) and export:
+                f = io.StringIO()
+                csv.writer(f).writerow(["user_id", "option_id", "option_name"])
+                for voter in poll.voters:
+                    csv.writer(f).writerow([f"{voter.user_id}", f"{voter.option_id}", f"{poll.get_option_name_by_id(voter.option_id)}"])
+                f.seek(0)
+
+                buffer = io.BytesIO()
+                buffer.write(f.getvalue().encode())
+                buffer.seek(0)
+
+                file = File(buffer, filename=f"Voter export for {poll.title}.csv")
+
+        embed = discord.Embed()
+        embed.title = f"Info embed for {poll.title} ({poll.id})"
+        embed.description = f"Status: {GG.get_status(poll.status)} - Total Votes: {len(poll.voters)}"
+        embed.add_field(name="Locked", value=GG.human_readable_boolean(poll.get_state_by_setting_name("locked")), inline=False)
+        embed.add_field(name="Anonymous", value=GG.human_readable_boolean(poll.get_state_by_setting_name("anonymous")), inline=False)
+        embed.add_field(name="Multivote", value=f"Castable votes: {poll.get_state_by_setting_name('multivote')}", inline=False)
+        autolock = False if poll.get_state_by_setting_name('autolock') == 0 else True
+        if autolock:
+            embed.add_field(name="Autolock", value=f"Automatically closes after ``{poll.get_state_by_setting_name('autolock')}`` votes", inline=False)
+        else:
+            embed.add_field(name="Autolock", value=GG.human_readable_boolean(False), inline=False)
+
+        await ctx.respond(embed=embed, file=file, ephemeral=True)
 
 
 def setup(bot):
