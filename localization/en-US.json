@@ -19,6 +19,11 @@
   "poll.vote.id.name": "id",
   "poll.vote.id.description": "Select the id of the poll you want to vote on.",
 
+  "poll.admin.name": "admin",
+  "poll.admin.description": "Start an admin poll.",
+  "poll.admin.member.name": "member",
+  "poll.admin.member.description": "Select the member you want to admin poll to be about.",
+
   "poll.close.name": "close",
   "poll.close.description": "Close a poll.",
   "poll.close.id.name": "id",
