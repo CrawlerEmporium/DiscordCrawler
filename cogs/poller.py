@@ -91,7 +91,10 @@ class Poller(commands.Cog):
     @commands.guild_only()
     async def admin(self, ctx, member: Option(discord.Member, **get_parameter_kwargs(cogName, "admin.member"))):
         _id = await get_next_num(self.bot.mdb['properties'], 'pollId')
-        option_list = ["No action", "Emergency timeout", "DM warning", "In channel warning", "Formal warning", "Timeout", "Kick", "Ban"]
+        options = ["No action", "Emergency timeout", "DM warning", "In channel warning", "Formal warning", "Timeout", "Kick", "Ban"]
+        option_list = []
+        for i in range(len(options) - 1):
+            option_list.append(PollOption.new(i, options[i]))
         new_poll = Poll.new(_id, ctx.interaction.user.id, f"Moderative Action for @<{member.id}>", option_list, ctx.interaction.guild_id, ctx.channel.id)
         new_poll.populate_settings(False, False, 1, 11)
         await GG.MDB['polls'].insert_one(new_poll.to_dict())
