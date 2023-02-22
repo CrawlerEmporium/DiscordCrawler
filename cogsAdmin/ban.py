@@ -66,7 +66,7 @@ class Ban(commands.Cog):
         except discord.Forbidden:
             await ctx.send(f"Message failed to send. (Not allowed to DM)")
 
-        await member.ban(reason=message)
+        await member.ban(reason=message, delete_message_seconds=604800)
 
 
 def setup(bot):
