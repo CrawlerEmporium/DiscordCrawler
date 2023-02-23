@@ -1,4 +1,5 @@
 import discord
+from discord import SelectOption
 from discord.ui import Select, View
 
 from models.poll import Poll
@@ -8,7 +9,7 @@ from utils import globals as GG
 def create_options(options):
     option_list = []
     for option in options:
-        option_list.append(discord.SelectOption(
+        option_list.append(SelectOption(
             label=f"{option.name}", value=f"{option.id}"
         ))
     return option_list
@@ -18,7 +19,6 @@ class VoteSelect(Select):
     def __init__(self, bot: discord.Bot, poll_id, options, multivote):
         self.bot = bot
         self.poll_id = poll_id
-        self.options = options
         self.multivote = multivote
 
         options = create_options(options)
