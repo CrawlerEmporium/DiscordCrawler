@@ -92,6 +92,7 @@ class Poller(commands.Cog):
 
     @poll.command(**get_command_kwargs(cogName, "mod"), guild_ids=[363680385336606740])
     @commands.guild_only()
+    @commands.has_permissions(manage_messages=True)
     async def mod(self, ctx, member: Option(discord.Member, **get_parameter_kwargs(cogName, "mod.member"))):
         _id = await get_next_num(self.bot.mdb['properties'], 'pollId')
         options = ["No action", "Emergency timeout", "DM warning", "In channel warning", "Formal warning", "Timeout", "Kick", "Ban"]

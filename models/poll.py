@@ -26,7 +26,7 @@ class Poll:
 
     @classmethod
     def new(cls, id, author, title, options, server_id, channel_id, message_id=None, settings=None, admin=False):
-        return cls(id, author, title, options, server_id, channel_id, message_id, settings, voters=None, status=True, admin=False)
+        return cls(id, author, title, options, server_id, channel_id, message_id, settings, voters=None, status=True, admin=admin)
 
     @classmethod
     def from_dict(cls, poll_dict):
