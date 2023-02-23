@@ -143,6 +143,7 @@ class Poll:
                             amount += 1
                         if amount == 5:
                             voter_string += f"- {len(voters) - 4} more votes..."
+                            break
             if self.status:
                 embed.add_field(name=option.name, value=voter_string)
             else:
