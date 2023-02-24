@@ -122,13 +122,18 @@ class Poller(commands.Cog):
     @commands.guild_only()
     async def close(self,
                     ctx,
-                    id: Option(str, autocomplete=get_open_polls, **get_parameter_kwargs(cogName, "close.id"))):
+                    id: Option(str, autocomplete=get_open_polls, **get_parameter_kwargs(cogName, "close.id")),
+                    post: Option(bool, **get_parameter_kwargs(cogName, "close.post"), required=False, default=False)):
         poll = await Poll.from_id(id.split(" - ")[0])
         if ctx.interaction.user.id == poll.author or ctx.interaction.user.guild_permissions.manage_messages:
             await poll.close()
             msg = await poll.get_message(ctx.bot)
-            await msg.edit(embed=await poll.get_embed(ctx.bot))
-            return await ctx.respond(f"``{poll.title}`` was closed.")
+            embed = await poll.get_embed(ctx.bot)
+            await msg.edit(embed=embed)
+            if post:
+                return await ctx.respond(f"``{poll.title}`` was closed.", embed=embed)
+            else:
+                return await ctx.respond(f"``{poll.title}`` was closed.")
         else:
             return await ctx.respond("Only the author or a moderator can close a poll.")
 
