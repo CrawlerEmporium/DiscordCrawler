@@ -2,6 +2,7 @@ import discord
 import uuid
 
 from crawler_utilities.handlers.errors import CrawlerException
+from crawler_utilities.utils.functions import oxford_comma
 
 from utils import globals as GG
 
@@ -111,16 +112,36 @@ class Poll:
         embed.set_footer(text=f"Id: {self.id} | Current Votes: {len(self.voters)}{setting_string}")
         if guild is None and bot is not None:
             guild = await bot.fetch_guild(self.server_id)
-        winning_option = []
-        option_votes = 0
+        if self.status:
+            await self.running_poll_fields(embed, guild)
+        else:
+            await self.closed_poll_fields(embed)
+        return embed
+
+    async def closed_poll_fields(self, embed):
+        options = []
         total_votes = 0
-        other_options = []
+        vote_results = ""
         for option in self.options:
             voters = [v.user_id for v in self.voters if v.option_id == option.id]
+            options.append({"option": option.name, "votes": len(voters)})
+            vote = 'vote' if len(voters) == 1 else 'votes'
+            vote_results += f"\n{option.name} - {len(voters)} {vote}"
             total_votes += len(voters)
-            if len(voters) >= option_votes:
-                option_votes = len(voters)
-                winning_option.append(option.name)
+        winning_vote_count = max(options, key=lambda x: x['votes'])['votes']
+        winning_option = [v for v in options if v['votes'] == winning_vote_count]
+
+        if len(winning_option) > 1:
+            winning_options = []
+            for option in winning_option:
+                winning_options.append(option['option'])
+            embed.description = f"The winners of this poll are ``{oxford_comma(winning_options)}`` with each {winning_vote_count} out of {total_votes} votes.\n\n**Vote Results**:\n{''.join(vote_results)}"
+        else:
+            embed.description = f"The winner of this poll is ``{winning_option[0]['option']}`` with {winning_vote_count} out of {total_votes} votes.\n\n**Vote Results**:\n{''.join(vote_results)}"
+
+    async def running_poll_fields(self, embed, guild):
+        for option in self.options:
+            voters = [v.user_id for v in self.voters if v.option_id == option.id]
             voter_string = ""
             if len(voters) == 0:
                 voter_string = "- No votes yet"
@@ -147,16 +168,7 @@ class Poll:
                             else:
                                 voter_string += f"- {len(voters) - 4} more votes..."
                             break
-            if self.status:
-                embed.add_field(name=option.name, value=voter_string)
-            else:
-                other_options.append(f"\n{option.name} - {len(voters)} votes")
-        if not self.status:
-            if len(winning_option) > 1:
-                embed.description = f"The winners of this poll are ``{', '.join(winning_option)}`` with each {option_votes} out of {total_votes} votes.\n\n**Vote Results**:\n{''.join(other_options)}"
-            else:
-                embed.description = f"The winner of this poll is ``{winning_option[0]}`` with {option_votes} out of {total_votes} votes.\n\n**Vote Results**:\n{''.join(other_options)}"
-        return embed
+            embed.add_field(name=option.name, value=voter_string)
 
     def get_setting_string(self):
         settings_string = ""
