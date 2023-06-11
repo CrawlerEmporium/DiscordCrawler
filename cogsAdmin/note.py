@@ -25,6 +25,7 @@ class Note(commands.Cog):
     @slash_command(**get_command_kwargs(cogName,"note"))
     @commands.guild_only()
     async def note(self, ctx, member: Option(discord.Member, **get_parameter_kwargs(cogName, "note.member")), message: Option(str, **get_parameter_kwargs(cogName, "note.message"))):
+        await ctx.defer(ephemeral=True)
         if not GG.is_staff_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await self.noteCommand(ctx, member, message)

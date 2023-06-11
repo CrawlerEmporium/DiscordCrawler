@@ -22,6 +22,7 @@ class Case(commands.Cog):
     @case.command(**get_command_kwargs(cogName, 'check'))
     @commands.guild_only()
     async def check(self, ctx, caseid: Option(int, **get_parameter_kwargs(cogName, 'check.caseid'))):
+        await ctx.defer(ephemeral=True)
         if not GG.is_staff_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await self.caseCommand(ctx, caseid)
@@ -29,6 +30,7 @@ class Case(commands.Cog):
     @case.command(**get_command_kwargs(cogName, 'close'))
     @commands.guild_only()
     async def close(self, ctx, caseid: Option(int, **get_parameter_kwargs(cogName, 'close.caseid')), message: Option(str, **get_parameter_kwargs(cogName, 'close.message')) = ""):
+        await ctx.defer(ephemeral=True)
         if not GG.is_staff_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await self.closeCaseCommand(ctx, caseid, message)
@@ -36,6 +38,7 @@ class Case(commands.Cog):
     @case.command(**get_command_kwargs(cogName, 'update'))
     @commands.guild_only()
     async def update(self, ctx, caseid: Option(int, **get_parameter_kwargs(cogName, 'update.caseid')), message: Option(str, **get_parameter_kwargs(cogName, 'update.message')) = ""):
+        await ctx.defer(ephemeral=True)
         if not GG.is_staff_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await self.updateCaseCommand(ctx, caseid, message)
@@ -43,6 +46,7 @@ class Case(commands.Cog):
     @case.command(**get_command_kwargs(cogName, 'list'))
     @commands.guild_only()
     async def list(self, ctx, member: Option(discord.Member, **get_parameter_kwargs(cogName, 'list.member'))):
+        await ctx.defer(ephemeral=True)
         if not GG.is_staff_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await self.listCaseCommand(ctx, member)

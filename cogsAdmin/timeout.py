@@ -65,6 +65,7 @@ class TimeOutSelection(discord.ui.Select):
         if self.author != interaction.user:
             return
         else:
+            await self.ctx.defer(ephemeral=True)
             timeoutActual = datetime.now() - timedelta(hours=2)
             if self.values[0] == "10 Minutes":
                 timeoutActual = timeoutActual + timedelta(minutes=10)
@@ -132,6 +133,7 @@ class Timeout(commands.Cog):
     @slash_command(**get_command_kwargs(cogName, "timeout"))
     @commands.guild_only()
     async def timeout(self, ctx, member: Option(discord.Member, **get_parameter_kwargs(cogName, "timeout.member")), message: Option(str, **get_parameter_kwargs(cogName, "timeout.message"))):
+        await ctx.defer(ephemeral=True)
         if not GG.is_staff_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await muteMember(self.bot, ctx, member, message)
@@ -139,6 +141,7 @@ class Timeout(commands.Cog):
     @slash_command(**get_command_kwargs(cogName, "untimeout"))
     @commands.guild_only()
     async def untimeout(self, ctx, member: Option(discord.Member, **get_parameter_kwargs(cogName, "untimeout.member"))):
+        await ctx.defer(ephemeral=True)
         if not GG.is_staff_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
         await unmuteMember(ctx, member)
