@@ -41,7 +41,7 @@ class Anonymous(Modal):
         thread = await self.delivery_channel.create_thread(name=f"[{datetime.now().date()}] - [{self.author}]",
                                                            reason="Anonymous public request triggered.")
         await thread.send(embed=embed)
-        user = await self.bot.get_user(self.author.id)
+        user = self.bot.get_user(self.author.id)
         await thread.add_user(user)
 
         await interaction.followup.send(
