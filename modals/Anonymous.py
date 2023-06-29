@@ -9,13 +9,14 @@ log = GG.log
 
 
 class Anonymous(Modal):
-    def __init__(self, bot, interaction, author, delivery_channel) -> None:
+    def __init__(self, bot, interaction, author, delivery_channel, thread_channel) -> None:
         super().__init__(title="Anonymous Report")
 
         self.bot = bot
         self.interaction = interaction
         self.author = author
         self.delivery_channel = delivery_channel
+        self.thread_channel = thread_channel
 
         self.add_item(InputText(label="Information", placeholder="What do you want to report to/share with the staff?",
                                 required=True, style=InputTextStyle.long))
@@ -38,7 +39,7 @@ class Anonymous(Modal):
 
     async def createPrivateChannel(self, interaction, embed):
 
-        thread = await self.delivery_channel.create_thread(name=f"[{datetime.now().date()}] - [{self.author}]",
+        thread = await self.thread_channel.create_thread(name=f"[{datetime.now().date()}] - [{self.author}]",
                                                            reason="Anonymous public request triggered.")
         await thread.send(embed=embed)
         user = self.bot.get_user(self.author.id)
