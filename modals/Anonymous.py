@@ -38,12 +38,12 @@ class Anonymous(Modal):
             await self.createAnonymousPost(interaction, embed)
 
     async def createPrivateChannel(self, interaction, embed):
-
         thread = await self.thread_channel.create_thread(name=f"[{datetime.now().date()}] - [{self.author}]",
                                                            reason="Anonymous public request triggered.")
         await thread.send(embed=embed)
         user = self.bot.get_user(self.author.id)
         await thread.add_user(user)
+        await self.delivery_channel.send(message=f"Thread link: {thread.jump_url}", embed=embed)
 
         await interaction.followup.send(
             f"A private channel was created for you. You can find it here: {thread.jump_url}", ephemeral=True)
