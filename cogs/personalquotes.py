@@ -16,7 +16,7 @@ log = GG.log
 
 
 def personal_embed(db_response, author):
-    embed = discord.Embed
+    embed = EmbedWithRandomColor()
     embed.colour = author.color
     response = f"{db_response['response']}"
     embed.description = response.replace('\\n', '\n').replace('\\t', '\t')

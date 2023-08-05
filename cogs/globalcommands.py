@@ -5,6 +5,7 @@ import requests
 from discord import AutocompleteContext, SlashCommandGroup, Option, slash_command
 
 from crawler_utilities.cogs.localization import get_command_kwargs, get_parameter_kwargs
+from crawler_utilities.utils.embeds import EmbedWithRandomColor
 from crawler_utilities.utils.pagination import get_selection
 from discord.ext import commands
 import utils.globals as GG
@@ -13,7 +14,7 @@ log = GG.log
 
 
 def global_embed(ctx, quote, whisper):
-    embed = discord.Embed
+    embed = EmbedWithRandomColor()
     embed.colour = ctx.author.color
     response = f"{quote['Response']}"
     embed.description = response.replace('\\n', '\n').replace('\\t', '\t')
