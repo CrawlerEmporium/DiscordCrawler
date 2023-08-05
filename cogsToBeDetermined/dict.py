@@ -2,7 +2,7 @@ import requests
 from discord.ext import commands
 
 from utils import globals as GG
-from crawler_utilities.utils.embeds import EmbedWithAuthor
+from crawler_utilities.utils.embeds import EmbedWithRandomColor
 
 log = GG.log
 
@@ -44,7 +44,7 @@ class Dictionary(commands.Cog):
 
                     phonetic = phonetic[:-2]
 
-                    embed = EmbedWithAuthor(ctx)
+                    embed = EmbedWithRandomColor()
                     embed.title = word.capitalize()
                     embed.description = phonetic
 

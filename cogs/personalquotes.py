@@ -5,7 +5,7 @@ import requests
 from discord import SlashCommandGroup, Option, AutocompleteContext
 from discord.ext import commands
 
-from crawler_utilities.utils.embeds import EmbedWithAuthorWithoutContext
+from crawler_utilities.utils.embeds import EmbedWithRandomColor
 from utils import globals as GG
 
 # noinspection PyUnresolvedReferences
@@ -16,7 +16,7 @@ log = GG.log
 
 
 def personal_embed(db_response, author):
-    embed = EmbedWithAuthorWithoutContext(author)
+    embed = discord.Embed
     embed.colour = author.color
     response = f"{db_response['response']}"
     embed.description = response.replace('\\n', '\n').replace('\\t', '\t')

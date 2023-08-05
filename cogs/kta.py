@@ -91,6 +91,6 @@ class KeepThreadsActive(commands.Cog):
             return await ctx.respond(f"{ctx.channel.name} is not a thread, you can only enable the K.T.A. (Keep Threads Active) feature on threads.", ephemeral=True)
 
 
-def setup(bot):
-    log.info("[Cog] KeepThreadsActive")
-    bot.add_cog(KeepThreadsActive(bot))
+# def setup(bot):
+#     log.info("[Cog] KeepThreadsActive")
+#     bot.add_cog(KeepThreadsActive(bot))

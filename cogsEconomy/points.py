@@ -1,7 +1,7 @@
 import typing
 
 import discord
-from crawler_utilities.utils.embeds import EmbedWithAuthor
+from crawler_utilities.utils.embeds import EmbedWithRandomColor
 from crawler_utilities.utils.pagination import BotEmbedPaginator
 
 from discord.ext import commands
@@ -45,7 +45,7 @@ class Points(commands.Cog):
 
 
         point = await GG.MDB.points.find_one({"user": member.id, "server": ctx.guild.id})
-        embed = EmbedWithAuthor(ctx)
+        embed = EmbedWithRandomColor()
 
         if ctx.author.id == member.id:
             embed.title = "Your Points"
@@ -147,7 +147,7 @@ class Points(commands.Cog):
             return await ctx.send(f"You can't give points to yourself.")
 
         if amount < 0:
-            embed = EmbedWithAuthor(ctx)
+            embed = EmbedWithRandomColor()
             embed.title = "You thought you could steal points huh?"
             embed.set_image(url="https://media1.tenor.com/images/0239cebc541822c0ece39f44a2243224/tenor.gif?itemid=9377550")
             return await ctx.send(embed=embed)

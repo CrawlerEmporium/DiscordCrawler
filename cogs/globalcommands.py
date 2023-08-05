@@ -3,11 +3,8 @@ import io
 import discord
 import requests
 from discord import AutocompleteContext, SlashCommandGroup, Option, slash_command
-from discord.commands import permissions
 
 from crawler_utilities.cogs.localization import get_command_kwargs, get_parameter_kwargs
-from crawler_utilities.utils.embeds import EmbedWithAuthor
-# noinspection PyUnresolvedReferences
 from crawler_utilities.utils.pagination import get_selection
 from discord.ext import commands
 import utils.globals as GG
@@ -16,7 +13,7 @@ log = GG.log
 
 
 def global_embed(ctx, quote, whisper):
-    embed = EmbedWithAuthor(ctx)
+    embed = discord.Embed
     embed.colour = ctx.author.color
     response = f"{quote['Response']}"
     embed.description = response.replace('\\n', '\n').replace('\\t', '\t')

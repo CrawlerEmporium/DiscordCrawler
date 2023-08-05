@@ -1,10 +1,10 @@
-requests~=2.20.0
-motor~=2.3.0
-environs~=8.0.0
+requests>=2.31.0
+motor>=3.2.0
+environs>=9.5.0
 aiohttp>=3.8.0
 cryptography
 pytz
 dateparser
 parsedatetime
 git+https://github.com/CrawlerEmporium/CrawlerUtilities.git
-py-cord>=2.0.0
+py-cord>=2.4.1

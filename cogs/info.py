@@ -12,7 +12,7 @@ from discord.ui import Button
 
 from discord.ext import commands
 from utils import globals as GG
-from crawler_utilities.utils.embeds import EmbedWithAuthor
+from crawler_utilities.utils.embeds import EmbedWithRandomColor
 from crawler_utilities.utils.functions import fakeField, countChannels
 
 log = GG.log
@@ -113,7 +113,7 @@ class Info(commands.Cog):
 
     @commands.command()
     async def support(self, ctx):
-        em = EmbedWithAuthor(ctx)
+        em = EmbedWithRandomColor()
         em.title = 'Support Server'
         em.description = "For technical support for DiscordCrawler, join the Crawler Emporium discord [here](https://discord.gg/HEY6BWj)!\n" \
                          "There you can ask questions about the bot, make feature requests, report issues and/or bugs (please include any error messages), learn about my other Crawler bots, and share with other crawler bot users!\n\n" \
@@ -131,7 +131,7 @@ class Info(commands.Cog):
 
     @commands.command()
     async def invite(self, ctx):
-        em = EmbedWithAuthor(ctx)
+        em = EmbedWithRandomColor()
         em.title = 'Invite Me!'
         em.description = "Hi, you can easily invite me to your own server by following [this link](" \
                          "https://discord.com/api/oauth2/authorize?client_id=602774912595263490&permissions=805412928&scope=bot%20applications.commands" \
