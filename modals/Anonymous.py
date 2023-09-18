@@ -43,7 +43,7 @@ class Anonymous(Modal):
         await thread.send(embed=embed)
         user = self.bot.get_user(self.author.id)
         await thread.add_user(user)
-        await self.delivery_channel.send(message=f"Thread link: {thread.jump_url}", embed=embed)
+        await self.delivery_channel.send(content=f"Thread link: {thread.jump_url}", embed=embed)
 
         await interaction.followup.send(
             f"A private channel was created for you. You can find it here: {thread.jump_url}", ephemeral=True)
