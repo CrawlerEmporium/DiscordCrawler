@@ -92,7 +92,7 @@ def quote_embed(context_channel, message: discord.Message, user):
             message.id)
 
         timestamp = str(((message.id >> 22) + 1420070400000) / 1000)
-        message.content += f"\nQuoted by: {user}"
+        message.content += f"\n\nQuoted by: {user}"
         if message.channel != context_channel:
             message.content += f" | {message.jump_url}"
         message.content += f" | on <t:{timestamp.split('.')[0]}:f>"
