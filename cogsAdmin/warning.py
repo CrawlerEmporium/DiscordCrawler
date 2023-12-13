@@ -32,8 +32,6 @@ class Warning(commands.Cog):
         await self.warnCommand(ctx, member, message)
 
     async def warnCommand(self, ctx, member, message):
-        await ctx.defer(ephemeral=True)
-
         memberDB = await GG.MDB.members.find_one({"server": ctx.interaction.guild_id, "user": member.id})
         caseId = await get_next_num(self.bot.mdb['properties'], 'caseId')
 
