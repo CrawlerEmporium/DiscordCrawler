@@ -88,7 +88,7 @@ def quote_embed(context_channel, message: discord.Message, user):
     if not message.content and message.embeds and message.author.bot:
         embed = message.embeds[0]
     else:
-        message.content += f"\n\nQuoted by: {user} | {message.jump_url} | on <t:{id_to_snowflake(message.id)}:f>"
+        message.content += f"\n\nQuoted by: {user} | {message.jump_url} | posted on <t:{id_to_snowflake(message.id)}:f>"
 
         if message.author not in message.guild.members or message.author.color == discord.Colour.default():
             embed = discord.Embed(description=message.content)
