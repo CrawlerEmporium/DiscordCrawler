@@ -87,12 +87,15 @@ def quote_embed(context_channel, message: discord.Message, user):
     if not message.content and message.embeds and message.author.bot:
         embed = message.embeds[0]
     else:
-        timestamp = ((message.id >> 22) + 1420070400000) / 1000
+        uri = 'https://discordapp.com/channels/' + str(message.guild.id) + '/' + str(
+            message.channel.id) + '/' + str(
+            message.id)
 
+        timestamp = str(((message.id >> 22) + 1420070400000) / 1000)
         message.content += f"\nQuoted by: {user}"
         if message.channel != context_channel:
-            message.content += f" | in channel: #{message.channel.name}"
-        message.content += f" | {message.jump_url} | on <t:{timestamp}:f>"
+            message.content += f" | {message.jump_url}"
+        message.content += f" | on <t:{timestamp.split('.')[0]}:f>"
 
         if message.author not in message.guild.members or message.author.color == discord.Colour.default():
             embed = discord.Embed(description=message.content)
