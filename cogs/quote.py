@@ -83,18 +83,16 @@ def parse_time(timestamp):
     return None
 
 
-def quote_embed(context_channel, message, user):
+def quote_embed(context_channel, message: discord.Message, user):
     if not message.content and message.embeds and message.author.bot:
         embed = message.embeds[0]
     else:
-        uri = 'https://discordapp.com/channels/' + str(message.guild.id) + '/' + str(
-            message.channel.id) + '/' + str(
-            message.id)
+        timestamp = ((message.id >> 22) + 1420070400000) / 1000
 
+        message.content += f"\nQuoted by: {user}"
         if message.channel != context_channel:
-            message.content += f"\nQuoted by: {user} | in channel: #{message.channel.name} | [Direct Link]({uri})"
-        else:
-            message.content += f"\nQuoted by: {user} | [Direct Link]({uri})"
+            message.content += f" | in channel: #{message.channel.name}"
+        message.content += f" | {message.jump_url} | on <t:{timestamp}:f>"
 
         if message.author not in message.guild.members or message.author.color == discord.Colour.default():
             embed = discord.Embed(description=message.content)
