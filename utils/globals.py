@@ -332,3 +332,6 @@ def checkDays(date):
 async def reloadReactionRoles():
     REACTIONROLESDB = await MDB['reactionroles'].find({}).to_list(length=None)
     return loadReactionRoles(REACTIONROLESDB)
+
+def id_to_snowflake(_id):
+    return str(((_id >> 22) + 1420070400000) / 1000).split('.')[0]

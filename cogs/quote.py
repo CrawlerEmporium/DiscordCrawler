@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 from utils import globals as GG
 from crawler_utilities.utils.functions import try_delete
+from utils.globals import id_to_snowflake
 
 log = GG.log
 
@@ -87,11 +88,7 @@ def quote_embed(context_channel, message: discord.Message, user):
     if not message.content and message.embeds and message.author.bot:
         embed = message.embeds[0]
     else:
-        timestamp = str(((message.id >> 22) + 1420070400000) / 1000)
-        message.content += f"\n\nQuoted by: {user}"
-        if message.channel != context_channel:
-            message.content += f" | {message.jump_url}"
-        message.content += f" | on <t:{timestamp.split('.')[0]}:f>"
+        message.content += f"\n\nQuoted by: {user} | {message.jump_url} | on <t:{id_to_snowflake(message.id)}:f>"
 
         if message.author not in message.guild.members or message.author.color == discord.Colour.default():
             embed = discord.Embed(description=message.content)
