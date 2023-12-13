@@ -87,23 +87,16 @@ def quote_embed(context_channel, message: discord.Message, user):
     if not message.content and message.embeds and message.author.bot:
         embed = message.embeds[0]
     else:
-        uri = 'https://discordapp.com/channels/' + str(message.guild.id) + '/' + str(
-            message.channel.id) + '/' + str(
-            message.id)
+        timestamp = str(((message.id >> 22) + 1420070400000) / 1000)
+        message.content += f"\n\nQuoted by: {user}"
+        if message.channel != context_channel:
+            message.content += f" | {message.jump_url}"
+        message.content += f" | on <t:{timestamp.split('.')[0]}:f>"
 
         if message.author not in message.guild.members or message.author.color == discord.Colour.default():
             embed = discord.Embed(description=message.content)
         else:
             embed = discord.Embed(description=message.content, color=message.author.color)
-
-        timestamp = str(((message.id >> 22) + 1420070400000) / 1000)
-        quoteMessage = f"\n\nQuoted by: {user}"
-        if message.channel != context_channel:
-            quoteMessage += f" | {message.jump_url}"
-        quoteMessage += f" | on <t:{timestamp.split('.')[0]}:f>"
-
-        embed.set_footer(text=quoteMessage)
-
         if message.attachments:
             if message.channel.is_nsfw() and not context_channel.is_nsfw():
                 embed.add_field(name='Attachments', value=':underage: **Quoted message belongs in NSFW channel.**')
