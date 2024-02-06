@@ -94,6 +94,15 @@
   "globalcommands.add.attachment.name": "attachment",
   "globalcommands.add.attachment.description": "File to attach to the quote.",
 
+  "globalcommands.edit.name": "edit",
+  "globalcommands.edit.description": "Edits a global quote.",
+  "globalcommands.edit.quote.name": "quote",
+  "globalcommands.edit.quote.description": "Which quote do you want to edit?",
+  "globalcommands.edit.response.name": "response",
+  "globalcommands.edit.response.description": "What should the quote say?",
+  "globalcommands.edit.attachment.name": "attachment",
+  "globalcommands.edit.attachment.description": "File to attach to the quote.",
+
   "globalcommands.delete.name": "delete",
   "globalcommands.delete.description": "Deletes a global quote.",
   "globalcommands.delete.quote.name": "quote",
