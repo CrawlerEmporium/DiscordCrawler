@@ -79,6 +79,8 @@
   "globalcommands.quote.description": "Returns your chosen global quote.",
   "globalcommands.quote.quote.name": "quote",
   "globalcommands.quote.quote.description": "Which global quote do you want to post?",
+  "globalcommands.quote.pingmember.name": "pingmember",
+  "globalcommands.quote.pingmember.description": "Who do you want to ping?",
 
   "globalcommands.code.name": "code",
   "globalcommands.code.description": "Returns your chosen global quote in code.",

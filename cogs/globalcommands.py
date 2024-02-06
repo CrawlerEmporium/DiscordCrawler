@@ -42,10 +42,11 @@ class GlobalCommands(commands.Cog):
     @personal.command(**get_command_kwargs(cogName, "quote"))
     @commands.guild_only()
     async def quote(self, ctx,
-                    quote: Option(str, autocomplete=get_quote, **get_parameter_kwargs(cogName, "quote.quote"))):
+                    quote: Option(str, autocomplete=get_quote, **get_parameter_kwargs(cogName, "quote.quote")),
+                    pingmember: Option(discord.Member, required=False, **get_parameter_kwargs(cogName, 'quote.pingmember'))):
         """Returns your chosen global command."""
         global_quote = await GG.MDB['globalcommands'].find_one({"Guild": ctx.interaction.guild_id, "Trigger": quote})
-        await self.send_global_quote(ctx, global_quote, quote)
+        await self.send_global_quote(ctx, global_quote, quote, pingmember)
 
     @personal.command(**get_command_kwargs(cogName, "code"))
     @commands.guild_only()
@@ -77,8 +78,7 @@ class GlobalCommands(commands.Cog):
     async def add(self, ctx,
                   quote: Option(str, **get_parameter_kwargs(cogName, "add.quote")),
                   response: Option(str, **get_parameter_kwargs(cogName, "add.response")),
-                  attachment: Option(discord.Attachment, required=False,
-                                     **get_parameter_kwargs(cogName, "add.attachment"))):
+                  attachment: Option(discord.Attachment, required=False, **get_parameter_kwargs(cogName, "add.attachment"))):
         checkIfExist = await GG.MDB['globalcommands'].find_one({"Guild": ctx.interaction.guild_id, "Trigger": quote})
         if checkIfExist is not None:
             return await ctx.respond(content=":x:" + ' **You already have a command with that trigger.**')
@@ -120,7 +120,7 @@ class GlobalCommands(commands.Cog):
         global_quote = await GG.MDB['globalcommands'].find_one({"Guild": ctx.interaction.guild_id, "Trigger": quote})
         await self.send_global_quote(ctx, global_quote, quote, True)
 
-    async def send_global_quote(self, ctx, global_quote, trigger, whisper=False):
+    async def send_global_quote(self, ctx, global_quote, trigger, whisper=False, ping:discord.Member=None):
         if global_quote is None:
             return await ctx.respond(f"This command (``{trigger}``) does not exist. Please check the spelling.",
                                      ephemeral=True)
@@ -140,7 +140,10 @@ class GlobalCommands(commands.Cog):
                     dFile = discord.File(bitties, filename=url.rsplit('/', 1)[-1])
                     files.append(dFile)
         if not whisper:
-            await ctx.respond(embed=embed, files=files)
+            if ping is not None:
+                await ctx.respond(content=ping.mention, embed=embed, files=files)
+            else:
+                await ctx.respond(embed=embed, files=files)
         else:
             await ctx.respond(embed=embed, files=files, ephemeral=True)
 
