@@ -46,7 +46,7 @@ class GlobalCommands(commands.Cog):
                     pingmember: Option(discord.Member, required=False, **get_parameter_kwargs(cogName, 'quote.pingmember'))):
         """Returns your chosen global command."""
         global_quote = await GG.MDB['globalcommands'].find_one({"Guild": ctx.interaction.guild_id, "Trigger": quote})
-        await self.send_global_quote(ctx, global_quote, quote, pingmember)
+        await self.send_global_quote(ctx, global_quote, quote, False, pingmember)
 
     @personal.command(**get_command_kwargs(cogName, "code"))
     @commands.guild_only()
@@ -120,7 +120,7 @@ class GlobalCommands(commands.Cog):
         global_quote = await GG.MDB['globalcommands'].find_one({"Guild": ctx.interaction.guild_id, "Trigger": quote})
         await self.send_global_quote(ctx, global_quote, quote, True)
 
-    async def send_global_quote(self, ctx, global_quote, trigger, whisper=False, ping:discord.Member=None):
+    async def send_global_quote(self, ctx, global_quote, trigger, whisper=False, ping=None):
         if global_quote is None:
             return await ctx.respond(f"This command (``{trigger}``) does not exist. Please check the spelling.",
                                      ephemeral=True)
