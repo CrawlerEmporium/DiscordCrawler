@@ -4,6 +4,7 @@ import io
 import discord
 
 from cogs.models.voteselect import VoteView
+from cogsAdmin.whois import getMemberEmbed, getCaseStrings
 from crawler_utilities.cogs.localization import get_command_kwargs, get_parameter_kwargs
 from discord import SlashCommandGroup, Option, AutocompleteContext, File
 from discord.ext import commands
@@ -95,7 +96,7 @@ class Poller(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     async def mod(self, ctx, member: Option(discord.Member, **get_parameter_kwargs(cogName, "mod.member"))):
         _id = await get_next_num(self.bot.mdb['properties'], 'pollId')
-        options = ["No action", "Emergency timeout", "DM warning", "In channel warning", "Formal warning", "Timeout", "Kick", "Ban"]
+        options = ["No action", "Formal warning", "Extended timeout", "Ban"]
         option_list = []
         for i in range(len(options)):
             option_list.append(PollOption.new(i, options[i]))
@@ -104,9 +105,16 @@ class Poller(commands.Cog):
 
         await GG.MDB['polls'].insert_one(new_poll.to_dict())
         embed = await new_poll.get_embed(guild=ctx.interaction.guild)
-        msg = await ctx.channel.send(content="<@&1009059409894314034>", embed=embed)
+        msg = await ctx.channel.send(content=f"<@&1009059409894314034> - Moderative Action for {member.mention}", embed=embed)
         new_poll.message_id = msg.id
         await new_poll.commit()
+
+        cases = await GG.MDB.members.find_one({"server": ctx.guild.id, "user": member.id})
+        adminString, noteString, warningString = await getCaseStrings(cases)
+
+        em = await getMemberEmbed(adminString, ctx.guild, noteString, member, warningString)
+        await ctx.channel.send(embed=em)
+
         return await ctx.respond(f"Poll with title: ``{new_poll.title}`` and id: ``{new_poll.id}`` was succesfully posted", ephemeral=True)
 
     @poll.command(**get_command_kwargs(cogName, "vote"))

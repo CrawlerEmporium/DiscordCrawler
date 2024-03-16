@@ -54,14 +54,7 @@ class Whois(commands.Cog):
             return await ctx.respond("Member is no longer in this server.")
 
         cases = await GG.MDB.members.find_one({"server": guild.id, "user": member.id})
-
-        notes = []
-        warnings = []
-        mutes = []
-        tempbans = []
-        bans = []
-
-        adminString, noteString, warningString = await getCaseStrings(bans, cases, mutes, notes, tempbans, warnings)
+        adminString, noteString, warningString = await getCaseStrings(cases)
 
         em = await getMemberEmbed(adminString, guild, noteString, member, warningString)
 
@@ -95,7 +88,13 @@ async def getMemberEmbed(adminString, guild, noteString, user, warningString):
     return em
 
 
-async def getCaseStrings(bans, cases, mutes, notes, tempbans, warnings):
+async def getCaseStrings(cases):
+    notes = []
+    warnings = []
+    mutes = []
+    tempbans = []
+    bans = []
+
     if cases is not None:
         for x in cases['caseIds']:
             case = await GG.MDB.cases.find_one({"caseId": x})

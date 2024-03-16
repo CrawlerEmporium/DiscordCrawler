@@ -7,4 +7,4 @@ pytz
 dateparser
 parsedatetime
 git+https://github.com/CrawlerEmporium/CrawlerUtilities.git
-py-cord>=2.4.1
+py-cord==2.4.0

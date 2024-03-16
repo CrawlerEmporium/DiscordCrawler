@@ -6,24 +6,21 @@ import time
 from discord import VerificationLevel as VL
 from discord import VoiceRegion as VR
 from discord.ext import commands
-from environs import Env
+import os
 from crawler_utilities.handlers.logger import Logger
 
 log = Logger("logs", "CommunityCrawler", "CommunityCrawler").logger
 
-env = Env()
-env.read_env()
-
-PREFIX = env('PREFIX')
-TOKEN = env('TOKEN')
-TESTTOKEN = env('TESTTOKEN')
-COGS = env('COGS')
-COGSECONOMY = env('COGSECONOMY')
-COGSADMIN = env('COGSADMIN')
-COGSEVENTS = env('COGSEVENTS')
-OWNER = int(env('OWNER'))
-MONGODB = env('MONGODB')
-KEY = env('KEY')
+PREFIX = os.environ['PREFIX']
+TOKEN = os.environ['TOKEN']
+TESTTOKEN = os.environ['TESTTOKEN']
+COGS = os.environ['COGS']
+COGSECONOMY = os.environ['COGSECONOMY']
+COGSADMIN = os.environ['COGSADMIN']
+COGSEVENTS = os.environ['COGSEVENTS']
+OWNER = int(os.environ['OWNER'])
+MONGODB = os.environ['MONGODB']
+KEY = os.environ['KEY']
 
 MDB = motor.motor_asyncio.AsyncIOMotorClient(MONGODB)['discordCrawler']
 HELP = motor.motor_asyncio.AsyncIOMotorClient(MONGODB)['lookup']

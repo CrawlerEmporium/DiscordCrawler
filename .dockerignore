@@ -1,0 +1,7 @@
+venv
+.env
+secret.key
+forever.py
+testbot.py
+cogsToBeDetermined/poll.py
+cogs/kta.py

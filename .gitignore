@@ -3,6 +3,7 @@ secret.key
 __pycache__/
 *.py[cod]
 *$py.class
+testbot.py
 
 # C extensions
 *.so
