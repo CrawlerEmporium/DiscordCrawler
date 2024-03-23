@@ -26,18 +26,12 @@ class Whois(commands.Cog):
         if not GG.is_staff_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
 
-        notes = []
-        warnings = []
-        mutes = []
-        tempbans = []
-        bans = []
-
         guild = ctx.interaction.guild
         if member is None:
             return await ctx.respond("Member is no longer in this server.")
 
         cases = await GG.MDB.members.find_one({"server": guild.id, "user": member.id})
-        adminString, noteString, warningString = await getCaseStrings(bans, cases, mutes, notes, tempbans, warnings)
+        adminString, noteString, warningString = await getCaseStrings(cases)
 
         em = await getMemberEmbed(adminString, guild, noteString, member, warningString)
         await ctx.respond(embed=em)
