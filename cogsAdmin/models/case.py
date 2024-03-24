@@ -37,7 +37,7 @@ async def getCaseEmbed(ctx, case: Case):
     embed = discord.Embed()
     await ctx.interaction.guild.chunk()
     moderator = await ctx.interaction.guild.fetch_member(case.mod)
-    target = await ctx.interaction.guild.fetch_member(case.target)
+    target = await ctx.bot.fetch_user(case.target)
 
     if case.caseType == CaseType.NOTE:
         embed.colour = Colour.blue()

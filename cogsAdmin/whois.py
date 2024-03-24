@@ -27,7 +27,7 @@ class Whois(commands.Cog):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
 
         guild = ctx.interaction.guild
-        if member is None:
+        if member is None or member is discord.User:
             return await ctx.respond("Member is no longer in this server.")
 
         cases = await GG.MDB.members.find_one({"server": guild.id, "user": member.id})
@@ -44,7 +44,7 @@ class Whois(commands.Cog):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
 
         guild = ctx.guild
-        if member is None:
+        if member is None or member is discord.User:
             return await ctx.respond("Member is no longer in this server.")
 
         cases = await GG.MDB.members.find_one({"server": guild.id, "user": member.id})
