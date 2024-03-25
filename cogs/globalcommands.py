@@ -53,9 +53,12 @@ class GlobalCommands(commands.Cog):
     async def code(self, ctx,
                    quote: Option(str, autocomplete=get_quote, **get_parameter_kwargs(cogName, "code.quote"))):
         user_quote = await GG.MDB['globalcommands'].find_one({"Guild": ctx.interaction.guild_id, "Trigger": quote})
-        replaceString = '\`'
-        await ctx.respond(f"```{user_quote['Response'].replace('`', replaceString)}```",
-                          files=user_quote['Attachments'])
+        files = user_quote['Attachments']
+        bitties = io.StringIO(user_quote['Response'])
+        bitties.seek(0)
+        dFile = discord.File(bitties, filename=f"{user_quote['Trigger']}.md")
+        files.append(dFile)
+        await ctx.respond(files=files)
 
     @personal.command(**get_command_kwargs(cogName, "list"))
     @commands.guild_only()
@@ -87,6 +90,9 @@ class GlobalCommands(commands.Cog):
 
         await ctx.respond(content=":white_check_mark:" + ' **Command added.**')
 
+        global_quote = await GG.MDB['globalcommands'].find_one({"Guild": ctx.interaction.guild_id, "Trigger": quote})
+        await self.send_global_quote(ctx, global_quote, quote, False, None)
+
     @personal.command(**get_command_kwargs(cogName, "edit"))
     @commands.guild_only()
     @commands.has_permissions(manage_messages=True)
@@ -94,13 +100,17 @@ class GlobalCommands(commands.Cog):
                   quote: Option(str, **get_parameter_kwargs(cogName, "add.quote")),
                   response: Option(str, **get_parameter_kwargs(cogName, "add.response")),
                   attachment: Option(discord.Attachment, required=False,
-                                     **get_parameter_kwargs(cogName, "add.attachment"))):
+                                     **get_parameter_kwargs(cogName, "add.attachment"))
+                   ):
         result = await self.delete_command(ctx, quote)
         await self.add_command(attachment, ctx, quote, response)
         if result.deleted_count > 0:
             await ctx.respond(content=":white_check_mark:" + ' **Command edited.**')
         else:
             await ctx.respond(content=":white_check_mark:" + ' **Command added.**')
+
+        global_quote = await GG.MDB['globalcommands'].find_one({"Guild": ctx.interaction.guild_id, "Trigger": quote})
+        await self.send_global_quote(ctx, global_quote, quote, False, None)
 
     @personal.command(**get_command_kwargs(cogName, "delete"))
     @commands.guild_only()
