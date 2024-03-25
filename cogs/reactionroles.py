@@ -170,22 +170,10 @@ class Roles(commands.Cog):
     @commands.command()
     @commands.guild_only()
     @GG.is_staff()
-    async def removeRole(self, ctx, channelId, messageId, roleId, emoji: discord.Emoji):
-        channel = await self.bot.fetch_channel(channelId)
-        message = await channel.fetch_message(messageId)
-        try:
-            reactions = message.reactions
-            for x in reactions:
-                if x.emoji == emoji:
-                    users = await x.users().flatten()
-                    for y in users:
-                        await message.remove_reaction(emoji, y)
-        except:
-            await ctx.send(
-                "Unknown Emoji, please check if this emoji is still present as a reaction on the message you supplied.")
-        else:
-            await GG.MDB['reactionroles'].delete_one({"guildId": ctx.guild.id, "messageId": messageId, "roleId": roleId, "emoji": str(emoji)})
-            GG.REACTIONROLES = await GG.reloadReactionRoles()
+    async def removeRole(self, ctx, messageId, roleId, emoji: discord.Emoji):
+        await GG.MDB['reactionroles'].delete_one({"guildId": ctx.guild.id, "messageId": messageId, "roleId": roleId, "emoji": str(emoji)})
+        GG.REACTIONROLES = await GG.reloadReactionRoles()
+        await ctx.send(f"React role for {roleId} removed")
 
     @commands.command()
     @commands.guild_only()
