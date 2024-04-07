@@ -161,7 +161,7 @@ class GlobalCommands(commands.Cog):
         if attachment is not None:
             await GG.MDB['globalcommands'].insert_one(
                 {"Guild": ctx.interaction.guild_id, "Trigger": quote, "Response": response,
-                 "Attachments": [attachment.url]})
+                 "Attachments": [attachment.url.split('?ex=')[0]]})
         else:
             await GG.MDB['globalcommands'].insert_one(
                 {"Guild": ctx.interaction.guild_id, "Trigger": quote, "Response": response, "Attachments": []})

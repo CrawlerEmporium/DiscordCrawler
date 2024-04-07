@@ -66,7 +66,7 @@ class PersonalQuotes(commands.Cog):
             return await ctx.respond(content=":x:" + ' **You already have a command with that trigger.**')
         else:
             if attachment is not None:
-                await GG.MDB['personalcommands'].insert_one({"user": ctx.interaction.user.id, "trigger": quote, "response": response, "attachments": [attachment.url]})
+                await GG.MDB['personalcommands'].insert_one({"user": ctx.interaction.user.id, "trigger": quote, "response": response, "attachments": [attachment.url.split('?ex=')[0]]})
             else:
                 await GG.MDB['personalcommands'].insert_one({"user": ctx.interaction.user.id, "trigger": quote, "response": response, "attachments": []})
 
