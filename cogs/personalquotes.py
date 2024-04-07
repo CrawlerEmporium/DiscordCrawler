@@ -66,7 +66,7 @@ class PersonalQuotes(commands.Cog):
             return await ctx.respond(content=":x:" + ' **You already have a command with that trigger.**')
         else:
             if attachment is not None:
-                await GG.MDB['personalcommands'].insert_one({"user": ctx.interaction.user.id, "trigger": quote, "response": response, "attachments": [attachment.url.split('?ex=')[0]]})
+                await GG.MDB['personalcommands'].insert_one({"user": ctx.interaction.user.id, "trigger": quote, "response": response, "attachments": [attachment.url]})
             else:
                 await GG.MDB['personalcommands'].insert_one({"user": ctx.interaction.user.id, "trigger": quote, "response": response, "attachments": []})
 
@@ -103,7 +103,7 @@ class PersonalQuotes(commands.Cog):
             files = []
             if attachments is not None:
                 if len(attachments) == 1 and (
-                        attachments[0].lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.gifv', '.webp', '.bmp')) or
+                        any(ext in attachments[0].lower() for ext in GG.IMAGE_EXTENSIONS) or
                         attachments[0].lower().startswith('https://chart.googleapis.com/chart?')):
                     embed.set_image(url=attachments[0])
                 else:

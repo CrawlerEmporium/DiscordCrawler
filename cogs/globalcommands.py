@@ -138,7 +138,7 @@ class GlobalCommands(commands.Cog):
         files = []
         if attachments is not None:
             if len(attachments) == 1 and (
-                    attachments[0].lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.gifv', '.webp', '.bmp')) or
+                    any(ext in attachments[0].lower() for ext in GG.IMAGE_EXTENSIONS) or
                     attachments[0].lower().startswith('https://chart.googleapis.com/chart?')):
                 embed.set_image(url=attachments[0])
             else:
@@ -161,7 +161,7 @@ class GlobalCommands(commands.Cog):
         if attachment is not None:
             await GG.MDB['globalcommands'].insert_one(
                 {"Guild": ctx.interaction.guild_id, "Trigger": quote, "Response": response,
-                 "Attachments": [attachment.url.split('?ex=')[0]]})
+                 "Attachments": [attachment.url]})
         else:
             await GG.MDB['globalcommands'].insert_one(
                 {"Guild": ctx.interaction.guild_id, "Trigger": quote, "Response": response, "Attachments": []})

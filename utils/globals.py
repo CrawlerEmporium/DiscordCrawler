@@ -27,6 +27,8 @@ HELP = motor.motor_asyncio.AsyncIOMotorClient(MONGODB)['lookup']
 
 slashGuilds = [363680385336606740, 584842413135101990, 822493567707775057]
 
+IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.gifv', '.webp', '.bmp']
+
 BOT = 574554734187380756
 PM_TRUE = True
 
