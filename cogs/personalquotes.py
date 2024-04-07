@@ -8,7 +8,6 @@ from discord.ext import commands
 from crawler_utilities.utils.embeds import EmbedWithRandomColor
 from utils import globals as GG
 
-# noinspection PyUnresolvedReferences
 from crawler_utilities.utils.pagination import get_selection
 from crawler_utilities.cogs.localization import get_command_kwargs, get_parameter_kwargs
 
