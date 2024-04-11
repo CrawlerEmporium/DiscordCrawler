@@ -13,30 +13,26 @@ jobs:
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
-
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-
       -
         name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
       -
         name: Build and push
         uses: docker/build-push-action@v4
         with:
           push: true
           tags: lorddusk/discordcrawler:latest
-
       -
         name: Notify discord of completion
         uses: tsickert/discord-webhook@v5.3.0
         with:
-          webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }},
           content: "<@&1227942128131375186>",
           embed-title: "Docker build finished",
           embed-description": "Docker container updated!\nYou can grab the update [here](https://hub.docker.com/repository/docker/lorddusk/discordcrawler/general).",
