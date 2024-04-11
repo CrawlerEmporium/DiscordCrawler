@@ -37,17 +37,10 @@ jobs:
         uses: tsickert/discord-webhook@v5.3.0
         with:
           webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          content: '{
-  "content": "<@&1227942128131375186>",
-  "embeds": [
-    {
-      "title": "Docker build finished",
-      "description": "Docker container updated!\nYou can grab the update [here](https://hub.docker.com/repository/docker/lorddusk/discordcrawler/general).",
-      "url": "https://hub.docker.com/repository/docker/lorddusk/discordcrawler/general",
-      "color": 5832609
-    }
-  ],
-  "username": "CommunityCrawler",
-  "avatar_url": "https://cdn.discordapp.com/avatars/602774912595263490/3322f9c86f553dbb47f057b85a5e3d30.png",
-  "attachments": []
-}'
+          content: "<@&1227942128131375186>",
+          embed-title: "Docker build finished",
+          embed-description": "Docker container updated!\nYou can grab the update [here](https://hub.docker.com/repository/docker/lorddusk/discordcrawler/general).",
+          embed-url": "https://hub.docker.com/repository/docker/lorddusk/discordcrawler/general",
+          embed-color": 5832609,
+          username: "CommunityCrawler",
+          avatar-url: "https://cdn.discordapp.com/avatars/602774912595263490/3322f9c86f553dbb47f057b85a5e3d30.png",
