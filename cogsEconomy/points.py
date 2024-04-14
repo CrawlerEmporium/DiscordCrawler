@@ -2,9 +2,10 @@ import typing
 
 import discord
 from crawler_utilities.utils.embeds import EmbedWithRandomColor
-from crawler_utilities.utils.pagination import BotEmbedPaginator
 
 from discord.ext import commands
+
+from crawler_utilities.utils.pagination import createPaginatorWithEmbeds
 from utils import globals as GG
 from crawler_utilities.utils.functions import make_ordinal, try_delete
 
@@ -86,8 +87,8 @@ class Points(commands.Cog):
                 else:
                     embed_list.append({"name": f"(LEFT SERVER) {person['user']}", "points": person['points']})
             list = list_embed(embed_list, ctx.message.author)
-            paginator = BotEmbedPaginator(ctx, list)
-            await paginator.run()
+            paginator = createPaginatorWithEmbeds(list)
+            await paginator.respond(ctx.interaction, delete_after=61)
         else:
             await ctx.send("This server has nobody with points.")
 
@@ -105,8 +106,8 @@ class Points(commands.Cog):
                 member = ctx.guild.get_role(person['role'])
                 embed_list.append({"name": member.mention, "points": person['points']})
             list = list_embed(embed_list, ctx.message.author, user=False)
-            paginator = BotEmbedPaginator(ctx, list)
-            await paginator.run()
+            paginator = createPaginatorWithEmbeds(list)
+            await paginator.respond(ctx.interaction, delete_after=61)
         else:
             await ctx.send("This server has no roles with points.")
 

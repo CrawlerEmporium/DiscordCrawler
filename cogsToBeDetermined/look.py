@@ -1,10 +1,10 @@
 import discord
 
 from discord.ext import commands
-from crawler_utilities.utils.pagination import BotEmbedPaginator
 
 import utils.globals as GG
 from crawler_utilities.utils.functions import try_delete
+from crawler_utilities.utils.pagination import createPaginatorWithEmbeds
 
 log = GG.log
 
@@ -90,8 +90,8 @@ class LookCommands(commands.Cog):
         list = await self.bot.mdb.look.find({}).to_list(length=None)
         if len(list) > 0:
             embeds = list_embed(list, ctx.author)
-            paginator = BotEmbedPaginator(ctx, embeds)
-            await paginator.run()
+            paginator = createPaginatorWithEmbeds(embeds)
+            await paginator.respond(ctx.interaction, delete_after=61)
         else:
             await ctx.send("No look commands found.")
 
