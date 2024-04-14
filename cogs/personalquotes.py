@@ -8,7 +8,7 @@ from discord.ext import commands
 from crawler_utilities.utils.embeds import EmbedWithRandomColor
 from utils import globals as GG
 
-from crawler_utilities.utils.pagination import get_selection
+from crawler_utilities.utils.pagination import createPaginator
 from crawler_utilities.cogs.localization import get_command_kwargs, get_parameter_kwargs
 
 log = GG.log
@@ -90,11 +90,11 @@ class PersonalQuotes(commands.Cog):
             await ctx.respond(content=":x:" + ' **You have no personal commands**')
         else:
             choices = [(r['trigger'], r) for r in user_quotes]
-            choice = await get_selection(ctx, choices, title=f"Personal Quotes for {ctx.interaction.user}", author=True)
-            if choice is not None:
-                await self.sendPersonalChoice(ctx, choice)
+            paginator = await createPaginator(ctx, choices, title=f"Personal Quotes for {ctx.interaction.user}", author=True)
+            if type(paginator) is dict:
+                await self.sendPersonalChoice(ctx, paginator)
             else:
-                await ctx.respond("Command canceled", delete_after=5)
+                await paginator.respond(ctx.interaction, delete_after=61)
 
     async def sendPersonalChoice(self, ctx, user_quote):
         if user_quote is not None:  # Check for the personalList action, as it can return the stop button

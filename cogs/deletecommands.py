@@ -3,7 +3,7 @@ import typing
 import discord
 
 # noinspection PyUnresolvedReferences
-from crawler_utilities.utils.pagination import get_selection
+from crawler_utilities.utils.pagination import createPaginator
 from discord.ext import commands
 import utils.globals as GG
 from crawler_utilities.utils.functions import try_delete
@@ -112,8 +112,12 @@ class DeleteCommands(commands.Cog):
             await ctx.send(content=":x:" + ' **You have no global quotes**')
         else:
             choices = [(r['Trigger'], r) for r in user_quotes]
-            choice = await get_selection(ctx, choices, title=f"Delete Commands for {ctx.guild}", author=True)
-            await ctx.channel.send(embed=global_embed(choice, ctx.author))
+            paginator = await createPaginator(ctx, choices, title=f"Delete Commands for {ctx.interaction.guild}",
+                                              author=True)
+            if type(paginator) is dict:
+                await ctx.channel.send(embed=global_embed(paginator, ctx.author))
+            else:
+                await paginator.respond(ctx.interaction, delete_after=61)
 
     @commands.command(aliases=['dc'])
     @GG.is_staff()

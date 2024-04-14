@@ -2,13 +2,13 @@ import io
 
 import discord
 import requests
-from discord import AutocompleteContext, SlashCommandGroup, Option, slash_command
+from discord import AutocompleteContext, SlashCommandGroup, Option, slash_command, ApplicationContext
 
 from crawler_utilities.cogs.localization import get_command_kwargs, get_parameter_kwargs
 from crawler_utilities.utils.embeds import EmbedWithRandomColor
-from crawler_utilities.utils.pagination import get_selection
 from discord.ext import commands
 import utils.globals as GG
+from utils.pagination import createPaginator
 
 log = GG.log
 
@@ -62,18 +62,18 @@ class GlobalCommands(commands.Cog):
 
     @personal.command(**get_command_kwargs(cogName, "list"))
     @commands.guild_only()
-    async def list(self, ctx):
+    async def list(self, ctx: ApplicationContext):
         await ctx.defer()
         user_quotes = await GG.MDB['globalcommands'].find({"Guild": ctx.interaction.guild_id}).to_list(length=None)
         if len(user_quotes) == 0:
             await ctx.respond(content=":x:" + ' **There are no global commands for this server**')
         else:
             choices = [(r['Trigger'], r) for r in user_quotes]
-            choice = await get_selection(ctx, choices, title=f"Global Quotes for {ctx.interaction.guild}", author=True)
-            if choice is not None:
-                await self.send_global_quote(ctx, choice, None)
+            paginator = await createPaginator(ctx, choices, title=f"Global Quotes for {ctx.interaction.guild}", author=True)
+            if type(paginator) is dict:
+                await self.send_global_quote(ctx, paginator, None)
             else:
-                await ctx.respond("Command canceled", delete_after=5)
+                await paginator.respond(ctx.interaction, delete_after=61)
 
     @personal.command(**get_command_kwargs(cogName, "add"))
     @commands.guild_only()
