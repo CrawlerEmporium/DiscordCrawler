@@ -135,5 +135,5 @@ class Giveaway(commands.Cog):
 
 
 def setup(bot):
-    log.info("Loading Giveaway Cog...")
+    log.info("[Cog] Giveaway...")
     bot.add_cog(Giveaway(bot))

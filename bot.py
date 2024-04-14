@@ -10,7 +10,7 @@ from models.buttons.greylist import Greylist
 
 log = GG.log
 
-version = "v2.7.1"
+version = "v2.8.0"
 SHARD_COUNT = 1
 TESTING = False
 defaultPrefix = GG.PREFIX if not TESTING else '*'
@@ -71,7 +71,7 @@ class Crawler(commands.AutoShardedBot):
 
 bot = Crawler(prefix=get_prefix, intents=intents, case_insensitive=True, status=discord.Status.idle,
               shard_count=SHARD_COUNT, testing=TESTING,
-              activity=discord.Game(f"$help | Initializing..."))
+              activity=discord.Game(f"Initializing..."))
 
 
 @bot.event
@@ -83,7 +83,7 @@ async def on_message(msg):
 @bot.event
 async def on_ready():
     loadButtons(bot)
-    await bot.change_presence(activity=discord.Game(f"with {len(bot.guilds)} servers | $help | {version}"))
+    await bot.change_presence(activity=discord.Game(f"with {len(bot.guilds)} servers | {version}"))
     print(f"Logged in as {bot.user.name} ({bot.user.id})")
 
 
