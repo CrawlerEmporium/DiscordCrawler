@@ -8,7 +8,7 @@ from crawler_utilities.cogs.localization import get_command_kwargs, get_paramete
 from crawler_utilities.utils.embeds import EmbedWithRandomColor
 from discord.ext import commands
 import utils.globals as GG
-from utils.pagination import createPaginator
+from crawler_utilities.utils.pagination import createPaginator
 
 log = GG.log
 

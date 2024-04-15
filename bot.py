@@ -138,8 +138,8 @@ def loadCogs():
             try:
                 bot.load_extension(COG + "." + extension)
             except Exception as e:
-                print(e)
                 log.error(f'Failed to load extension {extension}')
+                log.error(e)
                 i += 1
         log.info("-------------------")
 
@@ -161,8 +161,8 @@ def loadCrawlerUtilitiesCogs():
         try:
             bot.load_extension(f"{cu_cogs_folder}.{extension}")
         except Exception as e:
-            print(e)
             log.error(f'Failed to load extension {extension}')
+            log.error(e)
             i += 1
     log.info("-------------------")
     log.info("Loading Event Cogs...")
@@ -171,6 +171,7 @@ def loadCrawlerUtilitiesCogs():
             bot.load_extension(f"{cu_event_folder}.{extension}")
         except Exception as e:
             log.error(f'Failed to load extension {extension}')
+            log.error(e)
             i += 1
     log.info("-------------------")
     if i == 0:

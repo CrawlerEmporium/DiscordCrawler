@@ -1,13 +1,13 @@
 import typing
 
 import discord
-from crawler_utilities.utils.embeds import EmbedWithRandomColor
-
 from discord.ext import commands
 
+from crawler_utilities.utils.embeds import EmbedWithRandomColor
 from crawler_utilities.utils.pagination import createPaginatorWithEmbeds
-from utils import globals as GG
 from crawler_utilities.utils.functions import make_ordinal, try_delete
+
+from utils import globals as GG
 
 log = GG.log
 
