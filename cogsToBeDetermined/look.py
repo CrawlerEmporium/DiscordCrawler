@@ -91,7 +91,7 @@ class LookCommands(commands.Cog):
         if len(list) > 0:
             embeds = list_embed(list, ctx.author)
             paginator = createPaginatorWithEmbeds(embeds)
-            await paginator.respond(ctx.interaction, delete_after=61)
+            await paginator.respond(ctx.interaction)
         else:
             await ctx.send("No look commands found.")
 

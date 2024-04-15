@@ -88,7 +88,7 @@ class Points(commands.Cog):
                     embed_list.append({"name": f"(LEFT SERVER) {person['user']}", "points": person['points']})
             list = list_embed(embed_list, ctx.message.author)
             paginator = createPaginatorWithEmbeds(list)
-            await paginator.respond(ctx.interaction, delete_after=61)
+            await paginator.respond(ctx.interaction)
         else:
             await ctx.send("This server has nobody with points.")
 
@@ -107,7 +107,7 @@ class Points(commands.Cog):
                 embed_list.append({"name": member.mention, "points": person['points']})
             list = list_embed(embed_list, ctx.message.author, user=False)
             paginator = createPaginatorWithEmbeds(list)
-            await paginator.respond(ctx.interaction, delete_after=61)
+            await paginator.respond(ctx.interaction)
         else:
             await ctx.send("This server has no roles with points.")
 

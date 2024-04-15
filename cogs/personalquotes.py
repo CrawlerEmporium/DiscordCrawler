@@ -94,7 +94,7 @@ class PersonalQuotes(commands.Cog):
             if type(paginator) is dict:
                 await self.sendPersonalChoice(ctx, paginator)
             else:
-                await paginator.respond(ctx.interaction, delete_after=61)
+                await paginator.respond(ctx.interaction)
 
     async def sendPersonalChoice(self, ctx, user_quote):
         if user_quote is not None:  # Check for the personalList action, as it can return the stop button

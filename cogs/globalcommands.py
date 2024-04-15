@@ -73,7 +73,7 @@ class GlobalCommands(commands.Cog):
             if type(paginator) is dict:
                 await self.send_global_quote(ctx, paginator, None)
             else:
-                await paginator.respond(ctx.interaction, delete_after=61)
+                await paginator.respond(ctx.interaction)
 
     @personal.command(**get_command_kwargs(cogName, "add"))
     @commands.guild_only()

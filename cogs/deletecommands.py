@@ -117,7 +117,7 @@ class DeleteCommands(commands.Cog):
             if type(paginator) is dict:
                 await ctx.channel.send(embed=global_embed(paginator, ctx.author))
             else:
-                await paginator.respond(ctx.interaction, delete_after=61)
+                await paginator.respond(ctx.interaction)
 
     @commands.command(aliases=['dc'])
     @GG.is_staff()
