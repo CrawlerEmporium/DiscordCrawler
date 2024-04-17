@@ -6,5 +6,6 @@ cryptography
 pytz
 dateparser
 parsedatetime
+faker
 git+https://github.com/CrawlerEmporium/CrawlerUtilities.git
-py-cord==2.5.0
+git+https://github.com/NeloBlivion/pycord.git@polls

@@ -96,26 +96,19 @@ class Poller(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     async def mod(self, ctx, member: Option(discord.Member, **get_parameter_kwargs(cogName, "mod.member"))):
         _id = await get_next_num(self.bot.mdb['properties'], 'pollId')
-        options = ["No action", "Formal warning", "Extended timeout", "Ban"]
-        option_list = []
-        for i in range(len(options)):
-            option_list.append(PollOption.new(i, options[i]))
-        new_poll = Poll.new(_id, ctx.interaction.user.id, f"Moderative Action for {str(member)}", option_list, ctx.interaction.guild_id, ctx.channel.id, admin=True)
-        new_poll.populate_settings(False, False, 1, 11)
-
-        await GG.MDB['polls'].insert_one(new_poll.to_dict())
-        embed = await new_poll.get_embed(guild=ctx.interaction.guild)
-        msg = await ctx.channel.send(content=f"<@&1009059409894314034> - Moderative Action for {member.mention}", embed=embed)
-        new_poll.message_id = msg.id
-        await new_poll.commit()
-
+        answers = []
+        for option in ["No action", "Formal warning", "Extended timeout", "Ban"]:
+            answers.append(discord.PollAnswer(option))
+        title = f"Moderative Action for {str(member)}"
+        poll = discord.Poll(question=title, answers=answers)
+        await ctx.channel.send(content=f"<@&1009059409894314034> - {title}", poll=poll)
         cases = await GG.MDB.members.find_one({"server": ctx.guild.id, "user": member.id})
         adminString, noteString, warningString = await getCaseStrings(cases)
 
         em = await getMemberEmbed(adminString, ctx.guild, noteString, member, warningString)
         await ctx.channel.send(embed=em)
 
-        return await ctx.respond(f"Poll with title: ``{new_poll.title}`` and id: ``{new_poll.id}`` was succesfully posted", ephemeral=True)
+        return await ctx.respond(f"Poll with title: ``{title}`` and id: ``{_id}`` was succesfully posted", ephemeral=True)
 
     @poll.command(**get_command_kwargs(cogName, "vote"))
     @commands.guild_only()
