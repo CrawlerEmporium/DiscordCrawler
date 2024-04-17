@@ -3,7 +3,6 @@ from discord import SelectOption
 from discord.ui import Select, View
 
 from models.poll import Poll
-from utils import globals as GG
 
 
 def create_options(options):
@@ -39,7 +38,10 @@ class VoteSelect(Select):
         self.disabled = True
         msg = await poll.get_message(self.bot)
         await msg.edit(embed=await poll.get_embed(self.bot))
-        await self.view.message.delete()
+        try:
+            await self.view.message.delete()
+        except:
+            pass
         await interaction.response.send_message(
             f"{message}", ephemeral=True
         )

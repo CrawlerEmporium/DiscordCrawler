@@ -162,7 +162,7 @@ class Poll:
                                 voter = f"<@{voter}>"
                             voter_string += f"- {voter}\n"
                             amount += 1
-                        if amount == 5:
+                        else:
                             if len(voters) - 4 == 1:
                                 voter_string += f"- 1 more vote..."
                             else:
