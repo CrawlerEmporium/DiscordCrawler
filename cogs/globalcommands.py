@@ -69,7 +69,7 @@ class GlobalCommands(commands.Cog):
             await ctx.respond(content=":x:" + ' **There are no global commands for this server**')
         else:
             choices = [(r['Trigger'], r) for r in user_quotes]
-            paginator = await createPaginator(ctx, choices, title=f"Global Quotes for {ctx.interaction.guild}", author=True)
+            paginator = createPaginator(ctx, choices, title=f"Global Quotes for {ctx.interaction.guild}", author=True)
             if type(paginator) is dict:
                 await self.send_global_quote(ctx, paginator, None)
             else:

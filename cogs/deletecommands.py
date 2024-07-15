@@ -112,8 +112,7 @@ class DeleteCommands(commands.Cog):
             await ctx.send(content=":x:" + ' **You have no global quotes**')
         else:
             choices = [(r['Trigger'], r) for r in user_quotes]
-            paginator = await createPaginator(ctx, choices, title=f"Delete Commands for {ctx.interaction.guild}",
-                                              author=True)
+            paginator = createPaginator(ctx, choices, title=f"Delete Commands for {ctx.interaction.guild}", author=True)
             if type(paginator) is dict:
                 await ctx.channel.send(embed=global_embed(paginator, ctx.author))
             else:

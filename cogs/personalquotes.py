@@ -90,7 +90,7 @@ class PersonalQuotes(commands.Cog):
             await ctx.respond(content=":x:" + ' **You have no personal commands**')
         else:
             choices = [(r['trigger'], r) for r in user_quotes]
-            paginator = await createPaginator(ctx, choices, title=f"Personal Quotes for {ctx.interaction.user}", author=True)
+            paginator = createPaginator(ctx, choices, title=f"Personal Quotes for {ctx.interaction.user}", author=True)
             if type(paginator) is dict:
                 await self.sendPersonalChoice(ctx, paginator)
             else:
