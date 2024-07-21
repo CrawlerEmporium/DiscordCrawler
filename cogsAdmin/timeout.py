@@ -89,8 +89,6 @@ class TimeOutSelection(discord.ui.Select):
 
             await interaction.response.send_message(f"{self.member} was timed-out for {self.values[0]}")
 
-            await interaction.message.delete()
-
             case = Case(self.caseId, CaseType.MUTE, CaseStatus.OPEN, self.message, datetime.now(), self.member.id, self.author.id)
             await GG.MDB.cases.insert_one(case.to_dict())
             await GG.MDB.members.update_one({"server": interaction.guild_id, "user": self.member.id}, {"$set": self.memberDB}, upsert=True)
