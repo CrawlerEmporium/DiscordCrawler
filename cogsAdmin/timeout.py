@@ -65,7 +65,6 @@ class TimeOutSelection(discord.ui.Select):
         if self.author != interaction.user:
             return
         else:
-            await self.ctx.defer(ephemeral=True)
             timeoutActual = datetime.now() - timedelta(hours=2)
             if self.values[0] == "10 Minutes":
                 timeoutActual = timeoutActual + timedelta(minutes=10)
@@ -97,12 +96,6 @@ class TimeOutSelection(discord.ui.Select):
             await GG.MDB.members.update_one({"server": interaction.guild_id, "user": self.member.id}, {"$set": self.memberDB}, upsert=True)
             embed = await getCaseEmbed(self.ctx, case)
             await self.ctx.send(embed=embed)
-
-            decisionChannelExist = await GG.MDB['channelinfo'].find_one({"guild": interaction.guild_id, "type": "MODDECISION"})
-            if decisionChannelExist is not None:
-                modDecisionChannel = await self.bot.fetch_channel(decisionChannelExist['channel'])
-                embed = await getModDecisionEmbed(self.ctx, case)
-                await modDecisionChannel.send(embed=embed)
 
             if self.member.dm_channel is not None:
                 DM = self.member.dm_channel
