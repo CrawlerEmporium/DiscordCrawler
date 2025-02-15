@@ -27,11 +27,7 @@ class Nudge(commands.Cog):
         if not GG.is_staff_bool(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
 
-        channels = [discord.SelectOption(label=channel.name, value=str(channel.id)) for channel in ctx.guild.text_channels]
-        if not channels:
-            return await ctx.respond("No available channels found.", ephemeral=True)
-
-        await ctx.respond(f"Where do you want to nudge this message to?", view=MoveMessageDropdown(message, channels))
+        await ctx.respond(f"Where do you want to nudge this message to?", view=MoveMessageDropdown(message))
 
 
     @commands.command()
@@ -116,6 +112,10 @@ def setup(bot):
     bot.add_cog(Nudge(bot))
 
 class MoveMessageDropdown(discord.ui.View):
+    def __init__(self, message: discord.Message):
+        super().__init__()
+        self.message = message
+
     @discord.ui.channel_select(placeholder="Select a channel...", min_values=1, max_values=1)
     async def callback(self, select: discord.ui.Select, interaction: discord.Interaction) -> None:
         selected_channel = interaction.guild.get_channel(int(select.values[0]))
