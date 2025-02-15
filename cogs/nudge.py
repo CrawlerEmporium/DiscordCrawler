@@ -118,7 +118,8 @@ class MoveMessageDropdown(discord.ui.View):
 
     @discord.ui.channel_select(placeholder="Select a channel...", min_values=1, max_values=1)
     async def callback(self, select: discord.ui.Select, interaction: discord.Interaction) -> None:
-        selected_channel = interaction.guild.get_channel(int(select.values[0]))
+        channel = select.values[0]
+        selected_channel = interaction.guild.get_channel(channel.id)
 
         if not selected_channel:
             return await interaction.response.send_message("Invalid channel selected.", ephemeral=True)
