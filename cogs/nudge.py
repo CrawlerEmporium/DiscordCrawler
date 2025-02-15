@@ -111,30 +111,30 @@ def setup(bot):
     log.info("[Cog] Nudge")
     bot.add_cog(Nudge(bot))
 
-class MoveMessageDropdown(discord.ui.View):
-    def __init__(self, message: discord.Message):
-        super().__init__()
+class ChannelSelect(discord.ui.Select):
+    def __init__(self, message):
         self.message = message
+        options = [discord.SelectOption(label=channel.name, value=str(channel.id))for channel in message.guild.text_channels]
+        super().__init__(placeholder="Choose a channel...", options=options)
 
-    @discord.ui.channel_select(placeholder="Select a channel...", min_values=1, max_values=1)
-    async def callback(self, select: discord.ui.Select, interaction: discord.Interaction) -> None:
-        channel = select.values[0]
-        selected_channel = interaction.guild.get_channel(channel.id)
+    async def callback(self, interaction: discord.Interaction) -> None:
+        channel_id = int(self.values[0])
+        target_channel = self.message.guild.get_channel(channel_id)
 
-        if not selected_channel:
+        if not target_channel:
             return await interaction.response.send_message("Invalid channel selected.", ephemeral=True)
 
         # Create an embed to replicate the message
         embed = discord.Embed(description=self.message.content, color=discord.Color.blue())
         embed.set_author(name=self.message.author.display_name,
                          icon_url=self.message.author.avatar.url if self.message.author.avatar else None)
-        embed.set_footer(text=f"Moved from <#{self.message.channel.id}>")
+        embed.set_footer(text=f"Moved from #{self.message.channel}")
 
         # Send the message to the new channel
-        await selected_channel.send(content=self.message.author.mention, embed=embed)
+        await target_channel.send(content=self.message.author.mention, embed=embed)
 
         # Delete the original message
         await self.message.delete()
 
         # Acknowledge the move
-        await interaction.response.send_message(f"Message moved to {selected_channel.mention}", ephemeral=True)
+        await interaction.response.send_message(f"Message moved to {target_channel.mention}", ephemeral=True)
