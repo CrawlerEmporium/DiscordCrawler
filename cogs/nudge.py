@@ -115,14 +115,10 @@ def setup(bot):
     log.info("[Cog] Nudge")
     bot.add_cog(Nudge(bot))
 
-class MoveMessageDropdown(discord.ui.Select):
-    def __init__(self, message, options):
-        self.message = message
-        self.options = options
-        super().__init__(placeholder="Select a channel", options=options, min_values=1, max_values=1)
-
-    async def callback(self, interaction: discord.Interaction):
-        selected_channel = interaction.guild.get_channel(int(self.values[0]))
+class MoveMessageDropdown(discord.ui.View):
+    @discord.ui.channel_select(placeholder="Select a channel...", min_values=1, max_values=1)
+    async def callback(self, select: discord.ui.Select, interaction: discord.Interaction) -> None:
+        selected_channel = interaction.guild.get_channel(int(select.values[0]))
 
         if not selected_channel:
             return await interaction.response.send_message("Invalid channel selected.", ephemeral=True)
