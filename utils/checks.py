@@ -41,34 +41,16 @@ def admin_or_permissions(**perms):
 
 def is_staff_trouble():
     async def predicate(ctx):
-        global allowed
-        if isinstance(ctx.author, discord.Member):
-            if ctx.author.roles is not None:
-                for r in ctx.author.roles:
-                    if r.id in GG.STAFF or r.id == 593720945324326914:
-                        allowed = True
-                        break
-                    else:
-                        allowed = False
+        allowed = False
+        author = ctx.author
 
-                if ctx.author.id == GG.OWNER or ctx.author.id == ctx.guild.owner_id:
-                    allowed = True
-            else:
-                allowed = False
-        else:
-            try:
-                if ctx.author.id == GG.OWNER or ctx.author.id == ctx.guild.owner_id:
-                    allowed = True
-                else:
-                    allowed = False
-            except Exception:
-                allowed = False
-
-        try:
-            if ctx.guild.get_member(ctx.author.id).guild_permissions.administrator:
+        if isinstance(author, discord.Member):
+            if any(r.id in GG.STAFF or r.id == 593720945324326914 for r in author.roles):
                 allowed = True
-        except:
-            pass
+            elif author.id in {GG.OWNER, ctx.guild.owner_id}:
+                allowed = True
+            elif ctx.guild.get_member(author.id).guild_permissions.administrator:
+                allowed = True
 
         return allowed
 
