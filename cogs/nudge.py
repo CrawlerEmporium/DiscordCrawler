@@ -28,7 +28,7 @@ class Nudge(commands.Cog):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
 
         view = ChannelSelectView(message)
-        await ctx.send(f"Where do you want to nudge this message to?", view=view)
+        await ctx.respond(f"Where do you want to nudge this message to?", view=view)
 
 
     @commands.command()
@@ -113,29 +113,29 @@ def setup(bot):
     bot.add_cog(Nudge(bot))
 
 class ChannelSelectView(discord.ui.View):
-    def __init__(self, message):
-        self.message = message
+    def __init__(self, original_message):
         super().__init__()
+        self.original_message = original_message
 
-    @discord.ui.channel_select(placeholder="Select a channel...", min_values=1, max_values=1, channel_types=discord.ChannelType.text)
+    @discord.ui.channel_select(placeholder="Select a channel...", min_values=1, max_values=1, channel_types=[discord.ChannelType.text])
     async def callback(self, select, interaction: discord.Interaction) -> None:
         channel_id = int(select.values[0].id)
-        target_channel = self.message.guild.get_channel(channel_id)
+        target_channel = self.original_message.guild.get_channel(channel_id)
 
         if not target_channel:
             return await interaction.response.send_message("Invalid channel selected.", ephemeral=True)
 
         # Create an embed to replicate the message
-        embed = discord.Embed(description=self.message.content, color=discord.Color.blue())
-        embed.set_author(name=self.message.author.display_name,
-                         icon_url=self.message.author.avatar.url if self.message.author.avatar else None)
-        embed.set_footer(text=f"Moved from #{self.message.channel}")
+        embed = discord.Embed(description=self.original_message.content, color=discord.Color.blue())
+        embed.set_author(name=self.original_message.author.display_name,
+                         icon_url=self.original_message.author.avatar.url if self.original_message.author.avatar else None)
+        embed.set_footer(text=f"Moved from #{self.original_message.channel}")
 
         # Send the message to the new channel
-        await target_channel.send(content=self.message.author.mention, embed=embed)
+        await target_channel.send(content=self.original_message.author.mention, embed=embed)
 
         # Delete the original message
-        await self.message.delete()
+        await self.original_message.delete()
 
         # Acknowledge the move
-        await interaction.response.send_message(f"Message moved to {target_channel.mention}", ephemeral=True)
+        await interaction.edit(content=f"Message moved to {target_channel.mention}", view=None)
