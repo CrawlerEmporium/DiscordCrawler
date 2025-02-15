@@ -27,9 +27,8 @@ class Nudge(commands.Cog):
         if not GG.is_staff_bool(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
 
-        view = discord.ui.View()
-        view.add_item(ChannelSelect(message))
-        await ctx.respond(f"Where do you want to nudge this message to?", view=view)
+        view = ChannelSelectView(message)
+        await ctx.send(f"Where do you want to nudge this message to?", view=view)
 
 
     @commands.command()
@@ -113,14 +112,14 @@ def setup(bot):
     log.info("[Cog] Nudge")
     bot.add_cog(Nudge(bot))
 
-class ChannelSelect(discord.ui.Select):
+class ChannelSelectView(discord.ui.View):
     def __init__(self, message):
         self.message = message
-        options = [discord.SelectOption(label=channel.name, value=str(channel.id))for channel in message.guild.text_channels]
-        super().__init__(placeholder="Choose a channel...", options=options)
+        super().__init__()
 
-    async def callback(self, interaction: discord.Interaction) -> None:
-        channel_id = int(self.values[0])
+    @discord.ui.channel_select(placeholder="Select a channel...", min_values=1, max_values=1, channel_types=discord.ChannelType.text)
+    async def callback(self, select, interaction: discord.Interaction) -> None:
+        channel_id = int(select.values[0].id)
         target_channel = self.message.guild.get_channel(channel_id)
 
         if not target_channel:
