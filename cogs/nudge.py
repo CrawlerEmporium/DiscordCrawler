@@ -27,7 +27,9 @@ class Nudge(commands.Cog):
         if not GG.is_staff_bool(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
 
-        await ctx.respond(f"Where do you want to nudge this message to?", view=MoveMessageDropdown(message))
+        view = discord.ui.View()
+        view.add_item(ChannelSelect(message))
+        await ctx.respond(f"Where do you want to nudge this message to?", view=view)
 
 
     @commands.command()
