@@ -147,104 +147,76 @@ def is_in_guild(guild_id):
 
 def is_staff():
     async def predicate(ctx):
-        global allowed
-        if isinstance(ctx.author, discord.Member):
-            if ctx.author.roles is not None:
-                for r in ctx.author.roles:
-                    if r.id in STAFF:
-                        allowed = True
-                        break
-                    else:
-                        allowed = False
+        user = ctx.author
+        guild = ctx.guild
 
-                if ctx.author.id == OWNER or ctx.author.id == ctx.guild.owner_id:
-                    allowed = True
-            else:
-                allowed = False
+        if isinstance(user, discord.Member):
+            if any(role.id in STAFF for role in user.roles):
+                return True
+            if user.id in {OWNER, guild.owner_id}:
+                return True
+            if guild.get_member(user.id).guild_permissions.administrator:
+                return True
         else:
-            try:
-                if ctx.author.id == OWNER or ctx.author.id == ctx.guild.owner_id:
-                    allowed = True
-                else:
-                    allowed = False
-            except Exception:
-                allowed = False
+            if user.id in {OWNER, guild.owner_id}:
+                return True
 
-        try:
-            if ctx.guild.get_member(ctx.author.id).guild_permissions.administrator:
-                allowed = True
-        except:
-            pass
-
-        return allowed
+        return False
 
     return commands.check(predicate)
 
 
 def is_staff_bool(ctx):
-    global allowed
-    if isinstance(ctx.author, discord.Member):
-        if ctx.author.roles is not None:
-            for r in ctx.author.roles:
-                if r.id in STAFF:
-                    allowed = True
-                    break
-                else:
-                    allowed = False
+    user = ctx.author
+    guild = ctx.guild
 
-            if ctx.author.id == OWNER or ctx.author.id == ctx.guild.owner_id:
-                allowed = True
-        else:
-            allowed = False
+    if isinstance(user, discord.Member):
+        if any(role.id in STAFF for role in user.roles):
+            return True
+        if user.id in {OWNER, guild.owner_id}:
+            return True
+        if guild.get_member(user.id).guild_permissions.administrator:
+            return True
     else:
-        try:
-            if ctx.author.id == OWNER or ctx.author.id == ctx.guild.owner_id:
-                allowed = True
-            else:
-                allowed = False
-        except Exception:
-            allowed = False
+        if user.id in {OWNER, guild.owner_id}:
+            return True
 
-    try:
-        if ctx.guild.get_member(ctx.author.id).guild_permissions.administrator:
-            allowed = True
-    except:
-        pass
-
-    return allowed
+    return False
 
 
 def is_staff_bool_slash(ctx):
-    global allowed
-    if isinstance(ctx.interaction.user, discord.Member):
-        if ctx.interaction.user.roles is not None:
-            for r in ctx.interaction.user.roles:
-                if r.id in STAFF:
-                    allowed = True
-                    break
-                else:
-                    allowed = False
+    user = ctx.interaction.user
+    guild = ctx.guild
 
-            if ctx.interaction.user.id == OWNER or ctx.interaction.user.id == ctx.guild.owner_id:
-                allowed = True
-        else:
-            allowed = False
+    if isinstance(user, discord.Member):
+        if any(role.id in STAFF for role in user.roles):
+            return True
+        if user.id in {OWNER, guild.owner_id}:
+            return True
+        if guild.get_member(user.id).guild_permissions.administrator:
+            return True
     else:
-        try:
-            if ctx.interaction.user.id == OWNER or ctx.interaction.user.id == ctx.guild.owner_id:
-                allowed = True
-            else:
-                allowed = False
-        except Exception:
-            allowed = False
+        if user.id in {OWNER, guild.owner_id}:
+            return True
 
-    try:
-        if ctx.guild.get_member(ctx.interaction.user.id).guild_permissions.administrator:
-            allowed = True
-    except:
-        pass
+    return False
 
-    return allowed
+def is_staff_trouble_bool_slash(ctx):
+    user = ctx.interaction.user
+    guild = ctx.guild
+
+    if isinstance(user, discord.Member):
+        if any(r.id in STAFF or r.id == 593720945324326914 for r in user.roles):
+            return True
+        if user.id in {OWNER, guild.owner_id}:
+            return True
+        if guild.get_member(user.id).guild_permissions.administrator:
+            return True
+    else:
+        if user.id in {OWNER, guild.owner_id}:
+            return True
+
+    return False
 
 
 def is_cleaner():

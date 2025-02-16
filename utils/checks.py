@@ -55,3 +55,17 @@ def is_staff_trouble():
         return allowed
 
     return commands.check(predicate)
+
+def is_trouble(ctx):
+    allowed = False
+    author = ctx.author
+
+    if isinstance(author, discord.Member):
+        if any(r.id in GG.STAFF or r.id == 593720945324326914 for r in author.roles):
+            allowed = True
+        elif author.id in {GG.OWNER, ctx.guild.owner_id}:
+            allowed = True
+        elif ctx.guild.get_member(author.id).guild_permissions.administrator:
+            allowed = True
+
+    return allowed

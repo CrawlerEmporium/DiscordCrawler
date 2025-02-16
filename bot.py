@@ -95,7 +95,8 @@ async def on_thread_join(thread):
 @bot.event
 async def on_connect():
     await fillGlobals()
-    await bot.sync_commands(force=True)
+    if bot.auto_sync_commands:
+        await bot.sync_commands(force=True)
     bot.owner = await bot.fetch_user(GG.OWNER)
     print(f"OWNER: {bot.owner.name}")
 
