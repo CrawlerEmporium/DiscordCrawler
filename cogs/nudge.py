@@ -21,7 +21,9 @@ def formatMessage(message):
         if len(message.attachments) > 0:
             fMessage['content'] = "Attachment"
         else:
-            fMessage['content'] = message.content
+            fMessage['content'] = "No message"
+    else:
+        fMessage['content'] = message.content
     fMessage['user'] = message.author.display_name
     fMessage['id'] = message.id
 
@@ -76,8 +78,9 @@ class Nudge(commands.Cog):
         if not GG.is_staff_trouble_bool_slash(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
 
-        view = MessageSelectView(fetchRecentMessages(self.bot, ctx.channel))
-        await ctx.respond(f"Where do you want to nudge this message to?", view=view)
+        messages = await fetchRecentMessages(self.bot, ctx.channel.id)
+        view = MessageSelectView(self.bot, messages)
+        await ctx.respond(f"Which messages do you want to nudge?", view=view)
 
 
 def setup(bot):
@@ -108,10 +111,23 @@ class ChannelSelectView(discord.ui.View):
         await interaction.edit(content=f"Message moved to {target_channel.mention}", view=None)
 
 
-class MessageSelectView(discord.ui.Select):
-    def __init__(self, recent_messages):
-        options = [discord.SelectOption(label=msg.user, description=msg.content[0:100], value=msg.id) for msg in
-                   recent_messages]
+class MessageSelectView(discord.ui.View):
+    def __init__(self, bot, messages):
+        self.bot = bot
+        self.messages = messages
+        super().__init__()
+
+        self.add_item(MessageSelect(self.bot, self.messages))
+
+
+class MessageSelect(discord.ui.Select):
+    def __init__(self, bot, recent_messages):
+        self.bot = bot
+        options = []
+        for msg in recent_messages:
+            option = discord.SelectOption(label=msg['user'], description=f"{str(msg['content'])[:75]}...",
+                                          value=str(msg['id']))
+            options.append(option)
 
         super().__init__(
             placeholder="Select message(s)",
@@ -124,7 +140,7 @@ class MessageSelectView(discord.ui.Select):
         messages = self.values
 
         view = MultipleMessagesChannelSelectView(messages)
-        await interaction.respond(f"Where do you want to nudge these messages to?", view=view)
+        await interaction.edit(content=f"Where do you want to nudge these ({len(messages)}) messages to?", view=view)
 
 
 class MultipleMessagesChannelSelectView(discord.ui.View):
@@ -141,10 +157,13 @@ class MultipleMessagesChannelSelectView(discord.ui.View):
         if not target_channel:
             return await interaction.response.send_message("Invalid channel selected.", ephemeral=True)
 
+        orig_msgs = []
         for msg in self.messages:
-            orig_chnl = await interaction.guild.fetch_channel(msg.channel.id)
-            orig_msg = await orig_chnl.fetch_message(msg.id)
+            orig_msg = await interaction.channel.fetch_message(msg)
+            orig_msgs.append(orig_msg)
 
+        orig_msgs.sort(key=lambda m: m.created_at, reverse=False)
+        for orig_msg in orig_msgs:
             embed = await nudged_embed_formatted(orig_msg)
             await target_channel.send(embed=embed)
             await orig_msg.delete()
