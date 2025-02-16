@@ -3,7 +3,7 @@ from discord import slash_command
 from discord.ext import commands
 
 from utils import globals as GG
-from utils.checks import is_staff_trouble
+from utils.checks import is_staff_trouble, is_trouble
 
 log = GG.log
 
@@ -63,7 +63,7 @@ class Nudge(commands.Cog):
     @commands.guild_only()
     async def _Nudge(self, ctx, message: discord.Message):
         await ctx.defer(ephemeral=True)
-        if not GG.is_trouble(ctx):
+        if not is_trouble(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
 
         view = ChannelSelectView(message)
