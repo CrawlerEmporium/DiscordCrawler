@@ -24,6 +24,7 @@ class Ban(commands.Cog):
 
     @slash_command(**get_command_kwargs(cogName, 'ban'))
     @commands.guild_only()
+    @commands.cooldown(1, 30, commands.BucketType.guild)
     async def ban(self, ctx, member: Option(discord.Member, **get_parameter_kwargs(cogName, 'ban.member')), message: Option(str, **get_parameter_kwargs(cogName, 'ban.message'))):
         await ctx.defer()
         if not GG.is_staff_bool_slash(ctx):
