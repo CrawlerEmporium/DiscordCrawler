@@ -37,16 +37,7 @@ class GlobalCommands(commands.Cog):
         self.bot = bot
 
     cogName = 'globalcommands'
-    personal = SlashCommandGroup("global", "All quotes specifically for this server")
-
-    @personal.command(**get_command_kwargs(cogName, "quote"))
-    @commands.guild_only()
-    async def quote(self, ctx,
-                    quote: Option(str, autocomplete=get_quote, **get_parameter_kwargs(cogName, "quote.quote")),
-                    pingmember: Option(discord.Member, required=False, **get_parameter_kwargs(cogName, 'quote.pingmember'))):
-        """Returns your chosen global command."""
-        global_quote = await GG.MDB['globalcommands'].find_one({"Guild": ctx.interaction.guild_id, "Trigger": quote})
-        await self.send_global_quote(ctx, global_quote, quote, False, pingmember)
+    personal = SlashCommandGroup("manageglobal", "All quotes specifically for this server")
 
     @personal.command(**get_command_kwargs(cogName, "code"))
     @commands.guild_only()
@@ -122,6 +113,16 @@ class GlobalCommands(commands.Cog):
             await ctx.respond(content=":white_check_mark:" + ' **Command deleted.**')
         else:
             await ctx.respond(content=":x:" + ' **Command with that trigger does not exist.**')
+
+
+    @slash_command(name="global", description="Returns your chosen global quote.")
+    @commands.guild_only()
+    async def quote(self, ctx,
+                    quote: Option(str, autocomplete=get_quote, name="quote", description="Which global quote do you want to post?"),
+                    pingmember: Option(discord.Member, required=False, name="pingmember", description="Who do you want to ping?")):
+        """Returns your chosen global command."""
+        global_quote = await GG.MDB['globalcommands'].find_one({"Guild": ctx.interaction.guild_id, "Trigger": quote})
+        await self.send_global_quote(ctx, global_quote, quote, False, pingmember)
 
     @slash_command(name="whisper")
     @commands.guild_only()

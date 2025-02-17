@@ -19,11 +19,6 @@
   "poll.vote.id.name": "id",
   "poll.vote.id.description": "Select the id of the poll you want to vote on.",
 
-  "poll.mod.name": "admin",
-  "poll.mod.description": "Start an moderative action poll.",
-  "poll.mod.member.name": "member",
-  "poll.mod.member.description": "Select the member you want to moderative action poll to be about.",
-
   "poll.close.name": "close",
   "poll.close.description": "Close a poll.",
   "poll.close.id.name": "id",
@@ -74,13 +69,6 @@
 
   "personalquotes.list.name": "list",
   "personalquotes.list.description": "Returns all your personal quotes in a list format",
-
-  "globalcommands.quote.name": "quote",
-  "globalcommands.quote.description": "Returns your chosen global quote.",
-  "globalcommands.quote.quote.name": "quote",
-  "globalcommands.quote.quote.description": "Which global quote do you want to post?",
-  "globalcommands.quote.pingmember.name": "pingmember",
-  "globalcommands.quote.pingmember.description": "Who do you want to ping?",
 
   "globalcommands.code.name": "code",
   "globalcommands.code.description": "Returns your chosen global quote in code.",

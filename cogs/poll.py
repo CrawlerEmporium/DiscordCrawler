@@ -63,6 +63,26 @@ class Poller(commands.Cog):
     cogName = 'poll'
     poll = SlashCommandGroup(name="poll", description="Create polls for your server")
 
+    @commands.guild_only()
+    @commands.has_permissions(manage_messages=True)
+    @commands.slash_command(name="adminpoll", description="Create an admin poll", guild_ids=[363680385336606740])
+    async def mod(self, ctx, member: Option(discord.Member, name="member", description="Select the member you want to moderative action poll to be about.")):
+        _id = await get_next_num(self.bot.mdb['properties'], 'pollId')
+        answers = []
+        for option in ["No action", "Formal warning", "Extended timeout", "Ban"]:
+            answers.append(discord.PollAnswer(option))
+        title = f"Moderative Action for {str(member)}"
+        poll = discord.Poll(question=title, answers=answers)
+        await ctx.channel.send(content=f"<@&1009059409894314034> - {title}", poll=poll)
+        cases = await GG.MDB.members.find_one({"server": ctx.guild.id, "user": member.id})
+        adminString, noteString, warningString = await getCaseStrings(cases)
+
+        em = await getMemberEmbed(adminString, ctx.guild, noteString, member, warningString)
+        await ctx.channel.send(embed=em)
+
+        return await ctx.respond(f"Poll with title: ``{title}`` and id: ``{_id}`` was succesfully posted",
+                                 ephemeral=True)
+
     @poll.command(**get_command_kwargs(cogName, "create"))
     @commands.guild_only()
     async def create(self,
@@ -90,25 +110,6 @@ class Poller(commands.Cog):
             new_poll.message_id = msg.id
             await new_poll.commit()
             return await ctx.respond(f"Poll with title: ``{new_poll.title}`` and id: ``{new_poll.id}`` was succesfully posted", ephemeral=True)
-
-    @poll.command(**get_command_kwargs(cogName, "mod"), guild_ids=[363680385336606740])
-    @commands.guild_only()
-    @commands.has_permissions(manage_messages=True)
-    async def mod(self, ctx, member: Option(discord.Member, **get_parameter_kwargs(cogName, "mod.member"))):
-        _id = await get_next_num(self.bot.mdb['properties'], 'pollId')
-        answers = []
-        for option in ["No action", "Formal warning", "Extended timeout", "Ban"]:
-            answers.append(discord.PollAnswer(option))
-        title = f"Moderative Action for {str(member)}"
-        poll = discord.Poll(question=title, answers=answers)
-        await ctx.channel.send(content=f"<@&1009059409894314034> - {title}", poll=poll)
-        cases = await GG.MDB.members.find_one({"server": ctx.guild.id, "user": member.id})
-        adminString, noteString, warningString = await getCaseStrings(cases)
-
-        em = await getMemberEmbed(adminString, ctx.guild, noteString, member, warningString)
-        await ctx.channel.send(embed=em)
-
-        return await ctx.respond(f"Poll with title: ``{title}`` and id: ``{_id}`` was succesfully posted", ephemeral=True)
 
     @poll.command(**get_command_kwargs(cogName, "vote"))
     @commands.guild_only()
