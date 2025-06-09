@@ -44,10 +44,18 @@ GREYLIST = ""
 GUILDS = []
 GREYGUILDS = []
 
+HONEYPOTCHANNELS = []
+
 def loadChannels(CHANNELDB):
     channel = {}
     for i in CHANNELDB:
         channel[int(i['channel'])] = i['type']
+    return channel
+
+def loadHotpotChannels(HONEYPOTCHANNELSDB):
+    channel = {}
+    for i in HONEYPOTCHANNELSDB:
+        channel[int(i['channelId'])] = i['channelId']
     return channel
 
 
@@ -170,6 +178,20 @@ def is_staff_bool(ctx):
     user = ctx.author
     guild = ctx.guild
 
+    if isinstance(user, discord.Member):
+        if any(role.id in STAFF for role in user.roles):
+            return True
+        if user.id in {OWNER, guild.owner_id}:
+            return True
+        if guild.get_member(user.id).guild_permissions.administrator:
+            return True
+    else:
+        if user.id in {OWNER, guild.owner_id}:
+            return True
+
+    return False
+
+def is_staff_by_user_bool(user, guild):
     if isinstance(user, discord.Member):
         if any(role.id in STAFF for role in user.roles):
             return True

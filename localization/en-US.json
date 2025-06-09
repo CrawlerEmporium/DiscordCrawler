@@ -108,6 +108,9 @@
   "ban.ban.message.name": "message",
   "ban.ban.message.description": "What message do you want to attach to the ban?",
 
+  "honeypot.honeypot.name": "honeypot",
+  "honeypot.honeypot.description": "[STAFF] Create a honeypot to ban all users who post in the channel.",
+
   "case.check.name": "check",
   "case.check.description": "[STAFF] Checks a case.",
   "case.check.caseid.name": "caseid",

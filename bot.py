@@ -128,6 +128,10 @@ async def fillGlobals():
 
     GG.BLACKLIST, GG.GUILDS = await GG.fillBlackList(GG.BLACKLIST, GG.GUILDS)
     GG.GREYLIST, GG.GREYGUILDS = await GG.fillGreyList(GG.GREYLIST, GG.GREYGUILDS)
+
+    HONEYPOTCHANNELSDB = await GG.MDB['honeypot'].find({}).to_list(length=None)
+    GG.HONEYPOTCHANNELS = GG.loadHotpotChannels(HONEYPOTCHANNELSDB)
+
     log.info("Finished Filling Globals")
 
 
