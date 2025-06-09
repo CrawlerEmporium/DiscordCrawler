@@ -52,7 +52,7 @@ def loadChannels(CHANNELDB):
         channel[int(i['channel'])] = i['type']
     return channel
 
-def loadHotpotChannels(HONEYPOTCHANNELSDB):
+def loadHoneypotChannels(HONEYPOTCHANNELSDB):
     channel = {}
     for i in HONEYPOTCHANNELSDB:
         channel[int(i['channelId'])] = i['channelId']

@@ -48,6 +48,9 @@ class Honeypot(commands.Cog):
 
         await GG.MDB.honeypot.insert_one(honeypot.to_dict())
 
+        HONEYPOTCHANNELSDB = await GG.MDB['honeypot'].find({}).to_list(length=None)
+        GG.HONEYPOTCHANNELS = GG.loadHoneypotChannels(HONEYPOTCHANNELSDB)
+
         return await ctx.respond(f"{channel} set as honeypot channel. Posters will get banned from this moment on.")
 
 
