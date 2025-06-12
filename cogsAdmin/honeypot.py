@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 import discord
 from discord import Option, slash_command, Message
 
@@ -24,6 +26,11 @@ class Honeypot(commands.Cog):
         if message.channel.id in GG.HONEYPOTCHANNELS:
             if message.author.id != GG.BOT:
                 if not GG.is_staff_by_user_bool(message.author, message.channel.guild):
+                    #Quick timeout before handling the ban
+                    timeoutActual = datetime.now() + timedelta(minutes=10)
+                    await message.author.timeout(until=timeoutActual, reason="Honeypotted")
+
+                    #Do the actual banning now
                     await banHandler.HoneypotCommand(self.bot, message.channel.guild, message.author, "You've been honeypotted. Most likely you were hacked or got scammed out of your account.")
 
 
