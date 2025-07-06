@@ -13,6 +13,22 @@ class AnonModal(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.message_command(name="Report Message")
+    @commands.guild_only()
+    async def report_message(self, ctx, message: discord.Message):
+        await ctx.defer(ephemeral=True)
+        delivery_channel = await GG.MDB['channelinfo'].find_one({"guild": ctx.interaction.guild_id, "type": "DELIVERY"})
+        if delivery_channel is None:
+            await self.noDeliveryChannel(ctx.interaction.guild, ctx.interaction)
+            await self.notifyOwner(ctx.interaction.guild, ctx.interaction)
+            return
+
+        delivery_channel = await self.bot.fetch_channel(delivery_channel['channel'])
+
+        await delivery_channel.send(f"Message reported in {message.channel.mention}. Jump URL: {message.jump_url}")
+
+        return await ctx.respond("Message reported.", ephemeral=True)
+
     @slash_command(name="anonreport")
     @commands.guild_only()
     async def anonreport(self, ctx):
