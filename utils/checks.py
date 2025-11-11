@@ -49,7 +49,7 @@ def is_staff_trouble():
                 allowed = True
             elif author.id in {GG.OWNER, ctx.guild.owner_id}:
                 allowed = True
-            elif ctx.guild.get_member(author.id).guild_permissions.administrator:
+            elif ctx.guild.get_member(author.id) is not None and ctx.guild.get_member(author.id).guild_permissions.administrator:
                 allowed = True
 
         return allowed
@@ -65,7 +65,7 @@ def is_trouble(ctx):
             allowed = True
         elif author.id in {GG.OWNER, ctx.guild.owner_id}:
             allowed = True
-        elif ctx.guild.get_member(author.id).guild_permissions.administrator:
+        elif ctx.guild.get_member(author.id) is not None and ctx.guild.get_member(author.id).guild_permissions.administrator:
             allowed = True
 
     return allowed
