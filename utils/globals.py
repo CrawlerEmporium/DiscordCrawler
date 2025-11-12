@@ -163,7 +163,7 @@ def is_staff():
                 return True
             if user.id in {OWNER, guild.owner_id}:
                 return True
-            if guild.get_member(user.id).guild_permissions.administrator:
+            if guild.get_member(user.id) is not None and guild.get_member(user.id).guild_permissions.administrator:
                 return True
         else:
             if user.id in {OWNER, guild.owner_id}:
@@ -183,7 +183,7 @@ def is_staff_bool(ctx):
             return True
         if user.id in {OWNER, guild.owner_id}:
             return True
-        if guild.get_member(user.id).guild_permissions.administrator:
+        if guild.get_member(user.id) is not None and guild.get_member(user.id).guild_permissions.administrator:
             return True
     else:
         if user.id in {OWNER, guild.owner_id}:
@@ -197,7 +197,7 @@ def is_staff_by_user_bool(user, guild):
             return True
         if user.id in {OWNER, guild.owner_id}:
             return True
-        if guild.get_member(user.id).guild_permissions.administrator:
+        if guild.get_member(user.id) is not None and guild.get_member(user.id).guild_permissions.administrator:
             return True
     else:
         if user.id in {OWNER, guild.owner_id}:
@@ -215,7 +215,7 @@ def is_staff_bool_slash(ctx):
             return True
         if user.id in {OWNER, guild.owner_id}:
             return True
-        if guild.get_member(user.id).guild_permissions.administrator:
+        if guild.get_member(user.id) is not None and guild.get_member(user.id).guild_permissions.administrator:
             return True
     else:
         if user.id in {OWNER, guild.owner_id}:
@@ -232,7 +232,7 @@ def is_staff_trouble_bool_slash(ctx):
             return True
         if user.id in {OWNER, guild.owner_id}:
             return True
-        if guild.get_member(user.id).guild_permissions.administrator:
+        if guild.get_member(user.id) is not None and guild.get_member(user.id).guild_permissions.administrator:
             return True
     else:
         if user.id in {OWNER, guild.owner_id}:
