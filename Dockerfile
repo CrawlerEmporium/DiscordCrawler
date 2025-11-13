@@ -1,4 +1,4 @@
-FROM python:3.9-slim-bookworm
+FROM python:3.10-slim-bookworm
 LABEL authors="Dusk"
 WORKDIR /app
 COPY requirements.txt ./
