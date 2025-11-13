@@ -34,11 +34,16 @@ class Case:
 
 
 async def getCaseEmbed(ctx, case: Case):
+    print("Debug 4.5.1")
     embed = discord.Embed()
+    print("Debug 4.5.2")
     await ctx.interaction.guild.chunk()
+    print("Debug 4.5.2")
     moderator = await ctx.interaction.guild.fetch_member(case.mod)
+    print("Debug 4.5.3")
     target = await ctx.bot.fetch_user(case.target)
 
+    print("Debug 4.5.4")
     if case.caseType == CaseType.NOTE:
         embed.colour = Colour.blue()
         embed.title = f"Note"
@@ -63,6 +68,7 @@ async def getCaseEmbed(ctx, case: Case):
     embed.description = case.message
     embed.set_footer(text=f"Case ID: {case.caseId} - Added by {moderator.display_name}")
     embed.timestamp = case.date
+    print("Debug 4.5.5")
     return embed
 
 

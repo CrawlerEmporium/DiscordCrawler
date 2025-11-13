@@ -8,4 +8,4 @@ dateparser
 parsedatetime
 faker
 git+https://github.com/CrawlerEmporium/CrawlerUtilities.git
-git+https://github.com/NeloBlivion/pycord.git@polls
+py-cord==2.7.0rc2
