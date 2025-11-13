@@ -56,7 +56,6 @@ class Whois(commands.Cog):
 
 
 async def getMemberEmbed(adminString, guild, noteString, user, warningString):
-    await guild.chunk()
     roles = sorted(user.roles, key=lambda r: r.position)
     rolenames = ', '.join([r.name for r in roles if r != '@everyone']) or 'None'
     desc = f'{user.name} is currently in {user.status} mode.'

@@ -77,7 +77,6 @@ class Case(commands.Cog):
     @staticmethod
     async def listCaseCommand(ctx, user):
         guild = ctx.interaction.guild
-        await guild.chunk()
         avi = user.display_avatar.url
 
         cases = await GG.MDB.members.find_one({"server": guild.id, "user": user.id})
