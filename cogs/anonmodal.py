@@ -25,7 +25,18 @@ class AnonModal(commands.Cog):
 
         delivery_channel = await self.bot.fetch_channel(delivery_channel['channel'])
 
-        await delivery_channel.send(f"Message reported in {message.channel.mention}. Jump URL: {message.jump_url}")
+        await delivery_channel.send(
+            f"Message reported in {message.channel.mention}"
+            f"\nOriginal Author: {message.author.mention}"
+            f"\nOriginal Message: ```{message.content}```"
+            f"\nJump URL: {message.jump_url}")
+
+        if len(message.attachments) > 0:
+            await delivery_channel.send("Attachments:")
+            for attachment in message.attachments:
+                file = await attachment.to_file()
+                await delivery_channel.send(file=file)
+
 
         return await ctx.respond("Message reported.", ephemeral=True)
 
