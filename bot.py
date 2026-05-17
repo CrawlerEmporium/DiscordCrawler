@@ -10,7 +10,7 @@ from models.buttons.greylist import Greylist
 
 log = GG.log
 
-version = "v2.8.0"
+version = "v2.8.1"
 SHARD_COUNT = 1
 TESTING = False
 defaultPrefix = GG.PREFIX if not TESTING else '*'
