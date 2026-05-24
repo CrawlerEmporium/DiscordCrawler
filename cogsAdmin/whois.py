@@ -6,6 +6,7 @@ from discord import slash_command, Option
 
 from discord.ext import commands
 from cogsAdmin.models.caseType import CaseType
+from crawler_utilities.utils.functions import splitDiscordEmbedField
 
 from utils import globals as GG
 from crawler_utilities.cogs.localization import get_command_kwargs, get_parameter_kwargs
@@ -71,11 +72,11 @@ async def getMemberEmbed(adminString, guild, noteString, user, warningString):
     em.add_field(name='Join Date', value=user.joined_at.__format__('%A, %B %d, %Y')),
     em.add_field(name='Roles', value=rolenames)
     if noteString != "":
-        em.add_field(name='Notes', value=noteString, inline=False)
+        await splitDiscordEmbedField(em, noteString, "Notes")
     if warningString != "":
-        em.add_field(name='Warnings', value=warningString, inline=False)
+        await splitDiscordEmbedField(em, warningString, "Warnings")
     if adminString != "":
-        em.add_field(name='Administration', value=adminString, inline=False)
+        await splitDiscordEmbedField(em, adminString, "Administration")
     if user.display_avatar.url is not None:
         em.set_thumbnail(url=user.display_avatar.url)
     return em
