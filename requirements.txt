@@ -9,3 +9,5 @@ parsedatetime
 faker
 git+https://github.com/CrawlerEmporium/CrawlerUtilities.git
 py-cord==2.7.0rc2
+imagehash>=4.3.1
+pillow
