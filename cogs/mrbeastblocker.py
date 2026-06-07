@@ -4,7 +4,7 @@ import requests
 from datetime import datetime, timedelta
 
 import discord
-from discord import SlashCommandGroup, option
+from discord import SlashCommandGroup, option, Forbidden
 from discord.ext import commands, tasks
 
 from utils import globals as GG
@@ -26,10 +26,22 @@ class MrBeastBlocker(commands.Cog):
         """Check message attachments against known spam image hashes."""
         if message.author.bot:
             return
-        if not message.attachments:
-            return
 
-        for attachment in message.attachments:
+        attachments = []
+
+        if len(message.snapshots) > 0:
+            for snapshot in message.snapshots:
+                if snapshot.message.attachments:
+                    for attachment in snapshot.message.attachments:
+                        attachments.append(attachment)
+        else:
+            if not message.attachments:
+                return
+            else:
+                for attachment in message.attachments:
+                    attachments.append(attachment)
+
+        for attachment in attachments:
             if not is_image(attachment):
                 continue
             # Skip large files to avoid memory issues
@@ -133,7 +145,10 @@ class MrBeastBlocker(commands.Cog):
 
         if timeout:
             timeoutActual = datetime.now() + timedelta(hours=5)
-            await message.author.timeout(until=timeoutActual, reason="Potential Spam/Scam")
+            try:
+                await message.author.timeout(until=timeoutActual, reason="Potential Spam/Scam")
+            except discord.Forbidden:
+                pass
 
         if notify_author:
             if message.author.dm_channel is not None:
