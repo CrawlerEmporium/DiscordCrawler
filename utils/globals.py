@@ -8,6 +8,7 @@ from discord import VoiceRegion as VR
 from discord.ext import commands
 import os
 from crawler_utilities.handlers.logger import Logger
+from utils.imagehashing import normalize_spam_doc
 
 log = Logger("logs", "CommunityCrawler", "CommunityCrawler").logger
 
@@ -46,6 +47,8 @@ GREYGUILDS = []
 
 HONEYPOTCHANNELS = []
 
+SPAMHASHES = []
+
 def loadChannels(CHANNELDB):
     channel = {}
     for i in CHANNELDB:
@@ -75,6 +78,12 @@ def loadReactionRoles(REACTIONROLESDB):
         reactionRole[key].append((i['roleId'], i['emoji']))
     return reactionRole
 
+def loadHashes(SPAMHASHESDB):
+    hashes = {}
+    for doc in SPAMHASHESDB:
+        h, normalized = normalize_spam_doc(doc)
+        hashes[h] = normalized
+    return hashes
 
 async def fillBlackList(BLACKLIST, GUILDS):
     BLACKLIST = "["

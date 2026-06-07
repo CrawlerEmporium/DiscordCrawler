@@ -1,7 +1,7 @@
-from typing import Union
+from typing import Union, Any, Mapping, Optional
 
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import discord
 from discord import SlashCommandGroup, option
@@ -18,7 +18,7 @@ class MrBeastBlocker(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.spam_hashes = {}
+        self.spam_hashes = GG.SPAMHASHES
         self.hash_cache_reload.start()
 
     spam = SlashCommandGroup("spam", "Commands to manage spam detection")
@@ -79,15 +79,18 @@ class MrBeastBlocker(commands.Cog):
         )
 
         # Get per-guild mod log channel
-        settings = await GG.MDB["bot_settings"].find_one(
-            {"guild_id": message.guild.id}
-        )
+        settings = await self.get_settings(message.guild.id)
 
         mod_channel_id = (
             settings.get("mod_log_channel_id")
             if settings
             else None
         )
+
+        delete_matching = settings.get("delete_matching", True)
+        notify_mods = settings.get("notify_mods", True)
+        notify_author = settings.get("notify_author", False)
+        timeout = settings.get("timeout", False)
 
         # Record match
         await GG.MDB["spam_matches"].insert_one({
@@ -109,7 +112,7 @@ class MrBeastBlocker(commands.Cog):
         )
 
         # Send alert to mod log channel
-        if mod_channel_id:
+        if mod_channel_id and notify_mods:
             mod_channel = self.bot.get_channel(mod_channel_id)
             if mod_channel:
                 embed = discord.Embed(
@@ -144,11 +147,39 @@ class MrBeastBlocker(commands.Cog):
 
                 await mod_channel.send(embed=embed)
 
-        # Delete the message
-        try:
-            await message.delete()
-        except (discord.Forbidden, discord.NotFound):
-            pass
+        if timeout:
+            timeoutActual = datetime.now() + timedelta(hours=5)
+            await message.author.timeout(until=timeoutActual, reason="Potential Spam/Scam")
+
+        if notify_author:
+            if message.author.dm_channel is not None:
+                DM = message.author.dm_channel
+            else:
+                DM = await message.author.create_dm()
+
+            embed = discord.Embed(
+                title="Spam Image Detected",
+                colour=0xff4444,
+                description=(
+                    f"Image posted by you in {message.guild} matches a known "
+                    f"spam image.\n"
+                    f"Matching hash type: `{hash_type}`\n\n"
+                    f"The message was deleted, and you have been timed out for 5 hours. Please contact staff if you believe this was a mistake.\n"
+                    f"It is also possible that you will be banned from the server, depending if we determined you are indeed a (hacked) spam bot."
+                ),
+            )
+
+            try:
+                await DM.send(embed=embed)
+            except discord.Forbidden:
+                pass
+
+        if delete_matching:
+            # Delete the message
+            try:
+                await message.delete()
+            except (discord.Forbidden, discord.NotFound):
+                pass
 
     @spam.command(name="add")
     @commands.guild_only()
@@ -340,7 +371,7 @@ class MrBeastBlocker(commands.Cog):
                 ephemeral=True,
             )
 
-    @spam.command(name="modlog")
+    @spam.command(name="logchannel")
     @commands.guild_only()
     @commands.has_permissions(manage_messages=True)
     @option("subcommand", choices=["set", "unset", "show"])
@@ -349,18 +380,13 @@ class MrBeastBlocker(commands.Cog):
         """
         Manage the mod log channel for spam alerts.
         Usage:
-          /modlog set <channel>  - Set this channel as the mod log channel
-          /modlog unset          - Clear the mod log channel
-          /modlog show           - Show current mod log channel
+          /spam logchannel set <channel>  - Set this channel as the mod log channel
+          /spam logchannel unset          - Clear the mod log channel
+          /spam logchannel show           - Show current mod log channel
         """
         await ctx.defer()
 
-        settings = await GG.MDB["bot_settings"].find_one(
-            {"guild_id": ctx.guild.id}
-        )
-        if settings is None:
-            settings = {"guild_id": ctx.guild.id}
-            await GG.MDB["bot_settings"].insert_one(settings)
+        settings = await self.get_settings(ctx.guild.id)
 
         if subcommand == "set":
             if channel is None:
@@ -377,9 +403,7 @@ class MrBeastBlocker(commands.Cog):
                 )
                 return
             settings["mod_log_channel_id"] = channel.id
-            await GG.MDB["bot_settings"].replace_one(
-                {"guild_id": ctx.guild.id}, settings
-            )
+            await GG.MDB["bot_settings"].update_one({"guild_id": ctx.guild.id}, settings, upsert=True)
             await ctx.respond(
                 embed=discord.Embed(
                     title="Mod Log Channel Set",
@@ -405,9 +429,7 @@ class MrBeastBlocker(commands.Cog):
                 )
                 return
             settings["mod_log_channel_id"] = None
-            await GG.MDB["bot_settings"].replace_one(
-                {"guild_id": ctx.guild.id}, settings
-            )
+            await GG.MDB["bot_settings"].update_one({"guild_id": ctx.guild.id}, settings, upsert=True)
             await ctx.respond(
                 embed=discord.Embed(
                     title="Mod Log Cleared",
@@ -459,11 +481,7 @@ class MrBeastBlocker(commands.Cog):
         """Show current moderation setup."""
         await ctx.defer()
 
-        settings = await GG.MDB["bot_settings"].find_one(
-            {"guild_id": ctx.guild.id}
-        )
-        if settings is None:
-            settings = {"guild_id": ctx.guild.id}
+        settings = await self.get_settings(ctx.guild.id)
 
         mod_channel_id = settings.get("mod_log_channel_id")
         mod_channel = (
@@ -475,17 +493,38 @@ class MrBeastBlocker(commands.Cog):
             mod_channel.mention if mod_channel else "Not set"
         )
 
+        delete_matching = settings.get("delete_matching", True)
+        notify_mods = settings.get("notify_mods", True)
+        notify_author = settings.get("notify_author", False)
+        timeout = settings.get("timeout", False)
+
         await ctx.respond(
             embed=discord.Embed(
                 title=f"Moderation Settings ({ctx.guild})",
                 description=(
                     f"**Mod Log Channel:** {channel_display}\n"
-                    f"**Delete Matching:** Yes\n"
-                    f"**Notify Mods:** Yes"
+                    f"**Delete Matching:** {delete_matching}\n"
+                    f"**Notify Mods:** {notify_mods}\n"
+                    f"**Notify Author:** {notify_author}\n"
+                    f"**Timeout (5 hours):** {timeout}\n"
                 ),
                 colour=0x55aa55,
             ),
         )
+
+    async def get_settings(self, guild_id):
+        settings = await GG.MDB["bot_settings"].find_one(
+            {"guild_id": guild_id}
+        )
+        if settings is None:
+            settings = {
+                "guild_id": guild_id,
+                "delete_matching": True,
+                "notify_mods": True,
+                "notify_author": True,
+                "timeout": False,
+            }
+        return settings
 
     @spam.command(name="train")
     @commands.guild_only()
@@ -690,12 +729,12 @@ class MrBeastBlocker(commands.Cog):
     @spam.command(name="settings")
     @commands.guild_only()
     @commands.has_permissions(manage_messages=True)
-    @option("setting", description="Setting to toggle", choices=["delete_matching","notify_mods", "notify_author"])
+    @option("setting", description="Setting to toggle", choices=["delete_matching", "notify_mods", "notify_author", "timeout"])
     @option("value", description="True/False", choices=["True", "False"])
     async def togglesetting(self, ctx, setting: str, value: str = "true"):
         """
         Toggle a moderation setting.
-        Settings: delete_matching, notify_mods, notify_author
+        Settings: delete_matching, notify_mods, notify_author, timeout
         """
         await ctx.defer()
 
@@ -703,6 +742,7 @@ class MrBeastBlocker(commands.Cog):
             "delete_matching",
             "notify_mods",
             "notify_author",
+            "timeout",
         }
         if setting not in valid_settings:
             await ctx.respond(

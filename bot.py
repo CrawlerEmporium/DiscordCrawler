@@ -132,6 +132,9 @@ async def fillGlobals():
     HONEYPOTCHANNELSDB = await GG.MDB['honeypot'].find({}).to_list(length=None)
     GG.HONEYPOTCHANNELS = GG.loadHoneypotChannels(HONEYPOTCHANNELSDB)
 
+    SPAMHASHESDB = await GG.MDB['spam_images'].find({}).to_list(length=None)
+    GG.SPAMHASHES = GG.loadSpamHashes(SPAMHASHESDB)
+
     log.info("Finished Filling Globals")
 
 
