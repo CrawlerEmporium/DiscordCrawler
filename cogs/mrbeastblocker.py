@@ -1,55 +1,16 @@
-import io
+from typing import Union
+
 import requests
 from datetime import datetime
 
 import discord
-import imagehash
-from discord import slash_command
+from discord import SlashCommandGroup, option
 from discord.ext import commands, tasks
-from PIL import Image, ImageFile, ImageOps
 
-from crawler_utilities.cogs.localization import get_command_kwargs
 from utils import globals as GG
+from utils.imagehashing import db_hash_value, normalize_spam_doc, hash_image, is_match, is_image
 
 log = GG.log
-cogName = "spam_image"
-ImageFile.LOAD_TRUNCATED_IMAGES = True
-
-
-def _imagehash_to_int(hash_value) -> int:
-    """Convert an imagehash.ImageHash value to a stable integer."""
-    return int(str(hash_value), 16)
-
-
-def _db_hash_value(hash_value: int) -> str:
-    """Convert a hash integer to a Mongo-safe string value."""
-    return str(hash_value)
-
-
-def _normalize_spam_doc(doc: dict) -> tuple[int, dict]:
-    """Normalize a spam image document for in-memory cache use."""
-    hash_value = int(doc["image_hash"])
-    normalized = dict(doc)
-    normalized["image_hash"] = _db_hash_value(hash_value)
-    if "dhash" in normalized:
-        normalized["dhash"] = _db_hash_value(int(normalized["dhash"]))
-    if "ahash" in normalized:
-        normalized["ahash"] = _db_hash_value(int(normalized["ahash"]))
-    return hash_value, normalized
-
-
-def _hash_image(image_bytes: bytes) -> dict:
-    """Return perceptual hashes for raw image bytes."""
-    with Image.open(io.BytesIO(image_bytes)) as image:
-        image = ImageOps.exif_transpose(image)
-        image.load()
-        image = image.convert("RGB")
-        return {
-            "phash": _imagehash_to_int(imagehash.phash(image)),
-            "dhash": _imagehash_to_int(imagehash.dhash(image)),
-            "ahash": _imagehash_to_int(imagehash.average_hash(image)),
-        }
-
 
 
 class MrBeastBlocker(commands.Cog):
@@ -60,13 +21,15 @@ class MrBeastBlocker(commands.Cog):
         self.spam_hashes = {}
         self.hash_cache_reload.start()
 
+    spam = SlashCommandGroup("spam", "Commands to manage spam detection")
+
     @tasks.loop(hours=1)
     async def hash_cache_reload(self):
         """Reload known spam hashes from the database every hour."""
         docs = await GG.MDB["spam_images"].find({}).to_list(length=None)
         self.spam_hashes.clear()
         for doc in docs:
-            h, normalized = _normalize_spam_doc(doc)
+            h, normalized = normalize_spam_doc(doc)
             self.spam_hashes[h] = normalized
         log.info(f"Spam hash cache reloaded with {len(self.spam_hashes)} entries")
 
@@ -83,7 +46,7 @@ class MrBeastBlocker(commands.Cog):
             return
 
         for attachment in message.attachments:
-            if not self._is_image(attachment):
+            if not is_image(attachment):
                 continue
             # Skip large files to avoid memory issues
             if attachment.size and attachment.size > 10 * 1024 * 1024:
@@ -91,11 +54,7 @@ class MrBeastBlocker(commands.Cog):
 
             try:
                 image_bytes = await attachment.read()
-            except Exception:
-                continue
-
-            try:
-                hashes = _hash_image(image_bytes)
+                hashes = hash_image(image_bytes)
             except Exception:
                 continue
 
@@ -108,7 +67,7 @@ class MrBeastBlocker(commands.Cog):
                         "dhash": int(known.get("dhash", 0)),
                         "ahash": int(known.get("ahash", 0)),
                     }
-                    if self._is_match(hashes, known_hashes):
+                    if is_match(hashes, known_hashes):
                         await self._handle_spam(message, known, hash_type)
                         return
 
@@ -171,13 +130,12 @@ class MrBeastBlocker(commands.Cog):
         except (discord.Forbidden, discord.NotFound):
             pass
 
-    @slash_command(name='addspam')
+    @spam.command(name="add")
+    @commands.guild_only()
+    @commands.has_permissions(manage_messages=True)
     async def addspam(self, ctx, url: str = None):
         """Add a known spam image to the database."""
         await ctx.defer()
-
-        if not GG.is_staff_bool(ctx):
-            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
 
         image_bytes = None
         # Try getting image from replied message
@@ -213,11 +171,11 @@ class MrBeastBlocker(commands.Cog):
             )
             return
 
-        hashes = _hash_image(image_bytes)
+        hashes = hash_image(image_bytes)
 
         # Check for duplicates
         existing = await GG.MDB["spam_images"].find_one(
-            {"image_hash": _db_hash_value(hashes["phash"])}
+            {"image_hash": db_hash_value(hashes["phash"])}
         )
         if existing:
             await ctx.respond(
@@ -234,9 +192,9 @@ class MrBeastBlocker(commands.Cog):
             return
 
         await GG.MDB["spam_images"].insert_one({
-            "image_hash": _db_hash_value(hashes["phash"]),
-            "dhash": _db_hash_value(hashes["dhash"]),
-            "ahash": _db_hash_value(hashes["ahash"]),
+            "image_hash": db_hash_value(hashes["phash"]),
+            "dhash": db_hash_value(hashes["dhash"]),
+            "ahash": db_hash_value(hashes["ahash"]),
             "original_url": url or f"added_by_{ctx.author.id}",
             "added_by": ctx.author.id,
             "added_at": datetime.utcnow(),
@@ -260,13 +218,12 @@ class MrBeastBlocker(commands.Cog):
         )
         log.info(f"Admin added spam image from {url} by {ctx.author}")
 
-    @slash_command(name='listspam')
+    @spam.command(name="list")
+    @commands.guild_only()
+    @commands.has_permissions(manage_messages=True)
     async def listspam(self, ctx, page: int = 1):
         """Paginated list of known spam images."""
         await ctx.defer()
-
-        if not GG.is_staff_bool(ctx):
-            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
 
         count = await GG.MDB["spam_images"].count_documents({})
         if count == 0:
@@ -318,13 +275,12 @@ class MrBeastBlocker(commands.Cog):
         embed.set_footer(text=f"Page {page} of {total_pages}")
         await ctx.respond(embed=embed)
 
-    @slash_command(name='removespam')
+    @spam.command(name="remove")
+    @commands.guild_only()
+    @commands.has_permissions(manage_messages=True)
     async def removespam(self, ctx, phash: str):
         """Remove a spam image by its phash value."""
         await ctx.defer()
-
-        if not GG.is_staff_bool(ctx):
-            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
 
         try:
             hash_val = int(phash)
@@ -340,7 +296,7 @@ class MrBeastBlocker(commands.Cog):
             return
 
         result = await GG.MDB["spam_images"].delete_one(
-            {"image_hash": _db_hash_value(hash_val)}
+            {"image_hash": db_hash_value(hash_val)}
         )
         if result.deleted_count > 0:
             await ctx.respond(
@@ -364,7 +320,11 @@ class MrBeastBlocker(commands.Cog):
                 ephemeral=True,
             )
 
-    @slash_command(name='modlog')
+    @spam.command(name="modlog")
+    @commands.guild_only()
+    @commands.has_permissions(manage_messages=True)
+    @option("subcommand", choices=["set", "unset", "show"])
+    @option("channel", Union[discord.TextChannel], description="Select a Channel", required=False)
     async def modlog(self, ctx, subcommand: str = None, channel: discord.TextChannel = None):
         """
         Manage the mod log channel for spam alerts.
@@ -374,9 +334,6 @@ class MrBeastBlocker(commands.Cog):
           /modlog show           - Show current mod log channel
         """
         await ctx.defer()
-
-        if not GG.is_staff_bool(ctx):
-            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
 
         settings = await GG.MDB["bot_settings"].find_one(
             {"guild_id": ctx.guild.id}
@@ -450,7 +407,7 @@ class MrBeastBlocker(commands.Cog):
                 display = (
                     mod_channel.mention
                     if mod_channel
-                    else f"<#`{current}`>"
+                    else f"<#{current}>"
                 )
             else:
                 display = "Not set"
@@ -475,13 +432,12 @@ class MrBeastBlocker(commands.Cog):
                 ephemeral=True,
             )
 
-    @slash_command(name='modsettings')
-    async def modsettings(self, ctx):
-        """Show current moderation settings."""
+    @spam.command(name="showsetup")
+    @commands.guild_only()
+    @commands.has_permissions(manage_messages=True)
+    async def modsetup(self, ctx):
+        """Show current moderation setup."""
         await ctx.defer()
-
-        if not GG.is_staff_bool(ctx):
-            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
 
         settings = await GG.MDB["bot_settings"].find_one(
             {"guild_id": ctx.guild.id}
@@ -511,16 +467,15 @@ class MrBeastBlocker(commands.Cog):
             ),
         )
 
-    @slash_command(name='train')
+    @spam.command(name="train")
+    @commands.guild_only()
+    @commands.has_permissions(manage_messages=True)
     async def train(self, ctx, url: str):
         """
         Train the spam detector by adding all images from a message URL.
         Usage: `/train <discord message url>`
         """
         await ctx.defer()
-
-        if not GG.is_staff_bool(ctx):
-            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
 
         # Parse message URL: https://discord.com/channels/{guild}/{channel}/{message}
         import re
@@ -596,6 +551,19 @@ class MrBeastBlocker(commands.Cog):
             )
             return
 
+        return await self.handle_message(ctx, message)
+
+    @commands.message_command(name="Staff: Train Spam detector")
+    @commands.guild_only()
+    async def train_message(self, ctx, message: discord.Message):
+        await ctx.defer(ephemeral=True)
+        if not GG.is_staff_bool(ctx):
+            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
+
+        return await self.handle_message(ctx, message, True)
+
+    async def handle_message(self, ctx, message: discord.Message, ephemeral=False):
+        """Handle a message for spam detection."""
         if not message.attachments:
             await ctx.respond(
                 embed=discord.Embed(
@@ -610,7 +578,7 @@ class MrBeastBlocker(commands.Cog):
         # Collect image attachments
         image_attachments = [
             a for a in message.attachments
-            if self._is_image(a)
+            if is_image(a)
         ]
 
         if not image_attachments:
@@ -632,24 +600,29 @@ class MrBeastBlocker(commands.Cog):
         skipped = 0
         failed = []
 
+        url = message.jump_url
+        guild_id = message.guild.id
+        channel_id = message.channel.id
+        message_id = message.id
+
         for attachment in image_attachments:
             try:
                 image_bytes = await attachment.read()
 
-                hashes = _hash_image(image_bytes)
+                hashes = hash_image(image_bytes)
 
                 # Skip duplicates
                 existing = await GG.MDB["spam_images"].find_one(
-                    {"image_hash": _db_hash_value(hashes["phash"])}
+                    {"image_hash": db_hash_value(hashes["phash"])}
                 )
                 if existing:
                     skipped += 1
                     continue
 
                 await GG.MDB["spam_images"].insert_one({
-                    "image_hash": _db_hash_value(hashes["phash"]),
-                    "dhash": _db_hash_value(hashes["dhash"]),
-                    "ahash": _db_hash_value(hashes["ahash"]),
+                    "image_hash": db_hash_value(hashes["phash"]),
+                    "dhash": db_hash_value(hashes["dhash"]),
+                    "ahash": db_hash_value(hashes["ahash"]),
                     "original_url": url.strip(),
                     "added_by": ctx.author.id,
                     "added_at": datetime.utcnow(),
@@ -687,22 +660,24 @@ class MrBeastBlocker(commands.Cog):
                 description=detail,
                 colour=0x44aa44,
             ),
+            ephemeral=ephemeral
         )
         log.info(
             f"Admin trained spam detector with message {url}: "
             f"+{added}, skipped={skipped}, failed={len(failed)}"
         )
 
-    @slash_command(name='togglesetting')
+    @spam.command(name="settings")
+    @commands.guild_only()
+    @commands.has_permissions(manage_messages=True)
+    @option("setting", description="Setting to toggle", choices=["delete_matching","notify_mods", "notify_author"])
+    @option("value", description="True/False", choices=["True", "False"])
     async def togglesetting(self, ctx, setting: str, value: str = "true"):
         """
         Toggle a moderation setting.
         Settings: delete_matching, notify_mods, notify_author
         """
         await ctx.defer()
-
-        if not GG.is_staff_bool(ctx):
-            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
 
         valid_settings = {
             "delete_matching",
@@ -748,26 +723,7 @@ class MrBeastBlocker(commands.Cog):
         )
         log.info(f"Admin toggled {setting}={value} in {ctx.guild}")
 
-    def _is_image(self, attachment: discord.Attachment) -> bool:
-        """Check if an attachment is an image based on URL extension."""
-        return any(
-            attachment.filename.lower().endswith(ext)
-            for ext in GG.IMAGE_EXTENSIONS
-        )
-
-    def _is_match(self, computed: dict, known: dict) -> bool:
-        """Check if any hash type is within threshold."""
-        threshold = 7
-        for hash_type in ["phash", "dhash", "ahash"]:
-            if hash_type in computed and hash_type in known:
-                dist = bin(
-                    computed[hash_type] ^ known[hash_type]
-                ).count("1")
-                if dist <= threshold:
-                    return True
-        return False
-
 
 def setup(bot):
+    log.info("[Cog] MrBeastBlocker")
     bot.add_cog(MrBeastBlocker(bot))
-    log.info("[Cogs] MrBeastBlocker...")
