@@ -78,7 +78,7 @@ def loadReactionRoles(REACTIONROLESDB):
         reactionRole[key].append((i['roleId'], i['emoji']))
     return reactionRole
 
-def loadHashes(SPAMHASHESDB):
+def loadSpamHashes(SPAMHASHESDB):
     hashes = {}
     for doc in SPAMHASHESDB:
         h, normalized = normalize_spam_doc(doc)
