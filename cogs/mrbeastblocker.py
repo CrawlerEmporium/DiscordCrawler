@@ -68,10 +68,10 @@ class MrBeastBlocker(commands.Cog):
                         "ahash": int(known.get("ahash", 0)),
                     }
                     if is_match(hashes, known_hashes):
-                        await self._handle_spam(message, known, hash_type)
+                        await self._handle_spam(message, known, hash_type, known_hashes)
                         return
 
-    async def _handle_spam(self, message, known, hash_type):
+    async def _handle_spam(self, message, known, hash_type, known_hashes):
         """Delete spam message and notify mod log channel."""
         match_url = (
             f"https://discord.com/channels/"
@@ -82,6 +82,7 @@ class MrBeastBlocker(commands.Cog):
         settings = await GG.MDB["bot_settings"].find_one(
             {"guild_id": message.guild.id}
         )
+
         mod_channel_id = (
             settings.get("mod_log_channel_id")
             if settings
@@ -115,13 +116,32 @@ class MrBeastBlocker(commands.Cog):
                     title="Spam Image Detected",
                     colour=0xff4444,
                     description=(
-                        f"Image posted by **{message.author}** matches a known "
+                        f"Image posted by {message.author.mention} (**{message.author}**) matches a known "
                         f"spam image.\n"
-                        f"Hash type: `{hash_type}`\n"
+                        f"Matching hash type: `{hash_type}`\n"
                         f"Source: {known.get('original_url', 'unknown')}"
                     ),
                 )
-                embed.add_field(name="Message", value=match_url, inline=False)
+
+                if hash_type == "phash":
+                    phash_msg = f"**{known_hashes['phash']}**" if known_hashes.get('phash') else ""
+                else:
+                    phash_msg = f"{known_hashes['phash']}" if known_hashes.get('phash') else ""
+
+                if hash_type == "dhash":
+                    dhash_msg = f"**{known_hashes['dhash']}**" if known_hashes.get('dhash') else ""
+                else:
+                    dhash_msg = f"{known_hashes['dhash']}" if known_hashes.get('dhash') else ""
+
+                if hash_type == "ahash":
+                    ahash_msg = f"**{known_hashes['ahash']}**" if known_hashes.get('ahash') else ""
+                else:
+                    ahash_msg = f"{known_hashes['ahash']}" if known_hashes.get('ahash') else ""
+
+                embed.add_field(name="phash", value=phash_msg, inline=True)
+                embed.add_field(name="dhash", value=dhash_msg, inline=True)
+                embed.add_field(name="ahash", value=ahash_msg, inline=True)
+
                 await mod_channel.send(embed=embed)
 
         # Delete the message
