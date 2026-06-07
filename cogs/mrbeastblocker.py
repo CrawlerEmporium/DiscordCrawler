@@ -18,24 +18,8 @@ class MrBeastBlocker(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.spam_hashes = GG.SPAMHASHES
-        self.hash_cache_reload.start()
 
     spam = SlashCommandGroup("spam", "Commands to manage spam detection")
-
-    @tasks.loop(hours=1)
-    async def hash_cache_reload(self):
-        """Reload known spam hashes from the database every hour."""
-        docs = await GG.MDB["spam_images"].find({}).to_list(length=None)
-        self.spam_hashes.clear()
-        for doc in docs:
-            h, normalized = normalize_spam_doc(doc)
-            self.spam_hashes[h] = normalized
-        log.info(f"Spam hash cache reloaded with {len(self.spam_hashes)} entries")
-
-    @hash_cache_reload.before_loop
-    async def before_hash_cache_reload(self):
-        await self.bot.wait_until_ready()
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -60,8 +44,8 @@ class MrBeastBlocker(commands.Cog):
 
             # Check against in-memory cache
             for hash_type, hash_val in hashes.items():
-                if hash_val in self.spam_hashes:
-                    known = self.spam_hashes[hash_val]
+                if hash_val in GG.SPAMHASHES:
+                    known = GG.SPAMHASHES[hash_val]
                     known_hashes = {
                         "phash": int(known["image_hash"]),
                         "dhash": int(known.get("dhash", 0)),
@@ -255,7 +239,8 @@ class MrBeastBlocker(commands.Cog):
         })
 
         # Reload cache
-        await self.hash_cache_reload()
+        SPAMHASHESDB = await GG.MDB['spam_images'].find({}).to_list(length=None)
+        GG.SPAMHASHES = GG.loadSpamHashes(SPAMHASHESDB)
 
         await ctx.respond(
             embed=discord.Embed(
@@ -360,7 +345,8 @@ class MrBeastBlocker(commands.Cog):
                 ),
             )
             log.info(f"Admin removed spam image {phash}")
-            await self.hash_cache_reload()
+            SPAMHASHESDB = await GG.MDB['spam_images'].find({}).to_list(length=None)
+            GG.SPAMHASHES = GG.loadSpamHashes(SPAMHASHESDB)
         else:
             await ctx.respond(
                 embed=discord.Embed(
@@ -700,7 +686,8 @@ class MrBeastBlocker(commands.Cog):
                 continue
 
         # Reload cache
-        await self.hash_cache_reload()
+        SPAMHASHESDB = await GG.MDB['spam_images'].find({}).to_list(length=None)
+        GG.SPAMHASHES = GG.loadSpamHashes(SPAMHASHESDB)
 
         # Build result message
         parts = [f"Added **{added}** new spam image(s)."]
