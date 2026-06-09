@@ -13,6 +13,113 @@ from utils.imagehashing import db_hash_value, normalize_spam_doc, hash_image, is
 log = GG.log
 
 
+async def handle_message(ctx, message: discord.Message, ephemeral=False):
+    """Handle a message for spam detection."""
+    if not message.attachments:
+        await ctx.respond(
+            embed=discord.Embed(
+                title="No Attachments",
+                description="That message does not contain any attachments.",
+                colour=0xff0000,
+            ),
+            ephemeral=True,
+        )
+        return
+
+    # Collect image attachments
+    image_attachments = [
+        a for a in message.attachments
+        if is_image(a)
+    ]
+
+    if not image_attachments:
+        await ctx.respond(
+            embed=discord.Embed(
+                title="No Images",
+                description=(
+                    "That message has attachments but none are images "
+                    f"({', '.join(GG.IMAGE_EXTENSIONS)})."
+                ),
+                colour=0xff0000,
+            ),
+            ephemeral=True,
+        )
+        return
+
+    # Process each image
+    added = 0
+    skipped = 0
+    failed = []
+
+    url = message.jump_url
+    guild_id = message.guild.id
+    channel_id = message.channel.id
+    message_id = message.id
+
+    for attachment in image_attachments:
+        try:
+            image_bytes = await attachment.read()
+
+            hashes = hash_image(image_bytes)
+
+            # Skip duplicates
+            existing = await GG.MDB["spam_images"].find_one(
+                {"image_hash": db_hash_value(hashes["phash"])}
+            )
+            if existing:
+                skipped += 1
+                continue
+
+            await GG.MDB["spam_images"].insert_one({
+                "image_hash": db_hash_value(hashes["phash"]),
+                "dhash": db_hash_value(hashes["dhash"]),
+                "ahash": db_hash_value(hashes["ahash"]),
+                "original_url": url.strip(),
+                "added_by": ctx.author.id,
+                "added_at": datetime.utcnow(),
+                "source": "train",
+                "message_url": url.strip(),
+                "guild_id": guild_id,
+                "channel_id": channel_id,
+            })
+            added += 1
+        except Exception as exc:
+            log.exception(
+                f"Failed to process attachment {attachment.filename} "
+                f"from message {message_id} in channel {channel_id}",
+            )
+            failed.append(attachment.filename)
+            continue
+
+    # Reload cache
+    SPAMHASHESDB = await GG.MDB['spam_images'].find({}).to_list(length=None)
+    GG.SPAMHASHES = GG.loadSpamHashes(SPAMHASHESDB)
+
+    # Build result message
+    parts = [f"Added **{added}** new spam image(s)."]
+    if skipped:
+        parts.append(f"Skipped **{skipped}** duplicate(s).")
+    if failed:
+        failed_names = ", ".join(failed)
+        parts.append(
+            f"Failed to process **{len(failed)}** image(s): {failed_names}."
+        )
+    detail = ", ".join(parts)
+
+    await ctx.respond(
+        embed=discord.Embed(
+            title="Training Complete",
+            description=detail,
+            colour=0x44aa44,
+        ),
+        ephemeral=ephemeral
+    )
+    log.info(
+        f"Admin trained spam detector with message {url}: "
+        f"+{added}, skipped={skipped}, failed={len(failed)}"
+    )
+
+
 class MrBeastBlocker(commands.Cog):
     """Detects spam/scam images using perceptual hashing."""
 
@@ -404,7 +511,7 @@ class MrBeastBlocker(commands.Cog):
                 )
                 return
             settings["mod_log_channel_id"] = channel.id
-            await GG.MDB["bot_settings"].update_one({"guild_id": ctx.guild.id}, settings, upsert=True)
+            await GG.MDB["bot_settings"].update_one({"guild_id": ctx.guild.id}, {"$set": settings}, upsert=True)
             await ctx.respond(
                 embed=discord.Embed(
                     title="Mod Log Channel Set",
@@ -430,7 +537,7 @@ class MrBeastBlocker(commands.Cog):
                 )
                 return
             settings["mod_log_channel_id"] = None
-            await GG.MDB["bot_settings"].update_one({"guild_id": ctx.guild.id}, settings, upsert=True)
+            await GG.MDB["bot_settings"].update_one({"guild_id": ctx.guild.id}, {"$set": settings}, upsert=True)
             await ctx.respond(
                 embed=discord.Embed(
                     title="Mod Log Cleared",
@@ -611,7 +718,7 @@ class MrBeastBlocker(commands.Cog):
             )
             return
 
-        return await self.handle_message(ctx, message)
+        return await handle_message(ctx, message)
 
     @commands.message_command(name="Staff: Train Spam detector")
     @commands.guild_only()
@@ -620,113 +727,7 @@ class MrBeastBlocker(commands.Cog):
         if not GG.is_staff_bool(ctx):
             return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
 
-        return await self.handle_message(ctx, message, True)
-
-    async def handle_message(self, ctx, message: discord.Message, ephemeral=False):
-        """Handle a message for spam detection."""
-        if not message.attachments:
-            await ctx.respond(
-                embed=discord.Embed(
-                    title="No Attachments",
-                    description="That message does not contain any attachments.",
-                    colour=0xff0000,
-                ),
-                ephemeral=True,
-            )
-            return
-
-        # Collect image attachments
-        image_attachments = [
-            a for a in message.attachments
-            if is_image(a)
-        ]
-
-        if not image_attachments:
-            await ctx.respond(
-                embed=discord.Embed(
-                    title="No Images",
-                    description=(
-                        "That message has attachments but none are images "
-                        f"({', '.join(GG.IMAGE_EXTENSIONS)})."
-                    ),
-                    colour=0xff0000,
-                ),
-                ephemeral=True,
-            )
-            return
-
-        # Process each image
-        added = 0
-        skipped = 0
-        failed = []
-
-        url = message.jump_url
-        guild_id = message.guild.id
-        channel_id = message.channel.id
-        message_id = message.id
-
-        for attachment in image_attachments:
-            try:
-                image_bytes = await attachment.read()
-
-                hashes = hash_image(image_bytes)
-
-                # Skip duplicates
-                existing = await GG.MDB["spam_images"].find_one(
-                    {"image_hash": db_hash_value(hashes["phash"])}
-                )
-                if existing:
-                    skipped += 1
-                    continue
-
-                await GG.MDB["spam_images"].insert_one({
-                    "image_hash": db_hash_value(hashes["phash"]),
-                    "dhash": db_hash_value(hashes["dhash"]),
-                    "ahash": db_hash_value(hashes["ahash"]),
-                    "original_url": url.strip(),
-                    "added_by": ctx.author.id,
-                    "added_at": datetime.utcnow(),
-                    "source": "train",
-                    "message_url": url.strip(),
-                    "guild_id": guild_id,
-                    "channel_id": channel_id,
-                })
-                added += 1
-            except Exception as exc:
-                log.exception(
-                    f"Failed to process attachment {attachment.filename} "
-                    f"from message {message_id} in channel {channel_id}",
-                )
-                failed.append(attachment.filename)
-                continue
-
-        # Reload cache
-        SPAMHASHESDB = await GG.MDB['spam_images'].find({}).to_list(length=None)
-        GG.SPAMHASHES = GG.loadSpamHashes(SPAMHASHESDB)
-
-        # Build result message
-        parts = [f"Added **{added}** new spam image(s)."]
-        if skipped:
-            parts.append(f"Skipped **{skipped}** duplicate(s).")
-        if failed:
-            failed_names = ", ".join(failed)
-            parts.append(
-                f"Failed to process **{len(failed)}** image(s): {failed_names}."
-            )
-        detail = ", ".join(parts)
-
-        await ctx.respond(
-            embed=discord.Embed(
-                title="Training Complete",
-                description=detail,
-                colour=0x44aa44,
-            ),
-            ephemeral=ephemeral
-        )
-        log.info(
-            f"Admin trained spam detector with message {url}: "
-            f"+{added}, skipped={skipped}, failed={len(failed)}"
-        )
+        return await handle_message(ctx, message, True)
 
     @spam.command(name="settings")
     @commands.guild_only()
