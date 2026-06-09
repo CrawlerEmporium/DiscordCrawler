@@ -131,7 +131,7 @@ class MrBeastBlocker(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         """Check message attachments against known spam image hashes."""
-        if message.author.bot:
+        if message.author.bot or message.author.id == GG.OWNER:
             return
 
         attachments = []
