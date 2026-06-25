@@ -120,6 +120,22 @@ async def handle_message(ctx, message: discord.Message, ephemeral=False):
     )
 
 
+async def get_settings(guild_id):
+    settings = await GG.MDB["bot_settings"].find_one(
+        {"guild_id": guild_id}
+    )
+    if settings is None:
+        settings = {
+            "guild_id": guild_id,
+            "delete_matching": True,
+            "notify_mods": True,
+            "notify_author": False,
+            "timeout": True,
+        }
+        await GG.MDB["bot_settings"].insert_one(settings)
+    return settings
+
+
 class MrBeastBlocker(commands.Cog):
     """Detects spam/scam images using perceptual hashing."""
 
@@ -182,7 +198,7 @@ class MrBeastBlocker(commands.Cog):
         )
 
         # Get per-guild mod log channel
-        settings = await self.get_settings(message.guild.id)
+        settings = await get_settings(message.guild.id)
 
         mod_channel_id = (
             settings.get("mod_log_channel_id")
@@ -494,7 +510,7 @@ class MrBeastBlocker(commands.Cog):
         """
         await ctx.defer()
 
-        settings = await self.get_settings(ctx.guild.id)
+        settings = await get_settings(ctx.guild.id)
 
         if subcommand == "set":
             if channel is None:
@@ -589,7 +605,7 @@ class MrBeastBlocker(commands.Cog):
         """Show current moderation setup."""
         await ctx.defer()
 
-        settings = await self.get_settings(ctx.guild.id)
+        settings = await get_settings(ctx.guild.id)
 
         mod_channel_id = settings.get("mod_log_channel_id")
         mod_channel = (
@@ -604,7 +620,7 @@ class MrBeastBlocker(commands.Cog):
         delete_matching = settings.get("delete_matching", True)
         notify_mods = settings.get("notify_mods", True)
         notify_author = settings.get("notify_author", False)
-        timeout = settings.get("timeout", False)
+        timeout = settings.get("timeout", True)
 
         await ctx.respond(
             embed=discord.Embed(
@@ -616,23 +632,9 @@ class MrBeastBlocker(commands.Cog):
                     f"**Notify Author:** {notify_author}\n"
                     f"**Timeout (5 hours):** {timeout}\n"
                 ),
-                colour=0x55aa55,
+                colour=0x55AA55,
             ),
         )
-
-    async def get_settings(self, guild_id):
-        settings = await GG.MDB["bot_settings"].find_one(
-            {"guild_id": guild_id}
-        )
-        if settings is None:
-            settings = {
-                "guild_id": guild_id,
-                "delete_matching": True,
-                "notify_mods": True,
-                "notify_author": True,
-                "timeout": False,
-            }
-        return settings
 
     @spam.command(name="train")
     @commands.guild_only()
