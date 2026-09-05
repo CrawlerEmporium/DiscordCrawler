@@ -7,10 +7,96 @@ import discord
 from discord import SlashCommandGroup, option, Forbidden
 from discord.ext import commands, tasks
 
+from cogsAdmin.utils import banHandler
 from utils import globals as GG
 from utils.imagehashing import db_hash_value, normalize_spam_doc, hash_image, is_match, is_image
 
 log = GG.log
+
+
+class _ButtonContext:
+    """Small command-context adapter for the shared ban handler."""
+
+    def __init__(self, interaction):
+        self.interaction = interaction
+        self.author = interaction.user
+        self.guild = interaction.guild
+        self.bot = interaction.client
+
+    async def respond(self, *args, **kwargs):
+        await self.interaction.followup.send(*args, **kwargs)
+
+    async def send(self, *args, **kwargs):
+        await self.interaction.followup.send(*args, **kwargs)
+
+
+class MarkSpambotView(discord.ui.View):
+    """Action button attached to a spam alert in the moderation channel."""
+
+    def __init__(self, cog, member_id):
+        super().__init__(timeout=None)
+        self.cog = cog
+        self.member_id = member_id
+
+    @discord.ui.button(
+        label="Mark as spambot",
+        style=discord.ButtonStyle.danger,
+        custom_id="mrbeastblocker:mark_spambot",
+    )
+    async def mark_as_spambot(self, button, interaction):
+        ctx = _ButtonContext(interaction)
+
+        if interaction.guild is None or not GG.is_staff_bool_slash(ctx):
+            return await interaction.response.send_message(
+                "You do not have the required permissions to use this button.",
+                ephemeral=True,
+            )
+
+        await interaction.response.defer(ephemeral=True)
+        member = interaction.guild.get_member(self.member_id)
+        if member is None:
+            try:
+                member = await interaction.guild.fetch_member(self.member_id)
+            except discord.NotFound:
+                member = None
+
+        if member is None:
+            return await ctx.send(
+                "Member wasn't found. They may have already left the server.",
+                ephemeral=True,
+            )
+
+        try:
+            if interaction.guild == 363680385336606740:
+                await banHandler.BanCommand(
+                    self.cog,
+                    ctx,
+                    member,
+                    "Banned as spambot",
+                    True,
+                    True
+                )
+            else:
+                await banHandler.BanCommand(
+                    self.cog,
+                    ctx,
+                    member,
+                    "Banned as spambot",
+                    True,
+                )
+        except discord.Forbidden:
+            await ctx.send(
+                "I could not ban that member. Check my role and ban permissions.",
+                ephemeral=True,
+            )
+            return
+
+        button.disabled = True
+        button.label = "Marked as spambot"
+        try:
+            await interaction.message.edit(view=self)
+        except (discord.Forbidden, discord.NotFound):
+            pass
 
 
 async def handle_message(ctx, message: discord.Message, ephemeral=False):
@@ -264,7 +350,10 @@ class MrBeastBlocker(commands.Cog):
                 embed.add_field(name="dhash", value=dhash_msg, inline=True)
                 embed.add_field(name="ahash", value=ahash_msg, inline=True)
 
-                await mod_channel.send(embed=embed)
+                await mod_channel.send(
+                    embed=embed,
+                    view=MarkSpambotView(self, message.author.id),
+                )
 
         if timeout:
             timeoutActual = datetime.now() + timedelta(hours=5)

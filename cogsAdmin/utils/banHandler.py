@@ -10,7 +10,7 @@ from utils import globals as GG
 from crawler_utilities.utils.functions import get_next_num
 
 
-async def BanCommand(self, ctx, member, message, automatic=False):
+async def BanCommand(self, ctx, member, message, automatic=False, five=False):
     if member is None:
         return await ctx.send(
             "Member wasn't found.\n\nCheck the ID, it might not be a member.\nAlso you can't ban someone who isn't on the server.")
@@ -25,8 +25,12 @@ async def BanCommand(self, ctx, member, message, automatic=False):
 
     case = Case(caseId, CaseType.BAN, CaseStatus.OPEN, message, datetime.now(), member.id, ctx.interaction.user.id)
     await GG.MDB.cases.insert_one(case.to_dict())
-    await GG.MDB.members.update_one({"server": ctx.interaction.guild_id, "user": member.id}, {"$set": memberDB},
-                                    upsert=True)
+    await GG.MDB.members.update_one({"server": ctx.interaction.guild_id, "user": member.id}, {"$set": memberDB},upsert=True)
+
+    if automatic and five:
+        embed = await getCaseEmbed(ctx, case)
+        mod = await self.bot.fetch_channel(530715118657339402)
+        await mod.send(embed=embed)
     if not automatic:
         embed = await getCaseEmbed(ctx, case)
         await ctx.respond(embed=embed)
