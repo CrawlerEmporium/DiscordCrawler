@@ -54,7 +54,7 @@ async def BanCommand(self, ctx, member, message, automatic=False, five=False):
         if not automatic:
             await ctx.send(f"Message failed to send. (Not allowed to DM)")
 
-    await member.ban(reason=message, delete_message_seconds=604800)
+    return await member.ban(reason=message, delete_message_seconds=604800)
 
 
 async def HoneypotCommand(bot, guild, member, message):

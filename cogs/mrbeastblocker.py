@@ -67,7 +67,7 @@ class MarkSpambotView(discord.ui.View):
             )
 
         try:
-            if interaction.guild == 363680385336606740:
+            if interaction.guild.id == 363680385336606740:
                 await banHandler.BanCommand(
                     self.cog,
                     ctx,
