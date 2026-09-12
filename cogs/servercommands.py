@@ -1,5 +1,6 @@
 import discord
 from discord import Option, slash_command
+from urllib.parse import urlsplit
 
 from discord.ext import commands
 from utils import globals as GG
@@ -7,6 +8,24 @@ from utils import globals as GG
 log = GG.log
 
 categories = ['ANON', 'DELIVERY', 'MODDECISION', 'BLACKLIST']
+
+
+def extract_appeal_path(appeal_url):
+    appeal_url = appeal_url.strip()
+    has_scheme = '://' in appeal_url
+    url_value = appeal_url if has_scheme else f'https://{appeal_url}'
+
+    try:
+        parsed = urlsplit(url_value)
+    except ValueError:
+        return None
+
+    if has_scheme or parsed.hostname in {'appeal.gg', 'www.appeal.gg'}:
+        if parsed.hostname not in {'appeal.gg', 'www.appeal.gg'}:
+            return None
+        return parsed.path.strip('/')
+
+    return appeal_url.strip('/')
 
 
 def getRole(roleID, ctx):
@@ -88,6 +107,25 @@ class ServerCommands(commands.Cog):
         )
 
         return await ctx.respond("Prefix set to `{}` for this server.".format(prefix), ephemeral=True)
+
+    @slash_command(name="appealurl")
+    @commands.guild_only()
+    async def appealurl(self, ctx, appeal_url: Option(str, "The appeal.gg URL for this server")):
+        """[STAFF] Sets the appeal.gg URL suffix included in ban DMs."""
+        if not GG.is_staff_bool(ctx):
+            return await ctx.respond("You do not have the required permissions to use this command.", ephemeral=True)
+
+        appeal_url = extract_appeal_path(appeal_url)
+        if not appeal_url:
+            return await ctx.respond("Enter an appeal.gg URL or URL path.", ephemeral=True)
+        full_appeal_url = f"https://appeal.gg/{appeal_url}"
+
+        await GG.MDB['bot_settings'].update_one(
+            {"guild": ctx.guild.id},
+            {"$set": {"appeal_url": appeal_url}},
+            upsert=True
+        )
+        return await ctx.respond(f"Appeal URL set for this server: {full_appeal_url}", ephemeral=True)
 
     @slash_command(name="addchannel")
     @commands.guild_only()

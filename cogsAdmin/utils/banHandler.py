@@ -10,6 +10,11 @@ from utils import globals as GG
 from crawler_utilities.utils.functions import get_next_num
 
 
+async def get_appeal_url(guild_id):
+    settings = await GG.MDB['bot_settings'].find_one({"guild": guild_id}, {"appeal_url": 1})
+    return settings.get('appeal_url') if settings else None
+
+
 async def BanCommand(self, ctx, member, message, automatic=False, five=False):
     if member is None:
         return await ctx.send(
@@ -46,7 +51,8 @@ async def BanCommand(self, ctx, member, message, automatic=False, five=False):
     else:
         DM = await member.create_dm()
     try:
-        embed = await getCaseTargetEmbed(ctx, case)
+        appeal_url = await get_appeal_url(ctx.interaction.guild_id)
+        embed = await getCaseTargetEmbed(ctx, case, appeal_url=appeal_url)
         await DM.send(embed=embed)
         if not automatic:
             await ctx.send(f"DM with info send to {member}")
@@ -83,7 +89,8 @@ async def HoneypotCommand(bot, guild, member, message):
     else:
         DM = await member.create_dm()
     try:
-        embed = await getCaseTargetEmbed(None, case, guild, "Winnie the Pooh")
+        appeal_url = await get_appeal_url(guild.id)
+        embed = await getCaseTargetEmbed(None, case, guild, "Winnie the Pooh", appeal_url)
         await DM.send(embed=embed)
     except discord.Forbidden:
         pass

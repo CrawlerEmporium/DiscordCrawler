@@ -65,7 +65,7 @@ async def getCaseEmbed(ctx, case: Case):
     return embed
 
 
-async def getCaseTargetEmbed(ctx, case: Case, guild=None, moderator=None):
+async def getCaseTargetEmbed(ctx, case: Case, guild=None, moderator=None, appeal_url=None):
     if guild is None:
         guild = ctx.guild
     embed = discord.Embed()
@@ -92,7 +92,9 @@ async def getCaseTargetEmbed(ctx, case: Case, guild=None, moderator=None):
     elif case.caseType == CaseType.BAN:
         embed.colour = Colour.red()
         embed.title = f"{pretitle} Banned from"
-        embed.description += "You have been permanently banned from the server. If you think this is a mistake, contact someone from staff and include the case number below in your message."
+        embed.description += "You have been permanently banned from the server."
+        if appeal_url:
+            embed.description += f"\n\nYou can appeal this ban here: https://appeal.gg/{str(appeal_url).lstrip('/')}"
 
     embed.title = f"{embed.title} {guild.name}"
     embed.set_footer(text=f"Case ID: {case.caseId} - Added by {moderator}")
