@@ -16,7 +16,6 @@ TESTING = False
 defaultPrefix = GG.PREFIX if not TESTING else '*'
 COGS = [GG.COGS, GG.COGSADMIN, GG.COGSECONOMY, "cogsToBeDetermined"]
 intents = discord.Intents().default()
-intents.members = True
 intents.message_content = True
 
 
